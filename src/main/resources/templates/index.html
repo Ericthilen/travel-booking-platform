@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <title>Travel Booking Platform</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script defer src="/js/home.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+    <div class="logo">SunVista Travel</div>
+
+    <nav>
+        <a href="/">Hem</a>
+        <a href="#">Resor</a>
+        <a href="#">Mina bokningar</a>
+        <a href="#">Logga in</a>
+    </nav>
+</header>
+
+<main>
+    <section class="hero">
+        <div class="hero-content">
+            <p class="eyebrow">Sommarresor 2026</p>
+            <h1>Hitta din nästa drömresa</h1>
+            <p>Boka solresor, weekendresor och paketresor på ett modernt och enkelt sätt.</p>
+
+            <form class="search-card">
+                <div>
+                    <label for="destination">Vart vill du resa?</label>
+                    <input id="destination" type="text" placeholder="Ex. Spanien, Grekland, Italien">
+                </div>
+
+                <div>
+                    <label for="date">Avresa</label>
+                    <input id="date" type="date">
+                </div>
+
+                <div>
+                    <label for="travelers">Resenärer</label>
+                    <select id="travelers">
+                        <option>1 vuxen</option>
+                        <option>2 vuxna</option>
+                        <option>2 vuxna, 1 barn</option>
+                        <option>Familj</option>
+                    </select>
+                </div>
+
+                <button type="submit">Sök resa</button>
+            </form>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="section-heading">
+            <p class="eyebrow">Populärt just nu</p>
+            <h2>Utvalda resor</h2>
+        </div>
+
+        <div class="travel-grid">
+            <article class="travel-card">
+                <div class="travel-image spain"></div>
+                <div class="travel-body">
+                    <p class="tag">Sol & bad</p>
+                    <h3>Lloret de Mar</h3>
+                    <p>7 dagar med hotell och flyg inkluderat.</p>
+                    <strong>Från 6 995 kr</strong>
+                </div>
+            </article>
+
+            <article class="travel-card">
+                <div class="travel-image greece"></div>
+                <div class="travel-body">
+                    <p class="tag">Familjefavorit</p>
+                    <h3>Kreta</h3>
+                    <p>Avkopplande paketresa nära havet.</p>
+                    <strong>Från 8 495 kr</strong>
+                </div>
+            </article>
+
+            <article class="travel-card">
+                <div class="travel-image italy"></div>
+                <div class="travel-body">
+                    <p class="tag">Weekend</p>
+                    <h3>Rom</h3>
+                    <p>Perfekt weekend med hotell centralt.</p>
+                    <strong>Från 4 995 kr</strong>
+                </div>
+            </article>
+        </div>
+    </section>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,220 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #172033;
+    background: #f5f7fb;
+}
+
+.site-header {
+    height: 76px;
+    padding: 0 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: white;
+    box-shadow: 0 4px 24px rgba(20, 35, 70, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0067b1;
+}
+
+nav {
+    display: flex;
+    gap: 28px;
+}
+
+nav a {
+    text-decoration: none;
+    color: #172033;
+    font-weight: 600;
+}
+
+.hero {
+    min-height: 640px;
+    padding: 90px 64px;
+    display: flex;
+    align-items: center;
+    background:
+            linear-gradient(90deg, rgba(7, 34, 70, 0.85), rgba(7, 34, 70, 0.35)),
+            url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1800&q=80");
+    background-size: cover;
+    background-position: center;
+}
+
+.hero-content {
+    max-width: 1080px;
+    width: 100%;
+    color: white;
+}
+
+.eyebrow {
+    margin: 0 0 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #ffcf4a;
+}
+
+.hero h1 {
+    max-width: 720px;
+    margin: 0;
+    font-size: 64px;
+    line-height: 1.03;
+}
+
+.hero p {
+    max-width: 620px;
+    font-size: 20px;
+}
+
+.search-card {
+    margin-top: 38px;
+    padding: 24px;
+    max-width: 1050px;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr auto;
+    gap: 18px;
+    background: white;
+    border-radius: 22px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.search-card label {
+    display: block;
+    margin-bottom: 8px;
+    color: #526074;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.search-card input,
+.search-card select {
+    width: 100%;
+    height: 52px;
+    padding: 0 14px;
+    border: 1px solid #d8deea;
+    border-radius: 14px;
+    font-size: 15px;
+}
+
+.search-card button {
+    align-self: end;
+    height: 52px;
+    padding: 0 28px;
+    border: none;
+    border-radius: 14px;
+    background: #ffb000;
+    color: #172033;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.section {
+    padding: 70px 64px;
+}
+
+.section-heading {
+    margin-bottom: 28px;
+}
+
+.section-heading h2 {
+    margin: 0;
+    font-size: 38px;
+}
+
+.travel-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+}
+
+.travel-card {
+    overflow: hidden;
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 12px 34px rgba(20, 35, 70, 0.10);
+}
+
+.travel-image {
+    height: 240px;
+    background-size: cover;
+    background-position: center;
+}
+
+.travel-image.spain {
+    background-image: url("https://images.unsplash.com/photo-1511527661048-7fe73d85e9a4?auto=format&fit=crop&w=900&q=80");
+}
+
+.travel-image.greece {
+    background-image: url("https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=900&q=80");
+}
+
+.travel-image.italy {
+    background-image: url("https://images.unsplash.com/photo-1529260830199-42c24126f198?auto=format&fit=crop&w=900&q=80");
+}
+
+.travel-body {
+    padding: 24px;
+}
+
+.tag {
+    margin: 0 0 8px;
+    color: #0067b1;
+    font-weight: 800;
+}
+
+.travel-body h3 {
+    margin: 0 0 10px;
+    font-size: 25px;
+}
+
+.travel-body p {
+    color: #526074;
+}
+
+.travel-body strong {
+    display: block;
+    margin-top: 18px;
+    font-size: 20px;
+}
+
+@media (max-width: 900px) {
+    .site-header {
+        padding: 0 24px;
+    }
+
+    nav {
+        display: none;
+    }
+
+    .hero {
+        padding: 70px 24px;
+    }
+
+    .hero h1 {
+        font-size: 42px;
+    }
+
+    .search-card {
+        grid-template-columns: 1fr;
+    }
+
+    .section {
+        padding: 50px 24px;
+    }
+
+    .travel-grid {
+        grid-template-columns: 1fr;
+    }
+}
