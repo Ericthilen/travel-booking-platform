@@ -2,95 +2,196 @@
 <html lang="sv">
 <head>
     <meta charset="UTF-8">
-    <title>Travel Booking Platform</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EriGo Travel – Hitta din nästa resa</title>
+
     <link rel="stylesheet" href="/css/styles.css">
-    <script defer src="/js/home.js"></script>
+    <script src="/js/home.js" defer></script>
 </head>
+
 <body>
 
 <header class="site-header">
-    <div class="logo">SunVista Travel</div>
+    <a class="logo" href="/">
+        <span class="logo-mark">E</span>
+        <span>EriGo Travel</span>
+    </a>
 
-    <nav>
+    <nav class="navigation">
         <a href="/">Hem</a>
-        <a href="#">Resor</a>
+        <a href="#destinations">Resor</a>
         <a href="#">Mina bokningar</a>
-        <a href="#">Logga in</a>
+        <a class="login-link" href="#">Logga in</a>
     </nav>
+
+    <button class="menu-button" type="button" aria-label="Öppna meny">
+        ☰
+    </button>
 </header>
 
 <main>
     <section class="hero">
+        <div class="hero-overlay"></div>
+
         <div class="hero-content">
-            <p class="eyebrow">Sommarresor 2026</p>
-            <h1>Hitta din nästa drömresa</h1>
-            <p>Boka solresor, weekendresor och paketresor på ett modernt och enkelt sätt.</p>
+            <p class="eyebrow">Din semester börjar här</p>
 
-            <form class="search-card">
-                <div>
-                    <label for="destination">Vart vill du resa?</label>
-                    <input id="destination" type="text" placeholder="Ex. Spanien, Grekland, Italien">
+            <h1>Hitta resan du längtar efter</h1>
+
+            <p class="hero-description">
+                Upptäck soliga destinationer, handplockade hotell och prisvärda
+                charterresor.
+            </p>
+
+            <form class="search-form">
+                <div class="search-field">
+                    <label for="destination">Resmål</label>
+                    <input
+                            id="destination"
+                            name="destination"
+                            type="text"
+                            placeholder="Till exempel Mallorca"
+                    >
                 </div>
 
-                <div>
-                    <label for="date">Avresa</label>
-                    <input id="date" type="date">
+                <div class="search-field">
+                    <label for="departureDate">Avresa</label>
+                    <input
+                            id="departureDate"
+                            name="departureDate"
+                            type="date"
+                    >
                 </div>
 
-                <div>
+                <div class="search-field">
                     <label for="travelers">Resenärer</label>
-                    <select id="travelers">
-                        <option>1 vuxen</option>
-                        <option>2 vuxna</option>
-                        <option>2 vuxna, 1 barn</option>
-                        <option>Familj</option>
+                    <select id="travelers" name="travelers">
+                        <option value="1">1 vuxen</option>
+                        <option value="2" selected>2 vuxna</option>
+                        <option value="3">2 vuxna, 1 barn</option>
+                        <option value="4">2 vuxna, 2 barn</option>
                     </select>
                 </div>
 
-                <button type="submit">Sök resa</button>
+                <button class="search-button" type="submit">
+                    Sök resor
+                </button>
             </form>
         </div>
     </section>
 
-    <section class="section">
+    <section class="benefits">
+        <article>
+            <span>✓</span>
+            <div>
+                <h2>Trygg bokning</h2>
+                <p>Boka din semester enkelt och säkert.</p>
+            </div>
+        </article>
+
+        <article>
+            <span>★</span>
+            <div>
+                <h2>Utvalda hotell</h2>
+                <p>Boenden valda för kvalitet och komfort.</p>
+            </div>
+        </article>
+
+        <article>
+            <span>♥</span>
+            <div>
+                <h2>Personlig service</h2>
+                <p>Vi hjälper dig före, under och efter resan.</p>
+            </div>
+        </article>
+    </section>
+
+    <section class="destinations-section" id="destinations">
         <div class="section-heading">
-            <p class="eyebrow">Populärt just nu</p>
-            <h2>Utvalda resor</h2>
+            <div>
+                <p class="eyebrow dark">Populärt just nu</p>
+                <h2>Upptäck våra mest bokade resmål</h2>
+            </div>
+
+            <a href="#">Visa alla resor →</a>
         </div>
 
-        <div class="travel-grid">
-            <article class="travel-card">
-                <div class="travel-image spain"></div>
-                <div class="travel-body">
-                    <p class="tag">Sol & bad</p>
-                    <h3>Lloret de Mar</h3>
-                    <p>7 dagar med hotell och flyg inkluderat.</p>
-                    <strong>Från 6 995 kr</strong>
+        <div class="destination-grid">
+            <article class="destination-card">
+                <div class="destination-image mallorca">
+                    <span class="destination-badge">Populärast</span>
+                </div>
+
+                <div class="destination-content">
+                    <p>Spanien</p>
+                    <h3>Mallorca</h3>
+                    <span>7 nätter · Flyg och hotell</span>
+
+                    <div class="destination-price">
+                        <div>
+                            <small>Pris per person från</small>
+                            <strong>7 495 kr</strong>
+                        </div>
+
+                        <button type="button">Visa resa</button>
+                    </div>
                 </div>
             </article>
 
-            <article class="travel-card">
-                <div class="travel-image greece"></div>
-                <div class="travel-body">
-                    <p class="tag">Familjefavorit</p>
+            <article class="destination-card">
+                <div class="destination-image crete">
+                    <span class="destination-badge">Familjefavorit</span>
+                </div>
+
+                <div class="destination-content">
+                    <p>Grekland</p>
                     <h3>Kreta</h3>
-                    <p>Avkopplande paketresa nära havet.</p>
-                    <strong>Från 8 495 kr</strong>
+                    <span>7 nätter · Flyg och hotell</span>
+
+                    <div class="destination-price">
+                        <div>
+                            <small>Pris per person från</small>
+                            <strong>8 295 kr</strong>
+                        </div>
+
+                        <button type="button">Visa resa</button>
+                    </div>
                 </div>
             </article>
 
-            <article class="travel-card">
-                <div class="travel-image italy"></div>
-                <div class="travel-body">
-                    <p class="tag">Weekend</p>
-                    <h3>Rom</h3>
-                    <p>Perfekt weekend med hotell centralt.</p>
-                    <strong>Från 4 995 kr</strong>
+            <article class="destination-card">
+                <div class="destination-image cyprus">
+                    <span class="destination-badge">Solgaranti</span>
+                </div>
+
+                <div class="destination-content">
+                    <p>Cypern</p>
+                    <h3>Ayia Napa</h3>
+                    <span>7 nätter · Flyg och hotell</span>
+
+                    <div class="destination-price">
+                        <div>
+                            <small>Pris per person från</small>
+                            <strong>8 995 kr</strong>
+                        </div>
+
+                        <button type="button">Visa resa</button>
+                    </div>
                 </div>
             </article>
         </div>
     </section>
 </main>
+
+<footer class="site-footer">
+    <div>
+        <strong>EriGo Travel</strong>
+        <p>Resor att längta efter.</p>
+    </div>
+
+    <p>© 2026 EriGo Travel</p>
+</footer>
 
 </body>
 </html>
