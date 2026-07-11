@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title th:text="${travel.destination + ' – EriGo Travel'}">
+    Resedetaljer – EriGo Travel
+  </title>
+
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/travel-details.css">
+</head>
+
+<body>
+
+<header class="site-header">
+  <a class="logo" href="/">
+    <span class="logo-mark">E</span>
+    <span>EriGo Travel</span>
+  </a>
+
+  <nav class="navigation">
+    <a href="/">Hem</a>
+    <a href="/resor">Resor</a>
+    <a href="#">Mina bokningar</a>
+    <a class="login-link" href="#">Logga in</a>
+  </nav>
+
+  <button class="menu-button" type="button" aria-label="Öppna meny">
+    ☰
+  </button>
+</header>
+
+<main>
+  <section
+          class="details-hero"
+          th:style="'background-image: linear-gradient(rgba(0, 45, 52, 0.25), rgba(0, 45, 52, 0.75)), url(' + ${travel.imageUrl} + ');'"
+  >
+    <div class="details-hero-content">
+      <a class="back-link" href="/resor">← Tillbaka till alla resor</a>
+
+      <p class="details-country" th:text="${travel.country}">
+        Land
+      </p>
+
+      <h1 th:text="${travel.destination}">
+        Resmål
+      </h1>
+
+      <h2 th:text="${travel.hotelName}">
+        Hotellnamn
+      </h2>
+
+      <div class="hotel-stars">
+                <span th:each="star : ${#numbers.sequence(1, travel.hotelStars)}">
+                    ★
+                </span>
+      </div>
+    </div>
+  </section>
+
+  <section class="details-page">
+    <div class="details-main">
+      <section class="details-card hotel-description">
+        <p class="eyebrow dark">Om resan</p>
+
+        <h2 th:text="${travel.hotelName}">
+          Hotellnamn
+        </h2>
+
+        <p th:text="${travel.description}">
+          Beskrivning av resan.
+        </p>
+      </section>
+
+      <section class="details-card">
+        <p class="eyebrow dark">Detta ingår</p>
+
+        <h2>Din paketresa</h2>
+
+        <div class="included-grid">
+          <article>
+            <span class="included-icon">✈</span>
+
+            <div>
+              <h3>Flyg tur och retur</h3>
+
+              <p>
+                Avresa från
+                <strong th:text="${travel.departureAirport}">
+                  Flygplats
+                </strong>
+              </p>
+            </div>
+          </article>
+
+          <article>
+            <span class="included-icon">🏨</span>
+
+            <div>
+              <h3>Hotell</h3>
+
+              <p>
+                <strong th:text="${travel.nights}">7</strong>
+                nätter på
+                <strong th:text="${travel.hotelName}">
+                  Hotell
+                </strong>
+              </p>
+            </div>
+          </article>
+
+          <article>
+            <span class="included-icon">🍽</span>
+
+            <div>
+              <h3>Måltider</h3>
+
+              <p th:text="${travel.mealType}">
+                Frukost
+              </p>
+            </div>
+          </article>
+
+          <article>
+            <span class="included-icon">🧳</span>
+
+            <div>
+              <h3>Bagage</h3>
+
+              <p>Incheckat bagage och handbagage ingår.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="details-card">
+        <p class="eyebrow dark">Hotellet</p>
+
+        <h2>Faciliteter</h2>
+
+        <div class="facilities-grid">
+          <div
+                  class="facility"
+                  th:each="facility : ${travel.facilities}"
+          >
+            <span>✓</span>
+            <p th:text="${facility}">Facilitet</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <aside class="booking-card">
+      <p class="booking-label">Paketresa</p>
+
+      <h2 th:text="${travel.destination}">
+        Resmål
+      </h2>
+
+      <p th:text="${travel.hotelName}">
+        Hotell
+      </p>
+
+      <div class="booking-information">
+        <div>
+          <span>Reslängd</span>
+
+          <strong>
+            <span th:text="${travel.nights}">7</span>
+            nätter
+          </strong>
+        </div>
+
+        <div>
+          <span>Måltider</span>
+
+          <strong th:text="${travel.mealType}">
+            Frukost
+          </strong>
+        </div>
+
+        <div>
+          <span>Avreseflygplats</span>
+
+          <strong th:text="${travel.departureAirport}">
+            Flygplats
+          </strong>
+        </div>
+      </div>
+
+      <div class="booking-price">
+        <small>Pris per person från</small>
+
+        <strong>
+                    <span th:text="${#numbers.formatInteger(travel.price, 1, 'WHITESPACE')}">
+                        7 495
+                    </span>
+          kr
+        </strong>
+      </div>
+
+      <button class="book-button" type="button">
+        Boka resa
+      </button>
+
+      <p class="booking-notice">
+        Bokningsflödet byggs i ett senare steg.
+      </p>
+    </aside>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div>
+    <strong>EriGo Travel</strong>
+    <p>Resor att längta efter.</p>
+  </div>
+
+  <p>© 2026 EriGo Travel</p>
+</footer>
+
+<script src="/js/home.js" defer></script>
+
+</body>
+</html>
