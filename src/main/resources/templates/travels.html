@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Alla resor – EriGo Travel</title>
+
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/travels.css">
+</head>
+
+<body>
+
+<header class="site-header">
+    <a class="logo" href="/">
+        <span class="logo-mark">E</span>
+        <span>EriGo Travel</span>
+    </a>
+
+    <nav class="navigation">
+        <a href="/">Hem</a>
+        <a class="active-link" href="/resor">Resor</a>
+        <a href="#">Mina bokningar</a>
+        <a class="login-link" href="#">Logga in</a>
+    </nav>
+</header>
+
+<main>
+    <section class="travel-page-hero">
+        <div>
+            <p class="eyebrow">EriGo Travel</p>
+            <h1>Hitta din nästa resa</h1>
+            <p>
+                Upptäck våra utvalda charterresor till några av Europas
+                mest populära resmål.
+            </p>
+        </div>
+    </section>
+
+    <section class="travel-list-section">
+        <div class="travel-list-heading">
+            <div>
+                <p class="eyebrow dark">Våra resor</p>
+                <h2>Alla tillgängliga resor</h2>
+            </div>
+
+            <p>
+                <span th:text="${travels.size()}">0</span>
+                resor hittades
+            </p>
+        </div>
+
+        <div class="travel-list-grid">
+            <article class="travel-list-card" th:each="travel : ${travels}">
+                <img
+                        th:src="${travel.imageUrl}"
+                        th:alt="${travel.destination}"
+                        class="travel-list-image"
+                >
+
+                <div class="travel-list-content">
+                    <p class="travel-country" th:text="${travel.country}">
+                        Land
+                    </p>
+
+                    <h2 th:text="${travel.destination}">
+                        Resmål
+                    </h2>
+
+                    <h3 th:text="${travel.hotelName}">
+                        Hotellnamn
+                    </h3>
+
+                    <p
+                            class="travel-description"
+                            th:text="${travel.description}"
+                    >
+                        Beskrivning av resan
+                    </p>
+
+                    <div class="travel-details">
+                        <span>
+                            <strong th:text="${travel.nights}">7</strong>
+                            nätter
+                        </span>
+
+                        <span>Flyg och hotell</span>
+                    </div>
+
+                    <div class="travel-list-footer">
+                        <div>
+                            <small>Pris per person från</small>
+
+                            <strong>
+                                <span th:text="${travel.price}">0</span> kr
+                            </strong>
+                        </div>
+
+                        <a th:href="@{/resor/{id}(id=${travel.id})}">
+                            Visa resa
+                        </a>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <div>
+        <strong>EriGo Travel</strong>
+        <p>Resor att längta efter.</p>
+    </div>
+
+    <p>© 2026 EriGo Travel</p>
+</footer>
+
+</body>
+</html>

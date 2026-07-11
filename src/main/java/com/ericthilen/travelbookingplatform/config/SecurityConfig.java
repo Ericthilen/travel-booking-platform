@@ -14,6 +14,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
                                 "/",
+                                "/resor",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**"
