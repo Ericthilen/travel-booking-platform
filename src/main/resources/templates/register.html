@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Skapa konto – EriGo Travel</title>
+
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/auth.css">
+</head>
+
+<body>
+
+<header class="site-header">
+  <a class="logo" href="/">
+    <span class="logo-mark">E</span>
+    <span>EriGo Travel</span>
+  </a>
+
+  <nav class="navigation">
+    <a href="/">Hem</a>
+    <a href="/resor">Resor</a>
+    <a href="/mina-bokningar" sec:authorize="isAuthenticated()">
+      Mina bokningar
+    </a>
+    <a class="login-link" href="/login" sec:authorize="isAnonymous()">
+      Logga in
+    </a>
+
+    <form
+            class="logout-form"
+            th:action="@{/logout}"
+            method="post"
+            sec:authorize="isAuthenticated()"
+    >
+      <button class="logout-button" type="submit">
+        Logga ut
+      </button>
+    </form>
+  </nav>
+</header>
+
+<main class="auth-page">
+  <section class="auth-card">
+    <div class="auth-heading">
+      <p class="eyebrow dark">Bli kund hos oss</p>
+      <h1>Skapa konto</h1>
+
+      <p>
+        Skapa ett konto för att kunna boka resor och se dina bokningar.
+      </p>
+    </div>
+
+    <form
+            class="auth-form"
+            th:action="@{/register}"
+            th:object="${registrationRequest}"
+            method="post"
+    >
+      <div class="auth-field">
+        <label for="fullName">Namn</label>
+
+        <input
+                id="fullName"
+                type="text"
+                th:field="*{fullName}"
+                autocomplete="name"
+                placeholder="Förnamn och efternamn"
+        >
+
+        <p
+                class="field-error"
+                th:if="${#fields.hasErrors('fullName')}"
+                th:errors="*{fullName}"
+        >
+          Felmeddelande
+        </p>
+      </div>
+
+      <div class="auth-field">
+        <label for="email">E-postadress</label>
+
+        <input
+                id="email"
+                type="email"
+                th:field="*{email}"
+                autocomplete="email"
+                placeholder="namn@exempel.se"
+        >
+
+        <p
+                class="field-error"
+                th:if="${#fields.hasErrors('email')}"
+                th:errors="*{email}"
+        >
+          Felmeddelande
+        </p>
+      </div>
+
+      <div class="auth-field">
+        <label for="password">Lösenord</label>
+
+        <input
+                id="password"
+                type="password"
+                th:field="*{password}"
+                autocomplete="new-password"
+                placeholder="Minst 8 tecken"
+        >
+
+        <p
+                class="field-error"
+                th:if="${#fields.hasErrors('password')}"
+                th:errors="*{password}"
+        >
+          Felmeddelande
+        </p>
+      </div>
+
+      <div class="auth-field">
+        <label for="confirmPassword">Upprepa lösenord</label>
+
+        <input
+                id="confirmPassword"
+                type="password"
+                th:field="*{confirmPassword}"
+                autocomplete="new-password"
+                placeholder="Skriv lösenordet igen"
+        >
+
+        <p
+                class="field-error"
+                th:if="${#fields.hasErrors('confirmPassword')}"
+                th:errors="*{confirmPassword}"
+        >
+          Felmeddelande
+        </p>
+      </div>
+
+      <button class="auth-button" type="submit">
+        Skapa konto
+      </button>
+    </form>
+
+    <p class="auth-footer-text">
+      Har du redan ett konto?
+      <a href="/login">Logga in</a>
+    </p>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div>
+    <strong>EriGo Travel</strong>
+    <p>Resor att längta efter.</p>
+  </div>
+
+  <p>© 2026 EriGo Travel</p>
+</footer>
+
+</body>
+</html>

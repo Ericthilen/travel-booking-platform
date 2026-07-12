@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Logga in – EriGo Travel</title>
+
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/auth.css">
+</head>
+
+<body>
+
+<header class="site-header">
+    <a class="logo" href="/">
+        <span class="logo-mark">E</span>
+        <span>EriGo Travel</span>
+    </a>
+
+    <nav class="navigation">
+        <a href="/">Hem</a>
+        <a href="/resor">Resor</a>
+        <a href="/mina-bokningar" sec:authorize="isAuthenticated()">
+            Mina bokningar
+        </a>
+        <a class="login-link" href="/login" sec:authorize="isAnonymous()">
+            Logga in
+        </a>
+
+        <form
+                class="logout-form"
+                th:action="@{/logout}"
+                method="post"
+                sec:authorize="isAuthenticated()"
+        >
+            <button class="logout-button" type="submit">
+                Logga ut
+            </button>
+        </form>
+    </nav>
+</header>
+
+<main class="auth-page">
+    <section class="auth-card">
+        <div class="auth-heading">
+            <p class="eyebrow dark">Välkommen tillbaka</p>
+            <h1>Logga in</h1>
+
+            <p>
+                Logga in för att se dina bokningar och hantera ditt konto.
+            </p>
+        </div>
+
+        <div class="auth-message success-message" th:if="${param.registered}">
+            Ditt konto har skapats. Du kan nu logga in.
+        </div>
+
+        <div class="auth-message error-message" th:if="${param.error}">
+            Fel e-postadress eller lösenord.
+        </div>
+
+        <form class="auth-form" th:action="@{/login}" method="post">
+            <div class="auth-field">
+                <label for="email">E-postadress</label>
+
+                <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        autocomplete="email"
+                        placeholder="namn@exempel.se"
+                        required
+                >
+            </div>
+
+            <div class="auth-field">
+                <label for="password">Lösenord</label>
+
+                <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        autocomplete="current-password"
+                        placeholder="Ditt lösenord"
+                        required
+                >
+            </div>
+
+            <button class="auth-button" type="submit">
+                Logga in
+            </button>
+        </form>
+
+        <p class="auth-footer-text">
+            Har du inget konto?
+            <a href="/register">Skapa ett konto</a>
+        </p>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <div>
+        <strong>EriGo Travel</strong>
+        <p>Resor att längta efter.</p>
+    </div>
+
+    <p>© 2026 EriGo Travel</p>
+</footer>
+
+</body>
+</html>

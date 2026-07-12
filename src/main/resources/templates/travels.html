@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,16 +25,46 @@
     <nav class="navigation">
         <a href="/">Hem</a>
         <a class="active-link" href="/resor">Resor</a>
-        <a href="#">Mina bokningar</a>
-        <a class="login-link" href="#">Logga in</a>
+
+        <a
+                href="/mina-bokningar"
+                sec:authorize="isAuthenticated()"
+        >
+            Mina bokningar
+        </a>
+
+        <a
+                class="login-link"
+                href="/login"
+                sec:authorize="isAnonymous()"
+        >
+            Logga in
+        </a>
+
+        <form
+                class="logout-form"
+                th:action="@{/logout}"
+                method="post"
+                sec:authorize="isAuthenticated()"
+        >
+            <button class="logout-button" type="submit">
+                Logga ut
+            </button>
+        </form>
     </nav>
+
+    <button class="menu-button" type="button" aria-label="Öppna meny">
+        ☰
+    </button>
 </header>
 
 <main>
     <section class="travel-page-hero">
         <div>
             <p class="eyebrow">EriGo Travel</p>
+
             <h1>Hitta din nästa resa</h1>
+
             <p>
                 Upptäck våra utvalda charterresor till några av Europas
                 mest populära resmål.
@@ -52,7 +86,10 @@
         </div>
 
         <div class="travel-list-grid">
-            <article class="travel-list-card" th:each="travel : ${travels}">
+            <article
+                    class="travel-list-card"
+                    th:each="travel : ${travels}"
+            >
                 <img
                         th:src="${travel.imageUrl}"
                         th:alt="${travel.destination}"
@@ -60,7 +97,10 @@
                 >
 
                 <div class="travel-list-content">
-                    <p class="travel-country" th:text="${travel.country}">
+                    <p
+                            class="travel-country"
+                            th:text="${travel.country}"
+                    >
                         Land
                     </p>
 
@@ -93,7 +133,12 @@
                             <small>Pris per person från</small>
 
                             <strong>
-                                <span th:text="${travel.price}">0</span> kr
+                                <span
+                                        th:text="${#numbers.formatInteger(travel.price, 1, 'WHITESPACE')}"
+                                >
+                                    0
+                                </span>
+                                kr
                             </strong>
                         </div>
 

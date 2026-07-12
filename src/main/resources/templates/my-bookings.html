@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Mina bokningar – EriGo Travel</title>
+
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/my-bookings.css">
+</head>
+
+<body>
+
+<header class="site-header">
+    <a class="logo" href="/">
+        <span class="logo-mark">E</span>
+        <span>EriGo Travel</span>
+    </a>
+
+    <nav class="navigation">
+        <a href="/">Hem</a>
+        <a href="/resor">Resor</a>
+        <a class="active-link" href="/mina-bokningar">
+            Mina bokningar
+        </a>
+
+        <form
+                class="logout-form"
+                th:action="@{/logout}"
+                method="post"
+        >
+            <button class="logout-button" type="submit">
+                Logga ut
+            </button>
+        </form>
+    </nav>
+</header>
+
+<main>
+    <section class="bookings-hero">
+        <div>
+            <p class="eyebrow">Ditt konto</p>
+            <h1>Mina bokningar</h1>
+
+            <p>
+                Inloggad som
+                <strong sec:authentication="name">
+                    kund@exempel.se
+                </strong>
+            </p>
+        </div>
+    </section>
+
+    <section class="bookings-section">
+        <div class="empty-bookings-card">
+            <div class="empty-bookings-icon">✈</div>
+
+            <h2>Du har inga bokningar ännu</h2>
+
+            <p>
+                När du bokar en resa kommer den att visas här.
+            </p>
+
+            <a href="/resor">
+                Hitta en resa
+            </a>
+        </div>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <div>
+        <strong>EriGo Travel</strong>
+        <p>Resor att längta efter.</p>
+    </div>
+
+    <p>© 2026 EriGo Travel</p>
+</footer>
+
+</body>
+</html>
