@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html lang="sv">
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,8 +25,32 @@
     <nav class="navigation">
         <a href="/">Hem</a>
         <a href="/resor">Resor</a>
-        <a href="#">Mina bokningar</a>
-        <a class="login-link" href="#">Logga in</a>
+
+        <a
+                href="/mina-bokningar"
+                sec:authorize="isAuthenticated()"
+        >
+            Mina bokningar
+        </a>
+
+        <a
+                class="login-link"
+                href="/login"
+                sec:authorize="isAnonymous()"
+        >
+            Logga in
+        </a>
+
+        <form
+                class="logout-form"
+                th:action="@{/logout}"
+                method="post"
+                sec:authorize="isAuthenticated()"
+        >
+            <button class="logout-button" type="submit">
+                Logga ut
+            </button>
+        </form>
     </nav>
 
     <button class="menu-button" type="button" aria-label="Öppna meny">
@@ -47,6 +75,7 @@
             <form class="search-form">
                 <div class="search-field">
                     <label for="destination">Resmål</label>
+
                     <input
                             id="destination"
                             name="destination"
@@ -57,6 +86,7 @@
 
                 <div class="search-field">
                     <label for="departureDate">Avresa</label>
+
                     <input
                             id="departureDate"
                             name="departureDate"
@@ -66,6 +96,7 @@
 
                 <div class="search-field">
                     <label for="travelers">Resenärer</label>
+
                     <select id="travelers" name="travelers">
                         <option value="1">1 vuxen</option>
                         <option value="2" selected>2 vuxna</option>
@@ -84,6 +115,7 @@
     <section class="benefits">
         <article>
             <span>✓</span>
+
             <div>
                 <h2>Trygg bokning</h2>
                 <p>Boka din semester enkelt och säkert.</p>
@@ -92,6 +124,7 @@
 
         <article>
             <span>★</span>
+
             <div>
                 <h2>Utvalda hotell</h2>
                 <p>Boenden valda för kvalitet och komfort.</p>
@@ -100,6 +133,7 @@
 
         <article>
             <span>♥</span>
+
             <div>
                 <h2>Personlig service</h2>
                 <p>Vi hjälper dig före, under och efter resan.</p>

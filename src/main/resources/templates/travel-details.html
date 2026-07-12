@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,9 +26,33 @@
 
   <nav class="navigation">
     <a href="/">Hem</a>
-    <a href="/resor">Resor</a>
-    <a href="#">Mina bokningar</a>
-    <a class="login-link" href="#">Logga in</a>
+    <a class="active-link" href="/resor">Resor</a>
+
+    <a
+            href="/mina-bokningar"
+            sec:authorize="isAuthenticated()"
+    >
+      Mina bokningar
+    </a>
+
+    <a
+            class="login-link"
+            href="/login"
+            sec:authorize="isAnonymous()"
+    >
+      Logga in
+    </a>
+
+    <form
+            class="logout-form"
+            th:action="@{/logout}"
+            method="post"
+            sec:authorize="isAuthenticated()"
+    >
+      <button class="logout-button" type="submit">
+        Logga ut
+      </button>
+    </form>
   </nav>
 
   <button class="menu-button" type="button" aria-label="Öppna meny">
@@ -38,9 +66,14 @@
           th:style="'background-image: linear-gradient(rgba(0, 45, 52, 0.25), rgba(0, 45, 52, 0.75)), url(' + ${travel.imageUrl} + ');'"
   >
     <div class="details-hero-content">
-      <a class="back-link" href="/resor">← Tillbaka till alla resor</a>
+      <a class="back-link" href="/resor">
+        ← Tillbaka till alla resor
+      </a>
 
-      <p class="details-country" th:text="${travel.country}">
+      <p
+              class="details-country"
+              th:text="${travel.country}"
+      >
         Land
       </p>
 
@@ -53,7 +86,9 @@
       </h2>
 
       <div class="hotel-stars">
-                <span th:each="star : ${#numbers.sequence(1, travel.hotelStars)}">
+                <span
+                        th:each="star : ${#numbers.sequence(1, travel.hotelStars)}"
+                >
                     ★
                 </span>
       </div>
@@ -129,7 +164,9 @@
             <div>
               <h3>Bagage</h3>
 
-              <p>Incheckat bagage och handbagage ingår.</p>
+              <p>
+                Incheckat bagage och handbagage ingår.
+              </p>
             </div>
           </article>
         </div>
@@ -194,7 +231,9 @@
         <small>Pris per person från</small>
 
         <strong>
-                    <span th:text="${#numbers.formatInteger(travel.price, 1, 'WHITESPACE')}">
+                    <span
+                            th:text="${#numbers.formatInteger(travel.price, 1, 'WHITESPACE')}"
+                    >
                         7 495
                     </span>
           kr
