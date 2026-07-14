@@ -14,6 +14,10 @@ const copyCheckboxes = document.querySelectorAll(
     ".copy-responsible-checkbox"
 );
 
+const previousTravelerSelects = document.querySelectorAll(
+    ".previous-traveler-select"
+);
+
 copyCheckboxes.forEach(function (checkbox) {
     checkbox.addEventListener("change", function () {
         const travelerCard = checkbox.closest(".traveler-card");
@@ -93,3 +97,42 @@ responsibleLastName.addEventListener(
     "input",
     updateCopiedTravelers
 );
+
+previousTravelerSelects.forEach(function (select) {
+    select.addEventListener("change", function () {
+        const selectedOption = select.options[select.selectedIndex];
+        const travelerCard = select.closest(".traveler-card");
+
+        if (!selectedOption || !travelerCard || select.value === "") {
+            return;
+        }
+
+        const copyCheckbox = travelerCard.querySelector(
+            ".copy-responsible-checkbox"
+        );
+
+        if (copyCheckbox) {
+            copyCheckbox.checked = false;
+        }
+
+        const personalNumberInput = travelerCard.querySelector(
+            ".traveler-personal-number"
+        );
+
+        const firstNameInput = travelerCard.querySelector(
+            ".traveler-first-name"
+        );
+
+        const lastNameInput = travelerCard.querySelector(
+            ".traveler-last-name"
+        );
+
+        personalNumberInput.readOnly = false;
+        firstNameInput.readOnly = false;
+        lastNameInput.readOnly = false;
+
+        personalNumberInput.value = selectedOption.dataset.personalNumber;
+        firstNameInput.value = selectedOption.dataset.firstName;
+        lastNameInput.value = selectedOption.dataset.lastName;
+    });
+});

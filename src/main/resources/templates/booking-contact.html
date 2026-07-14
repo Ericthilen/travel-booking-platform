@@ -234,6 +234,35 @@
             </label>
           </div>
 
+          <div
+                  class="previous-traveler-picker"
+                  th:if="${!previousTravelers.isEmpty()}"
+          >
+            <label th:for="${'previousTraveler' + status.index}">
+              Återanvänd tidigare resenär
+            </label>
+
+            <select
+                    class="previous-traveler-select"
+                    th:id="${'previousTraveler' + status.index}"
+            >
+              <option value="">
+                Välj tidigare resenär
+              </option>
+
+              <option
+                      th:each="previousTraveler : ${previousTravelers}"
+                      th:value="${previousTraveler.personalNumber}"
+                      th:data-personal-number="${previousTraveler.personalNumber}"
+                      th:data-first-name="${previousTraveler.firstName}"
+                      th:data-last-name="${previousTraveler.lastName}"
+                      th:text="${previousTraveler.displayName + ' – ' + previousTraveler.personalNumber}"
+              >
+                Anna Andersson – 19900101-1234
+              </option>
+            </select>
+          </div>
+
           <div class="traveler-fields">
             <div class="contact-field full-width">
               <label

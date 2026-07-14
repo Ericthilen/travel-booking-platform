@@ -276,6 +276,12 @@ public class Booking {
         return user;
     }
 
+    public void connectUser(User user) {
+        if (this.user == null && user != null) {
+            this.user = user;
+        }
+    }
+
     public Departure getDeparture() {
         return departure;
     }

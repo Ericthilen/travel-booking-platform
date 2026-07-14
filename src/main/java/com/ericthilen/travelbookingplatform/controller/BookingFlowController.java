@@ -10,6 +10,8 @@ import com.ericthilen.travelbookingplatform.model.Booking;
 import com.ericthilen.travelbookingplatform.model.Departure;
 import com.ericthilen.travelbookingplatform.model.DiscoverySource;
 import com.ericthilen.travelbookingplatform.model.RoomType;
+import com.ericthilen.travelbookingplatform.model.User;
+import com.ericthilen.travelbookingplatform.service.AccountService;
 import com.ericthilen.travelbookingplatform.service.BookingService;
 import com.ericthilen.travelbookingplatform.service.DepartureService;
 import com.ericthilen.travelbookingplatform.service.RoomTypeService;
@@ -37,15 +39,18 @@ public class BookingFlowController {
     private final DepartureService departureService;
     private final RoomTypeService roomTypeService;
     private final BookingService bookingService;
+    private final AccountService accountService;
 
     public BookingFlowController(
             DepartureService departureService,
             RoomTypeService roomTypeService,
-            BookingService bookingService
+            BookingService bookingService,
+            AccountService accountService
     ) {
         this.departureService = departureService;
         this.roomTypeService = roomTypeService;
         this.bookingService = bookingService;
+        this.accountService = accountService;
     }
 
     @GetMapping("/bokning/{departureId}/resenarer")
@@ -226,7 +231,8 @@ public class BookingFlowController {
     @GetMapping("/bokning/kunduppgifter")
     public String showContactInformation(
             HttpSession httpSession,
-            Model model
+            Model model,
+            Authentication authentication
     ) {
         BookingSession bookingSession =
                 getBookingSession(httpSession);
@@ -240,8 +246,12 @@ public class BookingFlowController {
         model.addAttribute("bookingSession", bookingSession);
         model.addAttribute(
                 "bookingDetailsRequest",
-                createBookingDetailsRequest(bookingSession)
+                createBookingDetailsRequest(
+                        bookingSession,
+                        authentication
+                )
         );
+        addPreviousTravelers(model, authentication);
 
         return "booking-contact";
     }
@@ -251,7 +261,8 @@ public class BookingFlowController {
             @Valid BookingDetailsRequest bookingDetailsRequest,
             BindingResult bindingResult,
             HttpSession httpSession,
-            Model model
+            Model model,
+            Authentication authentication
     ) {
         BookingSession bookingSession =
                 getBookingSession(httpSession);
@@ -288,6 +299,7 @@ public class BookingFlowController {
         if (bindingResult.hasErrors()) {
             model.addAttribute("bookingSummary", bookingService.calculateBookingSummary(bookingSession));
             model.addAttribute("bookingSession", bookingSession);
+            addPreviousTravelers(model, authentication);
 
             return "booking-contact";
         }
@@ -410,7 +422,8 @@ public class BookingFlowController {
     }
 
     private BookingDetailsRequest createBookingDetailsRequest(
-            BookingSession bookingSession
+            BookingSession bookingSession,
+            Authentication authentication
     ) {
         BookingDetailsRequest request =
                 new BookingDetailsRequest();
@@ -431,6 +444,8 @@ public class BookingFlowController {
                 bookingSession.getResponsibleEmail()
         );
 
+        prefillContactInformation(request, authentication);
+
         List<TravelerRequest> travelers =
                 new ArrayList<>();
 
@@ -450,6 +465,72 @@ public class BookingFlowController {
         request.setTravelers(travelers);
 
         return request;
+    }
+
+    private void prefillContactInformation(
+            BookingDetailsRequest request,
+            Authentication authentication
+    ) {
+        if (request.getResponsibleEmail() != null
+                || authentication == null
+                || !authentication.isAuthenticated()
+                || authentication.getName().equals("anonymousUser")) {
+            return;
+        }
+
+        User user = accountService.getUser(authentication.getName());
+
+        request.setResponsibleEmail(user.getEmail());
+
+        accountService.getCustomer(user).ifPresentOrElse(
+                customer -> {
+                    request.setResponsiblePersonalNumber(
+                            customer.getPersonalNumber()
+                    );
+                    request.setResponsibleFirstName(
+                            customer.getFirstName()
+                    );
+                    request.setResponsibleLastName(
+                            customer.getLastName()
+                    );
+                    request.setResponsiblePhone(
+                            customer.getPhone()
+                    );
+                },
+                () -> {
+                    String fullName = user.getFullName();
+                    int lastSpace = fullName.lastIndexOf(' ');
+
+                    if (lastSpace < 0) {
+                        request.setResponsibleFirstName(fullName);
+                        return;
+                    }
+
+                    request.setResponsibleFirstName(
+                            fullName.substring(0, lastSpace)
+                    );
+                    request.setResponsibleLastName(
+                            fullName.substring(lastSpace + 1)
+                    );
+                }
+        );
+    }
+
+    private void addPreviousTravelers(
+            Model model,
+            Authentication authentication
+    ) {
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || authentication.getName().equals("anonymousUser")) {
+            model.addAttribute("previousTravelers", List.of());
+            return;
+        }
+
+        model.addAttribute(
+                "previousTravelers",
+                accountService.getPreviousTravelers(authentication.getName())
+        );
     }
 
     private void saveBookingDetails(

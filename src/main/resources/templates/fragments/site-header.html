@@ -38,11 +38,11 @@
         </a>
 
         <a
-                th:href="@{/mina-bokningar}"
-                th:classappend="${activePage == 'bookings'} ? 'active-link'"
+                th:href="@{/mitt-konto}"
+                th:classappend="${activePage == 'account'} ? 'active-link'"
                 sec:authorize="isAuthenticated()"
         >
-            Mina bokningar
+            Mitt konto
         </a>
 
         <a

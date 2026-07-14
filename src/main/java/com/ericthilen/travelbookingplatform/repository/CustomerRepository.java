@@ -14,6 +14,8 @@ public interface CustomerRepository
 
     Optional<Customer> findByUser(com.ericthilen.travelbookingplatform.model.User user);
 
+    Optional<Customer> findByUserEmailIgnoreCase(String email);
+
     boolean existsByCustomerNumber(
             String customerNumber
     );

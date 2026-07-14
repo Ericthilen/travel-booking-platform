@@ -15,6 +15,25 @@ public interface BookingRepository
             String email
     );
 
+    List<Booking> findAllByUserEmailIgnoreCaseAndStatusOrderByBookedAtDesc(
+            String email,
+            com.ericthilen.travelbookingplatform.model.BookingStatus status
+    );
+
+    List<Booking> findAllByUserEmailIgnoreCaseAndStatusNotOrderByBookedAtDesc(
+            String email,
+            com.ericthilen.travelbookingplatform.model.BookingStatus status
+    );
+
+    List<Booking> findAllByCustomerUserEmailIgnoreCaseOrderByBookedAtDesc(
+            String email
+    );
+
+    List<Booking> findAllByUserIsNullAndCustomerPersonalNumberAndCustomerEmailIgnoreCase(
+            String personalNumber,
+            String email
+    );
+
     Optional<Booking> findByIdAndUserEmailIgnoreCase(
             Long id,
             String email
