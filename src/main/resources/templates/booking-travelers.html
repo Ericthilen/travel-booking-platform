@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Resenärer och rum – EriGo Travel</title>
+
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/booking-flow.css">
+
+  <script src="/js/booking-travelers.js" defer></script>
+</head>
+
+<body>
+
+<div
+        th:replace="~{fragments/site-header :: siteHeader('travels')}"
+></div>
+
+<main class="booking-page">
+  <section class="booking-progress">
+    <div class="progress-step active">
+            <span>
+                1
+            </span>
+
+      <p>
+        Resenärer och rum
+      </p>
+    </div>
+
+    <div class="progress-line"></div>
+
+    <div class="progress-step">
+            <span>
+                2
+            </span>
+
+      <p>
+        Rumstyp
+      </p>
+    </div>
+
+    <div class="progress-line"></div>
+
+    <div class="progress-step">
+            <span>
+                3
+            </span>
+
+      <p>
+        Uppgifter
+      </p>
+    </div>
+
+    <div class="progress-line"></div>
+
+    <div class="progress-step">
+            <span>
+                4
+            </span>
+
+      <p>
+        Bekräfta
+      </p>
+    </div>
+  </section>
+
+  <section class="booking-layout">
+    <div class="booking-main-card">
+      <p class="eyebrow dark">
+        Steg 1 av 4
+      </p>
+
+      <h1>
+        Resenärer och rum
+      </h1>
+
+      <p class="booking-introduction">
+        Välj hur många som ska resa och hur resenärerna ska
+        fördelas mellan rummen.
+      </p>
+
+      <form
+              id="travelerSelectionForm"
+              class="booking-form"
+              th:action="@{/bokning/{departureId}/resenarer(departureId=${departure.id})}"
+              th:object="${bookingSelectionRequest}"
+              method="post"
+      >
+        <div class="selection-grid">
+          <div class="booking-field">
+            <label for="numberOfTravelers">
+              Antal resenärer
+            </label>
+
+            <select
+                    id="numberOfTravelers"
+                    th:field="*{numberOfTravelers}"
+            >
+              <option
+                      th:each="number : ${#numbers.sequence(1, 20)}"
+                      th:value="${number}"
+                      th:text="${number}"
+              >
+                1
+              </option>
+            </select>
+
+            <p
+                    class="field-error"
+                    th:if="${#fields.hasErrors('numberOfTravelers')}"
+                    th:errors="*{numberOfTravelers}"
+            >
+              Felmeddelande
+            </p>
+          </div>
+
+          <div class="booking-field">
+            <label for="numberOfRooms">
+              Antal rum
+            </label>
+
+            <select
+                    id="numberOfRooms"
+                    th:field="*{numberOfRooms}"
+            >
+              <option
+                      th:each="number : ${#numbers.sequence(1, 10)}"
+                      th:value="${number}"
+                      th:text="${number}"
+              >
+                1
+              </option>
+            </select>
+
+            <p
+                    class="field-error"
+                    th:if="${#fields.hasErrors('numberOfRooms')}"
+                    th:errors="*{numberOfRooms}"
+            >
+              Felmeddelande
+            </p>
+          </div>
+        </div>
+
+        <section class="room-distribution-section">
+          <h2>
+            Fördela resenärerna
+          </h2>
+
+          <p>
+            Ange hur många personer som ska bo i varje rum.
+          </p>
+
+          <div
+                  id="roomDistribution"
+                  class="room-distribution"
+          ></div>
+
+          <p
+                  id="distributionMessage"
+                  class="distribution-message"
+          ></p>
+
+          <p
+                  class="field-error"
+                  th:if="${#fields.hasErrors('roomOccupancies')}"
+                  th:errors="*{roomOccupancies}"
+          >
+            Felmeddelande
+          </p>
+        </section>
+
+        <button
+                class="next-step-button"
+                type="submit"
+        >
+          Nästa steg
+        </button>
+      </form>
+    </div>
+
+    <aside th:if="${bookingSummary != null}" th:replace="~{fragments/booking-summary :: bookingSummary(${bookingSummary}, false)}"></aside>
+
+    <aside th:if="${bookingSummary == null}" class="booking-summary-card">
+      <img
+              th:src="${departure.travel.imageUrl}"
+              th:alt="${departure.travel.destination}"
+      >
+
+      <div>
+        <p
+                class="summary-country"
+                th:text="${departure.travel.country}"
+        >
+          Spanien
+        </p>
+
+        <h2 th:text="${departure.travel.destination}">
+          Mallorca
+        </h2>
+
+        <h3 th:text="${departure.travel.hotelName}">
+          Sun Bay Resort
+        </h3>
+
+        <dl>
+          <div>
+            <dt>
+              Avresa
+            </dt>
+
+            <dd
+                    th:text="${#temporals.format(departure.departureDate, 'dd MMMM yyyy')}"
+            >
+              12 augusti 2026
+            </dd>
+          </div>
+
+          <div>
+            <dt>
+              Hemresa
+            </dt>
+
+            <dd
+                    th:text="${#temporals.format(departure.returnDate, 'dd MMMM yyyy')}"
+            >
+              19 augusti 2026
+            </dd>
+          </div>
+
+          <div>
+            <dt>
+              Pris per person
+            </dt>
+
+            <dd>
+                            <span
+                                    th:text="${#numbers.formatInteger(departure.pricePerPerson, 1, 'WHITESPACE')}"
+                            >
+                                7 495
+                            </span>
+
+              kr
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </aside>
+  </section>
+</main>
+
+<script src="/js/home.js" defer></script>
+
+</body>
+</html>

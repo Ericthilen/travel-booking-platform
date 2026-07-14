@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title th:text="${'Avgångar till ' + travel.destination + ' – EriGo Travel'}">
+        Avgångar – EriGo Travel
+    </title>
+
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/travel-departures.css">
+</head>
+
+<body>
+
+<div
+        th:replace="~{fragments/site-header :: siteHeader('travels')}"
+></div>
+
+<main>
+    <section
+            class="departures-hero"
+            th:style="'background-image: linear-gradient(rgba(0, 45, 52, 0.35), rgba(0, 45, 52, 0.78)), url(' + ${travel.imageUrl} + ');'"
+    >
+        <div>
+            <a
+                    class="back-link"
+                    th:href="@{/resor/{id}(id=${travel.id})}"
+            >
+                ← Tillbaka till resan
+            </a>
+
+            <p class="eyebrow">
+                Välj resa
+            </p>
+
+            <h1 th:text="${travel.destination}">
+                Mallorca
+            </h1>
+
+            <p th:text="${travel.hotelName}">
+                Sun Bay Resort
+            </p>
+        </div>
+    </section>
+
+    <nav
+            class="travel-tabs"
+            aria-label="Reseinformation"
+    >
+        <div class="travel-tabs-inner">
+            <a
+                    class="travel-tab"
+                    th:href="@{/resor/{id}(id=${travel.id})}"
+            >
+                Start
+            </a>
+
+            <a
+                    class="travel-tab active"
+                    th:href="@{/resor/{id}/avgangar(id=${travel.id})}"
+            >
+                Avgångar
+            </a>
+
+            <span class="travel-tab disabled-tab">
+                Hotell och rum
+            </span>
+
+            <span class="travel-tab disabled-tab">
+                Information
+            </span>
+        </div>
+    </nav>
+
+    <section class="departures-section">
+        <div class="departures-heading">
+            <div>
+                <p class="eyebrow dark">
+                    Tillgängliga resor
+                </p>
+
+                <h2>
+                    Välj en avgång
+                </h2>
+            </div>
+
+            <p>
+                <span th:text="${departures.size()}">
+                    0
+                </span>
+
+                avgångar hittades
+            </p>
+        </div>
+
+        <div
+                class="empty-departures"
+                th:if="${departures.isEmpty()}"
+        >
+            <h2>
+                Inga avgångar finns tillgängliga
+            </h2>
+
+            <p>
+                Kontrollera gärna igen senare.
+            </p>
+        </div>
+
+        <div
+                class="departure-list"
+                th:unless="${departures.isEmpty()}"
+        >
+            <article
+                    class="departure-card"
+                    th:each="departure : ${departures}"
+            >
+                <div class="departure-date-column">
+                    <span>
+                        Avresa
+                    </span>
+
+                    <strong
+                            th:text="${#temporals.format(departure.departureDate, 'dd MMM yyyy')}"
+                    >
+                        12 aug 2026
+                    </strong>
+
+                    <small>
+                        Hemresa
+
+                        <span
+                                th:text="${#temporals.format(departure.returnDate, 'dd MMM yyyy')}"
+                        >
+                            19 aug 2026
+                        </span>
+                    </small>
+                </div>
+
+                <div class="flight-information">
+                    <div class="flight-row">
+                        <div>
+                            <span>
+                                Utresa
+                            </span>
+
+                            <strong
+                                    th:text="${departure.outboundFlightNumber}"
+                            >
+                                ER101
+                            </strong>
+                        </div>
+
+                        <div class="flight-time">
+                            <strong
+                                    th:text="${#temporals.format(departure.outboundDepartureTime, 'HH:mm')}"
+                            >
+                                07:10
+                            </strong>
+
+                            <span th:text="${departure.departureAirport}">
+                                Göteborg Landvetter
+                            </span>
+                        </div>
+
+                        <div class="flight-line">
+                            <span>
+                                Direktflyg
+                            </span>
+
+                            <div></div>
+
+                            <strong>
+                                ✈
+                            </strong>
+                        </div>
+
+                        <div class="flight-time right">
+                            <strong
+                                    th:text="${#temporals.format(departure.outboundArrivalTime, 'HH:mm')}"
+                            >
+                                10:45
+                            </strong>
+
+                            <span th:text="${departure.arrivalAirport}">
+                                Palma de Mallorca
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="flight-row return-flight">
+                        <div>
+                            <span>
+                                Hemresa
+                            </span>
+
+                            <strong
+                                    th:text="${departure.returnFlightNumber}"
+                            >
+                                ER102
+                            </strong>
+                        </div>
+
+                        <div class="flight-time">
+                            <strong
+                                    th:text="${#temporals.format(departure.returnDepartureTime, 'HH:mm')}"
+                            >
+                                18:25
+                            </strong>
+
+                            <span th:text="${departure.arrivalAirport}">
+                                Palma de Mallorca
+                            </span>
+                        </div>
+
+                        <div class="flight-line">
+                            <span>
+                                Direktflyg
+                            </span>
+
+                            <div></div>
+
+                            <strong>
+                                ✈
+                            </strong>
+                        </div>
+
+                        <div class="flight-time right">
+                            <strong
+                                    th:text="${#temporals.format(departure.returnArrivalTime, 'HH:mm')}"
+                            >
+                                22:00
+                            </strong>
+
+                            <span th:text="${departure.departureAirport}">
+                                Göteborg Landvetter
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="departure-booking-column">
+                    <span
+                            class="seats-left"
+                            th:classappend="${departure.availableSeats <= 10} ? ' few-seats'"
+                    >
+                        <span th:text="${departure.availableSeats}">
+                            7
+                        </span>
+
+                        platser kvar
+                    </span>
+
+                    <small>
+                        Pris per person
+                    </small>
+
+                    <strong class="departure-price">
+                        <span
+                                th:text="${#numbers.formatInteger(departure.pricePerPerson, 1, 'WHITESPACE')}"
+                        >
+                            7 495
+                        </span>
+
+                        kr
+                    </strong>
+
+                    <a
+                            class="select-departure-button"
+                            th:href="@{/bokning/{departureId}/resenarer(departureId=${departure.id})}"
+                    >
+                        Välj avgång
+                    </a>
+                </div>
+            </article>
+        </div>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <div>
+        <strong>
+            EriGo Travel
+        </strong>
+
+        <p>
+            Resor att längta efter.
+        </p>
+    </div>
+
+    <p>
+        © 2026 EriGo Travel
+    </p>
+</footer>
+
+<script src="/js/home.js" defer></script>
+
+</body>
+</html>

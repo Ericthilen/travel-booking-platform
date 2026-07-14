@@ -16,54 +16,20 @@
 
 <body>
 
-<header class="site-header">
-    <a class="logo" href="/">
-        <span class="logo-mark">E</span>
-        <span>EriGo Travel</span>
-    </a>
-
-    <nav class="navigation">
-        <a href="/">Hem</a>
-        <a class="active-link" href="/resor">Resor</a>
-
-        <a
-                href="/mina-bokningar"
-                sec:authorize="isAuthenticated()"
-        >
-            Mina bokningar
-        </a>
-
-        <a
-                class="login-link"
-                href="/login"
-                sec:authorize="isAnonymous()"
-        >
-            Logga in
-        </a>
-
-        <form
-                class="logout-form"
-                th:action="@{/logout}"
-                method="post"
-                sec:authorize="isAuthenticated()"
-        >
-            <button class="logout-button" type="submit">
-                Logga ut
-            </button>
-        </form>
-    </nav>
-
-    <button class="menu-button" type="button" aria-label="Öppna meny">
-        ☰
-    </button>
-</header>
+<div
+        th:replace="~{fragments/site-header :: siteHeader('travels')}"
+></div>
 
 <main>
     <section class="travel-page-hero">
         <div>
-            <p class="eyebrow">EriGo Travel</p>
+            <p class="eyebrow">
+                EriGo Travel
+            </p>
 
-            <h1>Hitta din nästa resa</h1>
+            <h1>
+                Hitta din nästa resa
+            </h1>
 
             <p>
                 Upptäck våra utvalda charterresor till några av Europas
@@ -75,25 +41,36 @@
     <section class="travel-list-section">
         <div class="travel-list-heading">
             <div>
-                <p class="eyebrow dark">Våra resor</p>
-                <h2>Alla tillgängliga resor</h2>
+                <p class="eyebrow dark">
+                    Våra resor
+                </p>
+
+                <h2>
+                    Alla tillgängliga resor
+                </h2>
             </div>
 
             <p>
-                <span th:text="${travels.size()}">0</span>
+                <span th:text="${travels.size()}">
+                    0
+                </span>
+
                 resor hittades
             </p>
         </div>
 
-        <div class="travel-list-grid">
+        <div
+                class="travel-list-grid"
+                th:if="${!travels.isEmpty()}"
+        >
             <article
                     class="travel-list-card"
                     th:each="travel : ${travels}"
             >
                 <img
+                        class="travel-list-image"
                         th:src="${travel.imageUrl}"
                         th:alt="${travel.destination}"
-                        class="travel-list-image"
                 >
 
                 <div class="travel-list-content">
@@ -116,21 +93,28 @@
                             class="travel-description"
                             th:text="${travel.description}"
                     >
-                        Beskrivning av resan
+                        Beskrivning av resan.
                     </p>
 
                     <div class="travel-details">
                         <span>
-                            <strong th:text="${travel.nights}">7</strong>
+                            <strong th:text="${travel.nights}">
+                                7
+                            </strong>
+
                             nätter
                         </span>
 
-                        <span>Flyg och hotell</span>
+                        <span>
+                            Flyg och hotell
+                        </span>
                     </div>
 
                     <div class="travel-list-footer">
                         <div>
-                            <small>Pris per person från</small>
+                            <small>
+                                Pris per person från
+                            </small>
 
                             <strong>
                                 <span
@@ -138,16 +122,36 @@
                                 >
                                     0
                                 </span>
+
                                 kr
                             </strong>
                         </div>
 
-                        <a th:href="@{/resor/{id}(id=${travel.id})}">
+                        <a
+                                th:href="@{/resor/{id}(id=${travel.id})}"
+                        >
                             Visa resa
                         </a>
                     </div>
                 </div>
             </article>
+        </div>
+
+        <div
+                class="empty-travel-result"
+                th:if="${travels.isEmpty()}"
+        >
+            <h2>
+                Inga resor hittades
+            </h2>
+
+            <p>
+                Prova att söka efter ett annat resmål.
+            </p>
+
+            <a th:href="@{/resor}">
+                Visa alla resor
+            </a>
         </div>
     </section>
 </main>
@@ -155,11 +159,16 @@
 <footer class="site-footer">
     <div>
         <strong>EriGo Travel</strong>
-        <p>Resor att längta efter.</p>
+
+        <p>
+            Resor att längta efter.
+        </p>
     </div>
 
     <p>© 2026 EriGo Travel</p>
 </footer>
+
+<script src="/js/home.js" defer></script>
 
 </body>
 </html>

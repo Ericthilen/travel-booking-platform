@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Avboka bokning – EriGo Travel</title>
+
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/booking-details.css">
+</head>
+
+<body>
+
+<div
+        th:replace="~{fragments/site-header :: siteHeader('bookings')}"
+></div>
+
+<main class="booking-details-page">
+  <section class="booking-details-card cancellation-card">
+    <a
+            class="details-back-link"
+            th:href="@{/mina-bokningar/{id}(id=${booking.id})}"
+    >
+      ← Tillbaka till bokningen
+    </a>
+
+    <p class="eyebrow cancellation-eyebrow">
+      Avbokning
+    </p>
+
+    <h1>
+      Vill du avboka resan?
+    </h1>
+
+    <p class="cancellation-introduction">
+      Kontrollera avbokningskostnaden innan du bekräftar.
+      Bokningen kan inte återställas automatiskt efter att den
+      har avbokats.
+    </p>
+
+    <div class="reference-grid">
+      <div>
+                <span>
+                    Bokningsnummer
+                </span>
+
+        <strong th:text="${booking.bookingNumber}">
+          BK-2026-123456
+        </strong>
+      </div>
+
+      <div>
+                <span>
+                    Resmål
+                </span>
+
+        <strong
+                th:text="${booking.departure.travel.destination}"
+        >
+          Mallorca
+        </strong>
+      </div>
+    </div>
+
+    <section class="details-section cancellation-warning">
+      <h2>
+        Avbokningskostnad
+      </h2>
+
+      <p class="cancellation-main-message">
+        Vid avbokning förloras idag
+
+        <strong>
+                    <span
+                            th:text="${#numbers.formatInteger(cancellationSummary.cancellationFee, 1, 'WHITESPACE')}"
+                    >
+                        7 495
+                    </span>
+          kr
+        </strong>
+
+        enligt våra allmänna avbokningsvillkor.
+      </p>
+
+      <div class="details-grid cancellation-grid">
+        <div>
+                    <span>
+                        Dagar kvar till avresa
+                    </span>
+
+          <strong
+                  th:text="${cancellationSummary.daysUntilDeparture}"
+          >
+            25
+          </strong>
+        </div>
+
+        <div>
+                    <span>
+                        Totalpris
+                    </span>
+
+          <strong>
+                        <span
+                                th:text="${#numbers.formatInteger(booking.totalPrice, 1, 'WHITESPACE')}"
+                        >
+                            14 990
+                        </span>
+            kr
+          </strong>
+        </div>
+
+        <div>
+                    <span>
+                        Inbetalt belopp
+                    </span>
+
+          <strong>
+                        <span
+                                th:text="${#numbers.formatInteger(cancellationSummary.paidAmount, 1, 'WHITESPACE')}"
+                        >
+                            0
+                        </span>
+            kr
+          </strong>
+        </div>
+
+        <div>
+                    <span>
+                        Belopp som återbetalas
+                    </span>
+
+          <strong>
+                        <span
+                                th:text="${#numbers.formatInteger(cancellationSummary.refundAmount, 1, 'WHITESPACE')}"
+                        >
+                            0
+                        </span>
+            kr
+          </strong>
+        </div>
+
+        <div>
+                    <span>
+                        Kvar att betala efter avbokning
+                    </span>
+
+          <strong>
+                        <span
+                                th:text="${#numbers.formatInteger(cancellationSummary.remainingAmountAfterCancellation, 1, 'WHITESPACE')}"
+                        >
+                            0
+                        </span>
+            kr
+          </strong>
+        </div>
+      </div>
+
+      <div
+              class="deposit-information"
+              th:if="${cancellationSummary.depositLocked}"
+      >
+        <strong>
+          Anmälningsavgiften är inte återbetalningsbar.
+        </strong>
+
+        <p>
+          Anmälningsavgiften är betald och dess
+          förfallodatum har passerat. Därför återbetalas inte
+
+          <span
+                  th:text="${#numbers.formatInteger(cancellationSummary.nonRefundableDeposit, 1, 'WHITESPACE')}"
+          >
+                        2 249
+                    </span>
+          kr.
+        </p>
+      </div>
+
+      <p
+              class="cancellation-rule"
+              th:if="${cancellationSummary.daysUntilDeparture >= 15}"
+      >
+        Eftersom det är minst 15 dagar kvar till avresa är den
+        normala avbokningskostnaden 50 % av totalpriset.
+        Du förlorar dock aldrig mer än vad du faktiskt har
+        betalat.
+      </p>
+
+      <p
+              class="cancellation-rule"
+              th:unless="${cancellationSummary.daysUntilDeparture >= 15}"
+      >
+        Eftersom det är 14 dagar eller mindre kvar till avresa
+        återbetalas inget av det redan inbetalda beloppet.
+        Du blir inte betalningsskyldig för något ytterligare
+        belopp.
+      </p>
+    </section>
+
+    <form
+            class="cancellation-form"
+            th:action="@{/mina-bokningar/{id}/avboka(id=${booking.id})}"
+            th:object="${cancellationRequest}"
+            method="post"
+    >
+      <label class="cancellation-confirmation">
+        <input
+                type="checkbox"
+                th:field="*{cancellationConfirmed}"
+        >
+
+        <span>
+                    Jag förstår avbokningskostnaden och vill avboka
+                    bokningen.
+                </span>
+      </label>
+
+      <p
+              class="cancellation-error"
+              th:if="${#fields.hasErrors('cancellationConfirmed')}"
+              th:errors="*{cancellationConfirmed}"
+      >
+        Du måste bekräfta avbokningen.
+      </p>
+
+      <div class="cancellation-actions">
+        <a
+                th:href="@{/mina-bokningar/{id}(id=${booking.id})}"
+        >
+          Behåll bokningen
+        </a>
+
+        <button type="submit">
+          Avboka bokningen
+        </button>
+      </div>
+    </form>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div>
+    <strong>
+      EriGo Travel
+    </strong>
+
+    <p>
+      Resor att längta efter.
+    </p>
+  </div>
+
+  <p>
+    © 2026 EriGo Travel
+  </p>
+</footer>
+
+<script src="/js/home.js" defer></script>
+
+</body>
+</html>

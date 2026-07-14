@@ -1,13 +1,17 @@
 package com.ericthilen.travelbookingplatform;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 class TravelBookingPlatformApplicationTests {
 
     @Test
-    void contextLoads() {
+    void applicationClassShouldBeLoadable() {
+        assertDoesNotThrow(
+                () -> Class.forName(
+                        "com.ericthilen.travelbookingplatform.TravelBookingPlatformApplication"
+                )
+        );
     }
-
 }

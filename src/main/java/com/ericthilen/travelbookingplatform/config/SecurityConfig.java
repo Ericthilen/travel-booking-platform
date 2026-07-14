@@ -24,23 +24,33 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
                                 "/",
+                                "/error",
                                 "/resor",
                                 "/resor/**",
+                                "/bokning",
+                                "/bokning/**",
+                                "/hitta-bokning",
+                                "/hitta-bokning/**",
                                 "/login",
                                 "/register",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**"
                         ).permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/mina-bokningar")
+                        .requestMatchers("/admin/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers("/mina-bokningar/**")
                         .hasAnyRole("USER", "ADMIN")
-                        .anyRequest().authenticated()
+                        .anyRequest()
+                        .authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
                         .usernameParameter("email")
-                        .defaultSuccessUrl("/mina-bokningar", false)
+                        .defaultSuccessUrl(
+                                "/mina-bokningar",
+                                false
+                        )
                         .failureUrl("/login?error")
                         .permitAll()
                 )

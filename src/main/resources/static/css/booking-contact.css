@@ -1,0 +1,177 @@
+.contact-booking-layout {
+    max-width: 1180px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 30px;
+    align-items: start;
+}
+
+.contact-form {
+    display: grid;
+    gap: 28px;
+}
+
+.contact-section-card,
+.traveler-card {
+    padding: 34px;
+    background: var(--white);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+}
+
+.contact-section-card h1 {
+    margin: 0;
+    font-size: 40px;
+}
+
+.contact-introduction {
+    margin: 14px 0 30px;
+    color: var(--muted-text);
+    line-height: 1.6;
+}
+
+.responsible-fields,
+.traveler-fields {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.contact-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.contact-field input {
+    width: 100%;
+    height: 52px;
+    padding: 0 14px;
+    color: var(--text-color);
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 11px;
+    outline: none;
+}
+
+.contact-field input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 107, 116, 0.10);
+}
+
+.contact-field input:read-only {
+    color: var(--muted-text);
+    background: var(--background-color);
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.travelers-section {
+    display: grid;
+    gap: 20px;
+}
+
+.travelers-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.travelers-heading h2 {
+    margin: 0;
+    font-size: 34px;
+}
+
+.travelers-heading > p {
+    margin: 0;
+    color: var(--muted-text);
+    font-weight: 700;
+}
+
+.traveler-card {
+    box-shadow: 0 12px 30px rgba(20, 48, 52, 0.09);
+}
+
+.traveler-card-heading {
+    margin-bottom: 24px;
+    padding-bottom: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.traveler-card-heading h3 {
+    margin: 0;
+    font-size: 23px;
+}
+
+.copy-responsible-label {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--primary-color);
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.copy-responsible-label input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-color);
+}
+
+.contact-navigation {
+    margin-top: 0;
+}
+
+.contact-navigation .next-step-button {
+    margin-top: 0;
+}
+
+.form-error-message p {
+    margin: 0;
+}
+
+@media (max-width: 950px) {
+    .contact-booking-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 650px) {
+    .contact-section-card,
+    .traveler-card {
+        padding: 24px 20px;
+    }
+
+    .contact-section-card h1 {
+        font-size: 32px;
+    }
+
+    .responsible-fields,
+    .traveler-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .full-width {
+        grid-column: auto;
+    }
+
+    .travelers-heading,
+    .traveler-card-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .travelers-heading h2 {
+        font-size: 29px;
+    }
+}
