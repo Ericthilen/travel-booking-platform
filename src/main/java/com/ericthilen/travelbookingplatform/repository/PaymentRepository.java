@@ -13,4 +13,8 @@ public interface PaymentRepository
     List<Payment> findAllByBookingIdOrderByPaymentDateDescRegisteredAtDesc(
             Long bookingId
     );
+
+    List<Payment> findAllByBookingUserEmailIgnoreCaseOrderByPaymentDateDescRegisteredAtDesc(
+            String email
+    );
 }

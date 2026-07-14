@@ -201,6 +201,8 @@ public class BookingService {
     public List<Booking> getBookingsForUser(
             String email
     ) {
+        connectMatchingGuestBookings(email);
+
         return bookingRepository
                 .findAllByUserEmailIgnoreCaseOrderByBookedAtDesc(
                         email
@@ -217,6 +219,8 @@ public class BookingService {
 
             return Optional.empty();
         }
+
+        connectMatchingGuestBookings(email);
 
         return bookingRepository
                 .findByIdAndUserEmailIgnoreCase(
@@ -478,6 +482,35 @@ public class BookingService {
                         authenticatedEmail
                 )
                 .orElse(null);
+    }
+
+    private void connectMatchingGuestBookings(String email) {
+        User user = findAuthenticatedUser(email);
+
+        if (user == null) {
+            return;
+        }
+
+        Optional<Customer> customer =
+                customerRepository.findByUser(user);
+
+        if (customer.isEmpty()) {
+            return;
+        }
+
+        List<Booking> guestBookings =
+                bookingRepository
+                        .findAllByUserIsNullAndCustomerPersonalNumberAndCustomerEmailIgnoreCase(
+                                customer.get().getPersonalNumber(),
+                                customer.get().getEmail()
+                        );
+
+        for (Booking booking : guestBookings) {
+            booking.connectUser(user);
+            booking.getCustomer().connectUser(user);
+        }
+
+        bookingRepository.saveAll(guestBookings);
     }
 
     private void validateAvailability(
