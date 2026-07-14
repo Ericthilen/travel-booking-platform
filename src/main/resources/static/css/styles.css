@@ -87,6 +87,34 @@ select {
     border-radius: 999px;
 }
 
+.navigation .login-link:hover {
+    color: var(--white);
+    background: var(--primary-dark);
+}
+
+.active-link {
+    color: var(--primary-color) !important;
+}
+
+.logout-form {
+    margin: 0;
+}
+
+.logout-button {
+    padding: 12px 20px;
+    color: var(--white);
+    background: var(--primary-color);
+    border: 0;
+    border-radius: 999px;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.logout-button:hover {
+    background: var(--primary-dark);
+}
+
 .menu-button {
     display: none;
     border: 0;
@@ -400,6 +428,26 @@ select {
 @media (max-width: 900px) {
     .navigation {
         display: none;
+    }
+
+    .navigation.mobile-open {
+        position: absolute;
+        top: 78px;
+        right: 0;
+        left: 0;
+        padding: 22px 6%;
+        display: flex;
+        align-items: stretch;
+        flex-direction: column;
+        gap: 16px;
+        background: var(--white);
+        box-shadow: 0 15px 25px rgba(20, 48, 52, 0.12);
+    }
+
+    .navigation.mobile-open .login-link,
+    .navigation.mobile-open .logout-button {
+        width: 100%;
+        text-align: center;
     }
 
     .menu-button {
