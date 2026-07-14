@@ -1,0 +1,337 @@
+.admin-dashboard-page {
+    min-height: calc(100vh - 78px);
+    padding: 58px 6% 80px;
+    background: var(--background-color);
+}
+
+.admin-dashboard-container {
+    max-width: 1250px;
+    margin: 0 auto;
+}
+
+.admin-dashboard-heading {
+    margin-bottom: 28px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.admin-dashboard-heading h1 {
+    margin: 0;
+    font-size: 44px;
+}
+
+.admin-dashboard-heading p:last-child {
+    margin: 12px 0 0;
+    color: var(--muted-text);
+    font-size: 17px;
+}
+
+.admin-alert {
+    margin-bottom: 22px;
+    padding: 16px 18px;
+    color: #991b1b;
+    background: #fee2e2;
+    border-radius: 12px;
+    font-weight: 800;
+}
+
+.admin-stat-grid {
+    margin-bottom: 26px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.admin-stat-card,
+.admin-search-card,
+.admin-panel {
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+}
+
+.admin-stat-card {
+    padding: 22px;
+    border-left: 5px solid var(--primary-color);
+}
+
+.admin-stat-card.warning {
+    border-left-color: var(--accent-color);
+}
+
+.admin-stat-card.danger {
+    border-left-color: #dc2626;
+}
+
+.admin-stat-card span {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--muted-text);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.admin-stat-card strong {
+    color: var(--primary-dark);
+    font-size: 29px;
+}
+
+.admin-search-card,
+.admin-panel {
+    padding: 28px;
+}
+
+.admin-search-card {
+    margin-bottom: 26px;
+}
+
+.admin-search-card h2,
+.admin-panel h2 {
+    margin: 0;
+}
+
+.admin-search-form {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+}
+
+.admin-search-form input {
+    width: 100%;
+    height: 52px;
+    padding: 0 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 11px;
+    outline: none;
+}
+
+.admin-search-form input:focus {
+    border-color: var(--primary-color);
+}
+
+.admin-search-form button,
+.admin-row-actions a {
+    min-height: 52px;
+    padding: 0 20px;
+    display: inline-grid;
+    place-items: center;
+    color: var(--white);
+    background: var(--primary-color);
+    border: 0;
+    border-radius: 11px;
+    text-decoration: none;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.admin-row-actions a:nth-child(2) {
+    color: var(--primary-color);
+    background: var(--white);
+    border: 1px solid var(--primary-color);
+}
+
+.admin-search-form button:hover,
+.admin-row-actions a:hover {
+    background: var(--primary-dark);
+}
+
+.admin-row-actions a:nth-child(2):hover {
+    color: var(--white);
+    background: var(--primary-color);
+}
+
+.admin-search-results {
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-color);
+}
+
+.admin-dashboard-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 26px;
+    align-items: start;
+}
+
+.admin-main-column,
+.admin-side-column {
+    display: grid;
+    gap: 26px;
+}
+
+.admin-side-column {
+    position: sticky;
+    top: 100px;
+}
+
+.admin-section-title {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.admin-section-title h3 {
+    margin: 0;
+}
+
+.admin-section-title > p {
+    margin: 0;
+    color: var(--muted-text);
+    font-weight: 800;
+}
+
+.admin-booking-list,
+.admin-departure-list {
+    display: grid;
+    gap: 12px;
+}
+
+.admin-booking-row,
+.admin-departure-row {
+    padding: 16px;
+    display: grid;
+    gap: 16px;
+    background: var(--background-color);
+    border-radius: 13px;
+}
+
+.admin-booking-row {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) auto;
+    align-items: center;
+}
+
+.admin-booking-row div,
+.admin-departure-row div {
+    min-width: 0;
+}
+
+.admin-booking-row strong,
+.admin-booking-row span,
+.admin-departure-row strong,
+.admin-departure-row span {
+    overflow-wrap: anywhere;
+}
+
+.admin-booking-row span,
+.admin-departure-row span,
+.admin-fact-grid span {
+    color: var(--muted-text);
+    font-size: 13px;
+}
+
+.admin-row-meta {
+    display: grid;
+    gap: 5px;
+}
+
+.admin-row-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.admin-row-actions a {
+    min-height: 42px;
+    padding: 0 14px;
+    font-size: 13px;
+}
+
+.admin-departure-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+}
+
+.admin-departure-row div {
+    display: grid;
+    gap: 5px;
+}
+
+.empty-admin-list {
+    padding: 18px;
+    color: var(--muted-text);
+    background: var(--background-color);
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+.admin-back-link {
+    display: inline-block;
+    margin-bottom: 28px;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 800;
+}
+
+.admin-detail-grid {
+    margin-bottom: 26px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 26px;
+}
+
+.admin-fact-grid {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.admin-fact-grid div {
+    padding: 16px;
+    display: grid;
+    gap: 7px;
+    background: var(--background-color);
+    border-radius: 12px;
+}
+
+@media (max-width: 1050px) {
+    .admin-stat-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-dashboard-layout,
+    .admin-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-side-column {
+        position: static;
+    }
+}
+
+@media (max-width: 720px) {
+    .admin-dashboard-page {
+        padding: 42px 5% 65px;
+    }
+
+    .admin-dashboard-heading,
+    .admin-section-title,
+    .admin-booking-row,
+    .admin-departure-row {
+        align-items: flex-start;
+        grid-template-columns: 1fr;
+    }
+
+    .admin-dashboard-heading {
+        flex-direction: column;
+    }
+
+    .admin-dashboard-heading h1 {
+        font-size: 35px;
+    }
+
+    .admin-stat-grid,
+    .admin-search-form,
+    .admin-fact-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-row-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+}
