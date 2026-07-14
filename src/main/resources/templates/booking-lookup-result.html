@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Din bokning – EriGo Travel</title>
+
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/booking-lookup.css">
+</head>
+
+<body>
+
+<div
+        th:replace="~{fragments/site-header :: siteHeader('lookup')}"
+></div>
+
+<main class="lookup-result-page">
+    <section class="lookup-result-card">
+        <div class="lookup-result-heading">
+            <div>
+                <p class="eyebrow dark">
+                    Bokningen hittades
+                </p>
+
+                <h1 th:text="${booking.departure.travel.destination}">
+                    Mallorca
+                </h1>
+
+                <p th:text="${booking.departure.travel.hotelName}">
+                    Sun Bay Resort
+                </p>
+            </div>
+
+            <span
+                    class="booking-status"
+                    th:classappend="${booking.status.name() == 'CANCELLED'} ? ' cancelled'"
+                    th:text="${booking.status.displayName}"
+            >
+                Bekräftad
+            </span>
+        </div>
+
+        <div class="lookup-reference-grid">
+            <div>
+                <span>
+                    Kundnummer
+                </span>
+
+                <strong th:text="${booking.customer.customerNumber}">
+                    ERG-123456
+                </strong>
+            </div>
+
+            <div>
+                <span>
+                    Bokningsnummer
+                </span>
+
+                <strong th:text="${booking.bookingNumber}">
+                    BK-2026-123456
+                </strong>
+            </div>
+        </div>
+
+        <section class="lookup-section">
+            <h2>
+                Reseinformation
+            </h2>
+
+            <div class="lookup-details-grid">
+                <div>
+                    <span>
+                        Avresa
+                    </span>
+
+                    <strong
+                            th:text="${#temporals.format(booking.departure.departureDate, 'dd MMMM yyyy')}"
+                    >
+                        12 augusti 2026
+                    </strong>
+                </div>
+
+                <div>
+                    <span>
+                        Hemresa
+                    </span>
+
+                    <strong
+                            th:text="${#temporals.format(booking.departure.returnDate, 'dd MMMM yyyy')}"
+                    >
+                        19 augusti 2026
+                    </strong>
+                </div>
+
+                <div>
+                    <span>
+                        Avreseflygplats
+                    </span>
+
+                    <strong th:text="${booking.departure.departureAirport}">
+                        Göteborg Landvetter
+                    </strong>
+                </div>
+
+                <div>
+                    <span>
+                        Ankomstflygplats
+                    </span>
+
+                    <strong th:text="${booking.departure.arrivalAirport}">
+                        Palma de Mallorca
+                    </strong>
+                </div>
+
+                <div>
+                    <span>
+                        Utresa
+                    </span>
+
+                    <strong>
+                        <span
+                                th:text="${booking.departure.outboundFlightNumber}"
+                        >
+                            ER101
+                        </span>
+
+                        ·
+
+                        <span
+                                th:text="${#temporals.format(booking.departure.outboundDepartureTime, 'HH:mm')}"
+                        >
+                            07:10
+                        </span>
+                    </strong>
+                </div>
+
+                <div>
+                    <span>
+                        Hemresa
+                    </span>
+
+                    <strong>
+                        <span
+                                th:text="${booking.departure.returnFlightNumber}"
+                        >
+                            ER102
+                        </span>
+
+                        ·
+
+                        <span
+                                th:text="${#temporals.format(booking.departure.returnDepartureTime, 'HH:mm')}"
+                        >
+                            18:25
+                        </span>
+                    </strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="lookup-section">
+            <h2>
+                Bokningsuppgifter
+            </h2>
+
+            <div class="lookup-details-grid">
+                <div>
+                    <span>
+                        Bokningsansvarig
+                    </span>
+
+                    <strong
+                            th:text="${booking.customer.firstName + ' ' + booking.customer.lastName}"
+                    >
+                        Eric Thilen
+                    </strong>
+                </div>
+
+                <div>
+                    <span>
+                        E-postadress
+                    </span>
+
+                    <strong th:text="${booking.customer.email}">
+                        namn@exempel.se
+                    </strong>
+                </div>
+
+                <div>
+                    <span>
+                        Telefonnummer
+                    </span>
+
+                    <strong th:text="${booking.customer.phone}">
+                        070-123 45 67
+                    </strong>
+                </div>
+
+                <div>
+                    <span>
+                        Antal resenärer
+                    </span>
+
+                    <strong th:text="${booking.numberOfTravelers}">
+                        2
+                    </strong>
+                </div>
+
+                <div>
+                    <span>
+                        Antal rum
+                    </span>
+
+                    <strong th:text="${booking.numberOfRooms}">
+                        1
+                    </strong>
+                </div>
+
+                <div>
+                    <span>
+                        Rumstyp
+                    </span>
+
+                    <strong th:text="${booking.roomType.name}">
+                        Standardrum
+                    </strong>
+                </div>
+
+                <div>
+                    <span>
+                        Totalpris
+                    </span>
+
+                    <strong>
+                        <span
+                                th:text="${#numbers.formatInteger(booking.totalPrice, 1, 'WHITESPACE')}"
+                        >
+                            14 990
+                        </span>
+
+                        kr
+                    </strong>
+                </div>
+
+                <div>
+                    <span>
+                        Betalningsstatus
+                    </span>
+
+                    <strong th:text="${booking.paymentStatus.displayName}">
+                        Inte betald
+                    </strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="lookup-section">
+            <h2>
+                Resenärer
+            </h2>
+
+            <div class="traveler-result-list">
+                <div
+                        class="traveler-result-item"
+                        th:each="traveler, status : ${booking.travelers}"
+                >
+                    <span>
+                        Resenär
+                        <span th:text="${status.index + 1}">
+                            1
+                        </span>
+                    </span>
+
+                    <strong
+                            th:text="${traveler.firstName + ' ' + traveler.lastName}"
+                    >
+                        Eric Thilen
+                    </strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="lookup-section payment-lookup-section">
+            <h2>
+                Betalningsinformation
+            </h2>
+
+            <div
+                    th:if="${booking.status.name() == 'CANCELLED'}"
+            >
+                <p>
+                    <span>
+                        Inbetalt belopp
+                    </span>
+
+                    <strong>
+                        <span
+                                th:text="${#numbers.formatInteger(booking.paidAmount, 1, 'WHITESPACE')}"
+                        >
+                            0
+                        </span>
+
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>
+                        Avbokningskostnad
+                    </span>
+
+                    <strong>
+                        <span
+                                th:text="${#numbers.formatInteger(booking.cancellationFee, 1, 'WHITESPACE')}"
+                        >
+                            0
+                        </span>
+
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>
+                        Återbetalning
+                    </span>
+
+                    <strong>
+                        <span
+                                th:text="${#numbers.formatInteger(booking.refundAmount, 1, 'WHITESPACE')}"
+                        >
+                            0
+                        </span>
+
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>
+                        Kvar att betala
+                    </span>
+
+                    <strong>
+                        0 kr
+                    </strong>
+                </p>
+            </div>
+
+            <div
+                    th:if="${booking.status.name() == 'CONFIRMED'
+                    and booking.paymentPlan.name() == 'STANDARD_DEPOSIT'}"
+            >
+                <p>
+                    <span>
+                        Handpenning
+                    </span>
+
+                    <strong>
+                        <span
+                                th:text="${#numbers.formatInteger(booking.depositAmount, 1, 'WHITESPACE')}"
+                        >
+                            2 250
+                        </span>
+
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>
+                        Handpenning senast
+                    </span>
+
+                    <strong
+                            th:text="${#temporals.format(booking.depositDueDate, 'dd MMMM yyyy')}"
+                    >
+                        19 juli 2026
+                    </strong>
+                </p>
+
+                <p>
+                    <span>
+                        Inbetalt belopp
+                    </span>
+
+                    <strong>
+                        <span
+                                th:text="${#numbers.formatInteger(booking.paidAmount, 1, 'WHITESPACE')}"
+                        >
+                            0
+                        </span>
+
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>
+                        Återstående belopp
+                    </span>
+
+                    <strong>
+                        <span
+                                th:text="${#numbers.formatInteger(booking.remainingAmount, 1, 'WHITESPACE')}"
+                        >
+                            12 740
+                        </span>
+
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>
+                        Slutbetalning senast
+                    </span>
+
+                    <strong
+                            th:text="${#temporals.format(booking.finalPaymentDueDate, 'dd MMMM yyyy')}"
+                    >
+                        11 augusti 2026
+                    </strong>
+                </p>
+            </div>
+
+            <div
+                    th:if="${booking.status.name() == 'CONFIRMED'
+                    and booking.paymentPlan.name() == 'IMMEDIATE_DEPOSIT'}"
+            >
+                <p>
+                    <span>
+                        Handpenning som betalas direkt
+                    </span>
+
+                    <strong>
+                        <span
+                                th:text="${#numbers.formatInteger(booking.depositAmount, 1, 'WHITESPACE')}"
+                        >
+                            2 250
+                        </span>
+
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>
+                        Inbetalt belopp
+                    </span>
+
+                    <strong>
+                        <span
+                                th:text="${#numbers.formatInteger(booking.paidAmount, 1, 'WHITESPACE')}"
+                        >
+                            0
+                        </span>
+
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>
+                        Återstående belopp
+                    </span>
+
+                    <strong>
+                        <span
+                                th:text="${#numbers.formatInteger(booking.remainingAmount, 1, 'WHITESPACE')}"
+                        >
+                            12 740
+                        </span>
+
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>
+                        Slutbetalning senast
+                    </span>
+
+                    <strong
+                            th:text="${#temporals.format(booking.finalPaymentDueDate, 'dd MMMM yyyy')}"
+                    >
+                        19 juli 2026
+                    </strong>
+                </p>
+            </div>
+
+            <div
+                    th:if="${booking.status.name() == 'CONFIRMED'
+                    and booking.paymentPlan.name() == 'FULL_PAYMENT'}"
+            >
+                <p>
+                    <span>
+                        Hela beloppet
+                    </span>
+
+                    <strong>
+                        <span
+                                th:text="${#numbers.formatInteger(booking.totalPrice, 1, 'WHITESPACE')}"
+                        >
+                            14 990
+                        </span>
+
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>
+                        Inbetalt belopp
+                    </span>
+
+                    <strong>
+                        <span
+                                th:text="${#numbers.formatInteger(booking.paidAmount, 1, 'WHITESPACE')}"
+                        >
+                            0
+                        </span>
+
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>
+                        Återstående belopp
+                    </span>
+
+                    <strong>
+                        <span
+                                th:text="${#numbers.formatInteger(booking.remainingAmount, 1, 'WHITESPACE')}"
+                        >
+                            14 990
+                        </span>
+
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>
+                        Förfallodatum
+                    </span>
+
+                    <strong
+                            th:text="${#temporals.format(booking.finalPaymentDueDate, 'dd MMMM yyyy')}"
+                    >
+                        12 juli 2026
+                    </strong>
+                </p>
+            </div>
+        </section>
+
+        <div class="lookup-result-actions">
+            <a th:href="@{/hitta-bokning}">
+                Sök efter en annan bokning
+            </a>
+
+            <a
+                    class="primary-result-action"
+                    th:href="@{/resor}"
+            >
+                Se fler resor
+            </a>
+        </div>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <div>
+        <strong>EriGo Travel</strong>
+
+        <p>
+            Resor att längta efter.
+        </p>
+    </div>
+
+    <p>
+        © 2026 EriGo Travel
+    </p>
+</footer>
+
+<script src="/js/home.js" defer></script>
+
+</body>
+</html>

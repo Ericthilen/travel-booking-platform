@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="bookingSummary(summary, hidePaymentInfo)" class="booking-summary-sidebar" th:if="${summary != null}">
+    <div class="summary-card">
+        <h3>Din bokning</h3>
+
+        <div class="summary-section">
+            <h4>Resan</h4>
+            <p>
+                <strong th:text="${summary.departure.travel.destination}">Mallorca</strong><br>
+                <span th:text="${summary.departure.travel.hotelName}">Sun Bay Resort</span><br>
+                <span th:text="${#temporals.format(summary.departure.departureDate, 'dd MMM')} + ' - ' + ${#temporals.format(summary.departure.returnDate, 'dd MMM yyyy')}">12 aug - 19 aug 2026</span>
+            </p>
+        </div>
+
+        <div class="summary-section">
+            <h4>Val</h4>
+            <p>
+                <span th:text="${summary.numberOfTravelers}">2</span> resenärer<br>
+                <span th:text="${summary.numberOfRooms}">1</span> x <span th:text="${summary.roomType.name}">Standardrum</span>
+            </p>
+        </div>
+
+        <div class="summary-section summary-prices">
+            <div class="price-row">
+                <span>Resa:</span>
+                <span>
+                    <span th:text="${#numbers.formatInteger(summary.travelPrice, 1, 'WHITESPACE')}">14 990</span> kr
+                </span>
+            </div>
+            <div class="price-row" th:if="${summary.roomSupplement > 0}">
+                <span>Rumstillägg:</span>
+                <span>
+                    <span th:text="${#numbers.formatInteger(summary.roomSupplement, 1, 'WHITESPACE')}">0</span> kr
+                </span>
+            </div>
+            <div class="price-row total">
+                <span>Totalpris:</span>
+                <span>
+                    <span th:text="${#numbers.formatInteger(summary.totalPrice, 1, 'WHITESPACE')}">14 990</span> kr
+                </span>
+            </div>
+
+            <div class="immediate-payment-info" th:if="${summary.immediatePaymentRequired and (hidePaymentInfo == null or !hidePaymentInfo)}">
+                <p class="payment-alert">
+                    <strong>OBS:</strong> Denna resa kräver omedelbar betalning av
+                    <span th:if="${summary.depositAmount < summary.totalPrice}">anmälningsavgift (</span>
+                    <span th:text="${#numbers.formatInteger(summary.depositAmount, 1, 'WHITESPACE')}">2 500</span> kr
+                    <span th:if="${summary.depositAmount < summary.totalPrice}">)</span>
+                    vid bokning.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

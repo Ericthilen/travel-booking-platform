@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Välj rumstyp – EriGo Travel</title>
+
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/booking-flow.css">
+</head>
+
+<body>
+
+<div
+        th:replace="~{fragments/site-header :: siteHeader('travels')}"
+></div>
+
+<main class="booking-page">
+  <section class="booking-progress">
+    <div class="progress-step completed">
+            <span>
+                ✓
+            </span>
+
+      <p>
+        Resenärer och rum
+      </p>
+    </div>
+
+    <div class="progress-line completed-line"></div>
+
+    <div class="progress-step active">
+            <span>
+                2
+            </span>
+
+      <p>
+        Rumstyp
+      </p>
+    </div>
+
+    <div class="progress-line"></div>
+
+    <div class="progress-step">
+            <span>
+                3
+            </span>
+
+      <p>
+        Uppgifter
+      </p>
+    </div>
+
+    <div class="progress-line"></div>
+
+    <div class="progress-step">
+            <span>
+                4
+            </span>
+
+      <p>
+        Bekräfta
+      </p>
+    </div>
+  </section>
+
+  <section class="booking-layout">
+    <div class="booking-main-card">
+      <p class="eyebrow dark">
+        Steg 2 av 4
+      </p>
+
+      <h1>
+        Välj rumstyp
+      </h1>
+
+      <p class="booking-introduction">
+        Vi visar endast rumstyper som har plats för din
+        rumsfördelning och som fortfarande finns tillgängliga.
+      </p>
+
+      <div
+              class="form-error-message"
+              th:if="${errorMessage}"
+              th:text="${errorMessage}"
+      >
+        Felmeddelande
+      </div>
+
+      <div
+              class="no-room-types"
+              th:if="${roomTypes.isEmpty()}"
+      >
+        <h2>
+          Inga rum passar din bokning
+        </h2>
+
+        <p>
+          Ändra antalet rum eller fördelningen av resenärerna.
+        </p>
+
+        <a
+                th:href="@{/bokning/{departureId}/resenarer(departureId=${departure.id})}"
+        >
+          Ändra resenärer och rum
+        </a>
+      </div>
+
+      <form
+              class="room-type-form"
+              th:action="@{/bokning/rumstyp}"
+              method="post"
+              th:unless="${roomTypes.isEmpty()}"
+      >
+        <div class="room-type-list">
+          <label
+                  class="room-type-card"
+                  th:each="roomType, status : ${roomTypes}"
+          >
+            <input
+                    type="radio"
+                    name="roomTypeId"
+                    th:value="${roomType.id}"
+                    th:checked="${status.first}"
+                    required
+            >
+
+            <span class="room-type-radio"></span>
+
+            <div class="room-type-content">
+              <div class="room-type-heading">
+                <div>
+                  <h2 th:text="${roomType.name}">
+                    Standardrum
+                  </h2>
+
+                  <p th:text="${roomType.description}">
+                    Beskrivning
+                  </p>
+                </div>
+
+                <span
+                        class="room-availability"
+                        th:text="${roomType.availableRooms + ' rum kvar'}"
+                >
+                                  5 rum kvar
+                              </span>
+              </div>
+
+              <div class="room-type-details">
+                              <span>
+                                  Max
+
+                                  <strong th:text="${roomType.maxGuests}">
+                                      2
+                                  </strong>
+
+                                  personer per rum
+                              </span>
+
+                <span>
+                                  <strong
+                                          th:if="${roomType.priceSupplementPerRoom == 0}"
+                                  >
+                                      Ingår i grundpriset
+                                  </strong>
+
+                                  <strong
+                                          th:unless="${roomType.priceSupplementPerRoom == 0}"
+                                  >
+                                      +
+
+                                      <span
+                                              th:text="${#numbers.formatInteger(roomType.priceSupplementPerRoom, 1, 'WHITESPACE')}"
+                                      >
+                                          1 500
+                                      </span>
+
+                                      kr per rum
+                                  </strong>
+                              </span>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <div class="booking-navigation">
+          <a
+                  class="previous-step-button"
+                  th:href="@{/bokning/{departureId}/resenarer(departureId=${departure.id})}"
+          >
+            Tillbaka
+          </a>
+
+          <button
+                  class="next-step-button"
+                  type="submit"
+          >
+            Nästa steg
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <aside th:if="${bookingSummary != null}" th:replace="~{fragments/booking-summary :: bookingSummary(${bookingSummary}, false)}"></aside>
+
+    <aside th:if="${bookingSummary == null}" class="booking-summary-card">
+      <img
+              th:src="${departure.travel.imageUrl}"
+              th:alt="${departure.travel.destination}"
+      >
+
+      <div>
+        <p
+                class="summary-country"
+                th:text="${departure.travel.country}"
+        >
+          Spanien
+        </p>
+
+        <h2 th:text="${departure.travel.destination}">
+          Mallorca
+        </h2>
+
+        <h3 th:text="${departure.travel.hotelName}">
+          Sun Bay Resort
+        </h3>
+
+        <dl>
+          <div>
+            <dt>
+              Avresa
+            </dt>
+
+            <dd
+                    th:text="${#temporals.format(departure.departureDate, 'dd MMMM yyyy')}"
+            >
+              12 augusti 2026
+            </dd>
+          </div>
+
+          <div>
+            <dt>
+              Hemresa
+            </dt>
+
+            <dd
+                    th:text="${#temporals.format(departure.returnDate, 'dd MMMM yyyy')}"
+            >
+              19 augusti 2026
+            </dd>
+          </div>
+
+          <div>
+            <dt>
+              Pris per person
+            </dt>
+
+            <dd>
+                              <span
+                                      th:text="${#numbers.formatInteger(departure.pricePerPerson, 1, 'WHITESPACE')}"
+                              >
+                                  7 495
+                              </span>
+
+              kr
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </aside>
+  </section>
+</main>
+
+<script src="/js/home.js" defer></script>
+
+</body>
+</html>

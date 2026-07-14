@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Bokningsuppgifter – EriGo Travel</title>
+
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/booking-flow.css">
+  <link rel="stylesheet" href="/css/booking-contact.css">
+
+  <script src="/js/booking-contact.js" defer></script>
+</head>
+
+<body>
+
+<div
+        th:replace="~{fragments/site-header :: siteHeader('travels')}"
+></div>
+
+<main class="booking-page">
+  <section class="booking-progress">
+    <div class="progress-step completed">
+      <span>✓</span>
+      <p>Resenärer och rum</p>
+    </div>
+
+    <div class="progress-line completed-line"></div>
+
+    <div class="progress-step completed">
+      <span>✓</span>
+      <p>Rumstyp</p>
+    </div>
+
+    <div class="progress-line completed-line"></div>
+
+    <div class="progress-step active">
+      <span>3</span>
+      <p>Uppgifter</p>
+    </div>
+
+    <div class="progress-line"></div>
+
+    <div class="progress-step">
+      <span>4</span>
+      <p>Bekräfta</p>
+    </div>
+  </section>
+
+  <section class="contact-booking-layout">
+    <form
+            class="contact-form"
+            th:action="@{/bokning/kunduppgifter}"
+            th:object="${bookingDetailsRequest}"
+            method="post"
+    >
+      <section class="contact-section-card">
+        <p class="eyebrow dark">Steg 3 av 4</p>
+
+        <h1>Bokningsansvarig</h1>
+
+        <p class="contact-introduction">
+          Bokningsansvarig är den person som får
+          bokningsbekräftelsen och fakturan.
+        </p>
+
+        <div
+                class="form-error-message"
+                th:if="${#fields.hasGlobalErrors()}"
+        >
+          <p
+                  th:each="error : ${#fields.globalErrors()}"
+                  th:text="${error}"
+          >
+            Felmeddelande
+          </p>
+        </div>
+
+        <div class="responsible-fields">
+          <div class="contact-field full-width">
+            <label for="responsiblePersonalNumber">
+              Personnummer
+            </label>
+
+            <input
+                    id="responsiblePersonalNumber"
+                    type="text"
+                    th:field="*{responsiblePersonalNumber}"
+                    placeholder="ÅÅÅÅMMDD-XXXX"
+                    autocomplete="off"
+            >
+
+            <p
+                    class="field-error"
+                    th:if="${#fields.hasErrors('responsiblePersonalNumber')}"
+                    th:errors="*{responsiblePersonalNumber}"
+            >
+              Felmeddelande
+            </p>
+          </div>
+
+          <div class="contact-field">
+            <label for="responsibleFirstName">
+              Förnamn
+            </label>
+
+            <input
+                    id="responsibleFirstName"
+                    type="text"
+                    th:field="*{responsibleFirstName}"
+                    autocomplete="given-name"
+                    placeholder="Förnamn"
+            >
+
+            <p
+                    class="field-error"
+                    th:if="${#fields.hasErrors('responsibleFirstName')}"
+                    th:errors="*{responsibleFirstName}"
+            >
+              Felmeddelande
+            </p>
+          </div>
+
+          <div class="contact-field">
+            <label for="responsibleLastName">
+              Efternamn
+            </label>
+
+            <input
+                    id="responsibleLastName"
+                    type="text"
+                    th:field="*{responsibleLastName}"
+                    autocomplete="family-name"
+                    placeholder="Efternamn"
+            >
+
+            <p
+                    class="field-error"
+                    th:if="${#fields.hasErrors('responsibleLastName')}"
+                    th:errors="*{responsibleLastName}"
+            >
+              Felmeddelande
+            </p>
+          </div>
+
+          <div class="contact-field">
+            <label for="responsiblePhone">
+              Telefonnummer
+            </label>
+
+            <input
+                    id="responsiblePhone"
+                    type="tel"
+                    th:field="*{responsiblePhone}"
+                    autocomplete="tel"
+                    placeholder="070-123 45 67"
+            >
+
+            <p
+                    class="field-error"
+                    th:if="${#fields.hasErrors('responsiblePhone')}"
+                    th:errors="*{responsiblePhone}"
+            >
+              Felmeddelande
+            </p>
+          </div>
+
+          <div class="contact-field">
+            <label for="responsibleEmail">
+              E-postadress
+            </label>
+
+            <input
+                    id="responsibleEmail"
+                    type="email"
+                    th:field="*{responsibleEmail}"
+                    autocomplete="email"
+                    placeholder="namn@exempel.se"
+            >
+
+            <p
+                    class="field-error"
+                    th:if="${#fields.hasErrors('responsibleEmail')}"
+                    th:errors="*{responsibleEmail}"
+            >
+              Felmeddelande
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="travelers-section">
+        <div class="travelers-heading">
+          <div>
+            <p class="eyebrow dark">Resenärsuppgifter</p>
+            <h2>Fyll i alla resenärer</h2>
+          </div>
+
+          <p>
+                        <span th:text="${bookingSession.numberOfTravelers}">
+                            2
+                        </span>
+            resenärer
+          </p>
+        </div>
+
+        <article
+                class="traveler-card"
+                th:each="traveler, status : *{travelers}"
+        >
+          <div class="traveler-card-heading">
+            <h3>
+              Resenär
+              <span th:text="${status.index + 1}">
+                                1
+                            </span>
+            </h3>
+
+            <label class="copy-responsible-label">
+              <input
+                      class="copy-responsible-checkbox"
+                      type="checkbox"
+                      th:attr="data-traveler-index=${status.index}"
+              >
+
+              <span>
+                                Kopiera bokningsansvarigs uppgifter
+                            </span>
+            </label>
+          </div>
+
+          <div class="traveler-fields">
+            <div class="contact-field full-width">
+              <label
+                      th:for="${'travelerPersonalNumber' + status.index}"
+              >
+                Personnummer
+              </label>
+
+              <input
+                      class="traveler-personal-number"
+                      th:id="${'travelerPersonalNumber' + status.index}"
+                      type="text"
+                      th:field="*{travelers[__${status.index}__].personalNumber}"
+                      placeholder="ÅÅÅÅMMDD-XXXX"
+              >
+
+              <p
+                      class="field-error"
+                      th:if="${#fields.hasErrors('travelers[' + status.index + '].personalNumber')}"
+                      th:errors="*{travelers[__${status.index}__].personalNumber}"
+              >
+                Felmeddelande
+              </p>
+            </div>
+
+            <div class="contact-field">
+              <label
+                      th:for="${'travelerFirstName' + status.index}"
+              >
+                Förnamn
+              </label>
+
+              <input
+                      class="traveler-first-name"
+                      th:id="${'travelerFirstName' + status.index}"
+                      type="text"
+                      th:field="*{travelers[__${status.index}__].firstName}"
+                      placeholder="Förnamn"
+              >
+
+              <p
+                      class="field-error"
+                      th:if="${#fields.hasErrors('travelers[' + status.index + '].firstName')}"
+                      th:errors="*{travelers[__${status.index}__].firstName}"
+              >
+                Felmeddelande
+              </p>
+            </div>
+
+            <div class="contact-field">
+              <label
+                      th:for="${'travelerLastName' + status.index}"
+              >
+                Efternamn
+              </label>
+
+              <input
+                      class="traveler-last-name"
+                      th:id="${'travelerLastName' + status.index}"
+                      type="text"
+                      th:field="*{travelers[__${status.index}__].lastName}"
+                      placeholder="Efternamn"
+              >
+
+              <p
+                      class="field-error"
+                      th:if="${#fields.hasErrors('travelers[' + status.index + '].lastName')}"
+                      th:errors="*{travelers[__${status.index}__].lastName}"
+              >
+                Felmeddelande
+              </p>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <div class="booking-navigation contact-navigation">
+        <a
+                class="previous-step-button"
+                th:href="@{/bokning/rumstyp}"
+        >
+          Tillbaka
+        </a>
+
+        <button class="next-step-button" type="submit">
+          Nästa steg
+        </button>
+      </div>
+    </form>
+
+    <aside th:replace="~{fragments/booking-summary :: bookingSummary(${bookingSummary}, false)}"></aside>
+  </section>
+</main>
+
+<script src="/js/home.js" defer></script>
+
+</body>
+</html>

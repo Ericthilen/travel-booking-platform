@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Bokningen är klar – EriGo Travel</title>
+
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/booking-confirmation.css">
+</head>
+
+<body>
+
+<div
+        th:replace="~{fragments/site-header :: siteHeader('travels')}"
+></div>
+
+<main class="confirmation-page">
+  <section class="confirmation-card">
+    <div class="confirmation-icon">
+      ✓
+    </div>
+
+    <p class="eyebrow dark">
+      Bokningen är klar
+    </p>
+
+    <h1>
+      Tack för din bokning!
+    </h1>
+
+    <div
+            class="email-status-message email-status-success"
+            th:if="${booking.bookingEmailStatus.name() == 'SENT'}"
+    >
+      <strong>
+        Bokningsbekräftelsen har skickats.
+      </strong>
+
+      <p>
+        Bokningsbekräftelsen och fakturan har skickats till
+
+        <span th:text="${booking.customer.email}">
+                    namn@exempel.se
+                </span>.
+      </p>
+    </div>
+
+    <div
+            class="email-status-message email-status-warning"
+            th:if="${booking.bookingEmailStatus.name() == 'NOT_SENT'}"
+    >
+      <strong>
+        Bokningen är sparad, men inget mejl skickades.
+      </strong>
+
+      <p>
+        E-postutskick är inte aktiverat just nu. Spara därför
+        kundnumret och bokningsnumret som visas nedan.
+      </p>
+    </div>
+
+    <div
+            class="email-status-message email-status-error"
+            th:if="${booking.bookingEmailStatus.name() == 'FAILED'}"
+    >
+      <strong>
+        Bokningen är sparad, men mejlet kunde inte skickas.
+      </strong>
+
+      <p>
+        Din bokning är fortfarande giltig. Spara kundnumret och
+        bokningsnumret. Är du inloggad kan du även ladda ner
+        fakturan direkt från sidan.
+      </p>
+    </div>
+
+    <div class="reference-grid">
+      <div>
+                <span>
+                    Kundnummer
+                </span>
+
+        <strong th:text="${booking.customer.customerNumber}">
+          ERG-123456
+        </strong>
+      </div>
+
+      <div>
+                <span>
+                    Bokningsnummer
+                </span>
+
+        <strong th:text="${booking.bookingNumber}">
+          BK-2026-123456
+        </strong>
+      </div>
+    </div>
+
+    <section class="confirmation-section">
+      <h2>
+        Din resa
+      </h2>
+
+      <div class="confirmation-details">
+        <div>
+                    <span>
+                        Resmål
+                    </span>
+
+          <strong
+                  th:text="${booking.departure.travel.destination}"
+          >
+            Mallorca
+          </strong>
+        </div>
+
+        <div>
+                    <span>
+                        Hotell
+                    </span>
+
+          <strong
+                  th:text="${booking.departure.travel.hotelName}"
+          >
+            Sun Bay Resort
+          </strong>
+        </div>
+
+        <div>
+                    <span>
+                        Avresa
+                    </span>
+
+          <strong
+                  th:text="${#temporals.format(booking.departure.departureDate, 'dd MMMM yyyy')}"
+          >
+            12 augusti 2026
+          </strong>
+        </div>
+
+        <div>
+                    <span>
+                        Hemresa
+                    </span>
+
+          <strong
+                  th:text="${#temporals.format(booking.departure.returnDate, 'dd MMMM yyyy')}"
+          >
+            19 augusti 2026
+          </strong>
+        </div>
+
+        <div>
+                    <span>
+                        Resenärer
+                    </span>
+
+          <strong th:text="${booking.numberOfTravelers}">
+            2
+          </strong>
+        </div>
+
+        <div>
+                    <span>
+                        Antal rum
+                    </span>
+
+          <strong th:text="${booking.numberOfRooms}">
+            1
+          </strong>
+        </div>
+
+        <div>
+                    <span>
+                        Rumstyp
+                    </span>
+
+          <strong th:text="${booking.roomType.name}">
+            Standardrum
+          </strong>
+        </div>
+
+        <div>
+                    <span>
+                        Bokningsdatum
+                    </span>
+
+          <strong
+                  th:text="${#temporals.format(booking.bookedAt, 'dd MMMM yyyy HH:mm')}"
+          >
+            13 juli 2026 18:30
+          </strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="confirmation-section payment-section">
+      <h2>
+        Betalningsinformation
+      </h2>
+
+      <div
+              th:if="${booking.paymentPlan.name() == 'STANDARD_DEPOSIT'}"
+      >
+        <p>
+                    <span>
+                        Handpenning
+                    </span>
+
+          <strong>
+                        <span
+                                th:text="${#numbers.formatInteger(booking.depositAmount, 1, 'WHITESPACE')}"
+                        >
+                            2 250
+                        </span>
+
+            kr
+          </strong>
+        </p>
+
+        <p>
+                    <span>
+                        Handpenning betalas senast
+                    </span>
+
+          <strong
+                  th:text="${#temporals.format(booking.depositDueDate, 'dd MMMM yyyy')}"
+          >
+            20 juli 2026
+          </strong>
+        </p>
+
+        <p>
+                    <span>
+                        Resterande belopp
+                    </span>
+
+          <strong>
+                        <span
+                                th:text="${#numbers.formatInteger(booking.remainingAmount, 1, 'WHITESPACE')}"
+                        >
+                            12 740
+                        </span>
+
+            kr
+          </strong>
+        </p>
+
+        <p>
+                    <span>
+                        Slutbetalning senast
+                    </span>
+
+          <strong
+                  th:text="${#temporals.format(booking.finalPaymentDueDate, 'dd MMMM yyyy')}"
+          >
+            12 augusti 2026
+          </strong>
+        </p>
+      </div>
+
+      <div
+              th:if="${booking.paymentPlan.name() == 'IMMEDIATE_DEPOSIT'}"
+      >
+        <p>
+                    <span>
+                        Handpenning som betalas direkt
+                    </span>
+
+          <strong>
+                        <span
+                                th:text="${#numbers.formatInteger(booking.depositAmount, 1, 'WHITESPACE')}"
+                        >
+                            2 250
+                        </span>
+
+            kr
+          </strong>
+        </p>
+
+        <p>
+                    <span>
+                        Resterande belopp
+                    </span>
+
+          <strong>
+                        <span
+                                th:text="${#numbers.formatInteger(booking.remainingAmount, 1, 'WHITESPACE')}"
+                        >
+                            12 740
+                        </span>
+
+            kr
+          </strong>
+        </p>
+
+        <p>
+                    <span>
+                        Slutbetalning senast
+                    </span>
+
+          <strong
+                  th:text="${#temporals.format(booking.finalPaymentDueDate, 'dd MMMM yyyy')}"
+          >
+            20 juli 2026
+          </strong>
+        </p>
+      </div>
+
+      <div
+              th:if="${booking.paymentPlan.name() == 'FULL_PAYMENT'}"
+      >
+        <p>
+                    <span>
+                        Hela resan ska betalas direkt
+                    </span>
+
+          <strong>
+                        <span
+                                th:text="${#numbers.formatInteger(booking.totalPrice, 1, 'WHITESPACE')}"
+                        >
+                            14 990
+                        </span>
+
+            kr
+          </strong>
+        </p>
+
+        <p>
+                    <span>
+                        Förfallodatum
+                    </span>
+
+          <strong
+                  th:text="${#temporals.format(booking.finalPaymentDueDate, 'dd MMMM yyyy')}"
+          >
+            13 juli 2026
+          </strong>
+        </p>
+      </div>
+
+      <div class="total-price-row">
+                <span>
+                    Totalpris
+                </span>
+
+        <strong>
+                    <span
+                            th:text="${#numbers.formatInteger(booking.totalPrice, 1, 'WHITESPACE')}"
+                    >
+                        14 990
+                    </span>
+
+          kr
+        </strong>
+      </div>
+    </section>
+
+    <p class="reference-notice">
+      Spara kundnumret och bokningsnumret. Du behöver dem för att
+      hitta bokningen senare om bokningen gjordes utan konto.
+    </p>
+
+    <div class="confirmation-actions">
+      <a th:href="@{/resor}">
+        Se fler resor
+      </a>
+
+      <a
+              class="primary-action"
+              th:href="@{/mina-bokningar/{id}/faktura(id=${booking.id})}"
+              th:if="${booking.user != null}"
+      >
+        Ladda ner faktura
+      </a>
+
+      <a
+              class="primary-action"
+              th:href="@{/mina-bokningar}"
+              th:if="${booking.user != null}"
+      >
+        Mina bokningar
+      </a>
+
+      <a
+              class="primary-action"
+              th:href="@{/hitta-bokning}"
+              th:if="${booking.user == null}"
+      >
+        Hitta bokning
+      </a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div>
+    <strong>
+      EriGo Travel
+    </strong>
+
+    <p>
+      Resor att längta efter.
+    </p>
+  </div>
+
+  <p>
+    © 2026 EriGo Travel
+  </p>
+</footer>
+
+<script src="/js/home.js" defer></script>
+
+</body>
+</html>

@@ -1,0 +1,262 @@
+.lookup-page,
+.lookup-result-page {
+    min-height: calc(100vh - 78px);
+    padding: 70px 6%;
+    background: var(--background-color);
+}
+
+.lookup-page {
+    display: flex;
+    justify-content: center;
+}
+
+.lookup-card {
+    width: 100%;
+    max-width: 590px;
+    padding: 42px;
+    background: var(--white);
+    border-radius: 22px;
+    box-shadow: var(--shadow);
+}
+
+.lookup-heading h1,
+.lookup-result-heading h1 {
+    margin: 0;
+    font-size: 40px;
+}
+
+.lookup-heading > p:last-child {
+    margin: 15px 0 30px;
+    color: var(--muted-text);
+    line-height: 1.7;
+}
+
+.lookup-form {
+    display: grid;
+    gap: 20px;
+}
+
+.lookup-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.lookup-field input {
+    width: 100%;
+    height: 52px;
+    padding: 0 14px;
+    color: var(--text-color);
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 11px;
+    outline: none;
+}
+
+.lookup-field input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 107, 116, 0.10);
+}
+
+.field-error {
+    margin: 7px 0 0;
+    color: #b42318;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.lookup-error-message {
+    margin-bottom: 22px;
+    padding: 15px;
+    color: #991b1b;
+    background: #fee2e2;
+    border-radius: 11px;
+    font-weight: 700;
+}
+
+.lookup-button {
+    min-height: 54px;
+    border: 0;
+    border-radius: 11px;
+    color: var(--white);
+    background: var(--primary-color);
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.lookup-button:hover {
+    background: var(--primary-dark);
+}
+
+.lookup-help {
+    margin-top: 28px;
+    padding: 20px;
+    background: var(--background-color);
+    border-radius: 13px;
+}
+
+.lookup-help h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.lookup-help p {
+    margin: 10px 0 0;
+    color: var(--muted-text);
+    line-height: 1.6;
+}
+
+.lookup-result-card {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 42px;
+    background: var(--white);
+    border-radius: 22px;
+    box-shadow: var(--shadow);
+}
+
+.lookup-result-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 25px;
+}
+
+.lookup-result-heading > div > p:last-child {
+    margin: 9px 0 0;
+    color: var(--muted-text);
+    font-size: 18px;
+}
+
+.booking-status {
+    padding: 9px 14px;
+    color: #166534;
+    background: #dcfce7;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.lookup-reference-grid {
+    margin-top: 30px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.lookup-reference-grid div {
+    padding: 20px;
+    background: var(--background-color);
+    border-radius: 13px;
+}
+
+.lookup-reference-grid span,
+.lookup-details-grid span,
+.traveler-result-item > span {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--muted-text);
+    font-size: 13px;
+}
+
+.lookup-reference-grid strong {
+    color: var(--primary-dark);
+    font-size: 21px;
+}
+
+.lookup-section {
+    margin-top: 28px;
+    padding: 27px;
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+}
+
+.lookup-section h2 {
+    margin: 0 0 22px;
+}
+
+.lookup-details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+}
+
+.lookup-details-grid div {
+    display: grid;
+}
+
+.traveler-result-list {
+    display: grid;
+    gap: 12px;
+}
+
+.traveler-result-item {
+    padding: 15px;
+    background: var(--background-color);
+    border-radius: 11px;
+}
+
+.payment-lookup-section p {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.payment-lookup-section p span {
+    color: var(--muted-text);
+}
+
+.lookup-result-actions {
+    margin-top: 30px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+}
+
+.lookup-result-actions a {
+    padding: 13px 19px;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 11px;
+    text-decoration: none;
+    font-weight: 800;
+}
+
+.lookup-result-actions .primary-result-action {
+    color: var(--white);
+    background: var(--primary-color);
+}
+
+.active-link {
+    color: var(--primary-color) !important;
+}
+
+@media (max-width: 650px) {
+    .lookup-page,
+    .lookup-result-page {
+        padding: 40px 5%;
+    }
+
+    .lookup-card,
+    .lookup-result-card {
+        padding: 27px 20px;
+    }
+
+    .lookup-heading h1,
+    .lookup-result-heading h1 {
+        font-size: 33px;
+    }
+
+    .lookup-result-heading,
+    .lookup-result-actions,
+    .payment-lookup-section p {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .lookup-reference-grid,
+    .lookup-details-grid {
+        grid-template-columns: 1fr;
+    }
+}

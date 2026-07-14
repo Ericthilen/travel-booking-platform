@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Registrera betalning – EriGo Travel</title>
+
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/admin-payment.css">
+</head>
+
+<body>
+
+<div
+        th:replace="~{fragments/site-header :: siteHeader('admin')}"
+></div>
+
+<main class="admin-payment-page">
+    <section class="admin-payment-container">
+        <a
+                class="admin-back-link"
+                th:href="@{/admin}"
+        >
+            ← Tillbaka till admin
+        </a>
+
+        <div class="admin-payment-heading">
+            <div>
+                <p class="eyebrow dark">
+                    Administration
+                </p>
+
+                <h1>
+                    Registrera betalning
+                </h1>
+
+                <p>
+                    Hantera betalningar för bokning
+
+                    <strong th:text="${booking.bookingNumber}">
+                        BK-2026-123456
+                    </strong>.
+                </p>
+            </div>
+
+            <span
+                    class="booking-status-badge"
+                    th:classappend="${booking.status.name() == 'CANCELLED'}
+                    ? ' cancelled'"
+                    th:text="${booking.status.displayName}"
+            >
+                Bekräftad
+            </span>
+        </div>
+
+        <div
+                class="admin-success-message"
+                th:if="${param.registered != null}"
+        >
+            Betalningen har registrerats.
+        </div>
+
+        <div class="admin-payment-layout">
+            <div class="admin-payment-main">
+                <section class="admin-card">
+                    <h2>
+                        Bokningsinformation
+                    </h2>
+
+                    <div class="booking-information-grid">
+                        <div>
+                            <span>
+                                Kund
+                            </span>
+
+                            <strong
+                                    th:text="${booking.customer.firstName
+                                    + ' '
+                                    + booking.customer.lastName}"
+                            >
+                                Eric Thilen
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>
+                                Kundnummer
+                            </span>
+
+                            <strong
+                                    th:text="${booking.customer.customerNumber}"
+                            >
+                                ERG-123456
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>
+                                Resmål
+                            </span>
+
+                            <strong
+                                    th:text="${booking.departure.travel.destination}"
+                            >
+                                Mallorca
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>
+                                Avresa
+                            </span>
+
+                            <strong
+                                    th:text="${#temporals.format(
+                                    booking.departure.departureDate,
+                                    'dd MMMM yyyy'
+                                    )}"
+                            >
+                                12 augusti 2026
+                            </strong>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="admin-card">
+                    <h2>
+                        Betalningssammanställning
+                    </h2>
+
+                    <div class="payment-summary-grid">
+                        <div>
+                            <span>
+                                Totalpris
+                            </span>
+
+                            <strong>
+                                <span
+                                        th:text="${#numbers.formatInteger(
+                                        booking.totalPrice,
+                                        1,
+                                        'WHITESPACE'
+                                        )}"
+                                >
+                                    14 990
+                                </span>
+
+                                kr
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>
+                                Betalt hittills
+                            </span>
+
+                            <strong>
+                                <span
+                                        th:text="${#numbers.formatInteger(
+                                        booking.paidAmount,
+                                        1,
+                                        'WHITESPACE'
+                                        )}"
+                                >
+                                    2 250
+                                </span>
+
+                                kr
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>
+                                Återstår
+                            </span>
+
+                            <strong>
+                                <span
+                                        th:text="${#numbers.formatInteger(
+                                        remainingToPay,
+                                        1,
+                                        'WHITESPACE'
+                                        )}"
+                                >
+                                    12 740
+                                </span>
+
+                                kr
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>
+                                Betalningsstatus
+                            </span>
+
+                            <strong
+                                    th:text="${booking.paymentStatus.displayName}"
+                            >
+                                Delvis betald
+                            </strong>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="admin-card">
+                    <h2>
+                        Betalningshistorik
+                    </h2>
+
+                    <div
+                            class="empty-payment-history"
+                            th:if="${payments.isEmpty()}"
+                    >
+                        Inga betalningar har registrerats ännu.
+                    </div>
+
+                    <div
+                            class="payment-history"
+                            th:unless="${payments.isEmpty()}"
+                    >
+                        <article
+                                class="payment-history-item"
+                                th:each="payment : ${payments}"
+                        >
+                            <div class="payment-history-icon">
+                                ✓
+                            </div>
+
+                            <div class="payment-history-content">
+                                <div class="payment-history-heading">
+                                    <div>
+                                        <h3>
+                                            Betalning registrerad
+                                        </h3>
+
+                                        <p
+                                                th:text="${#temporals.format(
+                                                payment.paymentDate,
+                                                'dd MMMM yyyy'
+                                                )}"
+                                        >
+                                            14 juli 2026
+                                        </p>
+                                    </div>
+
+                                    <strong>
+                                        <span
+                                                th:text="${#numbers.formatInteger(
+                                                payment.amount,
+                                                1,
+                                                'WHITESPACE'
+                                                )}"
+                                        >
+                                            2 250
+                                        </span>
+
+                                        kr
+                                    </strong>
+                                </div>
+
+                                <div class="payment-history-details">
+                                    <span>
+                                        Betalningssätt:
+
+                                        <strong
+                                                th:text="${payment.paymentMethod.displayName}"
+                                        >
+                                            Banköverföring
+                                        </strong>
+                                    </span>
+
+                                    <span>
+                                        Referens:
+
+                                        <strong
+                                                th:text="${payment.reference}"
+                                        >
+                                            BANK-123456
+                                        </strong>
+                                    </span>
+
+                                    <span>
+                                        Registrerad:
+
+                                        <strong
+                                                th:text="${#temporals.format(
+                                                payment.registeredAt,
+                                                'dd MMMM yyyy HH:mm'
+                                                )}"
+                                        >
+                                            14 juli 2026 12:30
+                                        </strong>
+                                    </span>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+            </div>
+
+            <aside class="register-payment-card">
+                <h2>
+                    Ny betalning
+                </h2>
+
+                <p>
+                    Registrera en betalning som kunden redan har gjort.
+                </p>
+
+                <form
+                        class="register-payment-form"
+                        th:action="@{/admin/bokningar/{bookingId}/betalningar(
+                        bookingId=${booking.id}
+                        )}"
+                        th:object="${paymentRequest}"
+                        method="post"
+                >
+                    <div
+                            class="payment-form-error"
+                            th:if="${#fields.hasGlobalErrors()}"
+                    >
+                        <p
+                                th:each="error : ${#fields.globalErrors()}"
+                                th:text="${error}"
+                        >
+                            Betalningen kunde inte registreras.
+                        </p>
+                    </div>
+
+                    <div class="admin-form-field">
+                        <label for="amount">
+                            Belopp
+                        </label>
+
+                        <div class="amount-input">
+                            <input
+                                    id="amount"
+                                    type="number"
+                                    min="1"
+                                    th:attr="max=${remainingToPay}"
+                                    th:field="*{amount}"
+                            >
+
+                            <span>
+                                kr
+                            </span>
+                        </div>
+
+                        <p
+                                class="field-error"
+                                th:if="${#fields.hasErrors('amount')}"
+                                th:errors="*{amount}"
+                        >
+                            Felmeddelande
+                        </p>
+                    </div>
+
+                    <div class="admin-form-field">
+                        <label for="paymentDate">
+                            Betalningsdatum
+                        </label>
+
+                        <input
+                                id="paymentDate"
+                                type="date"
+                                th:field="*{paymentDate}"
+                        >
+
+                        <p
+                                class="field-error"
+                                th:if="${#fields.hasErrors('paymentDate')}"
+                                th:errors="*{paymentDate}"
+                        >
+                            Felmeddelande
+                        </p>
+                    </div>
+
+                    <div class="admin-form-field">
+                        <label for="paymentMethod">
+                            Betalningssätt
+                        </label>
+
+                        <select
+                                id="paymentMethod"
+                                th:field="*{paymentMethod}"
+                        >
+                            <option value="">
+                                Välj betalningssätt
+                            </option>
+
+                            <option
+                                    th:each="method : ${paymentMethods}"
+                                    th:value="${method}"
+                                    th:text="${method.displayName}"
+                            >
+                                Banköverföring
+                            </option>
+                        </select>
+
+                        <p
+                                class="field-error"
+                                th:if="${#fields.hasErrors('paymentMethod')}"
+                                th:errors="*{paymentMethod}"
+                        >
+                            Felmeddelande
+                        </p>
+                    </div>
+
+                    <div class="admin-form-field">
+                        <label for="reference">
+                            Betalningsreferens
+                        </label>
+
+                        <input
+                                id="reference"
+                                type="text"
+                                th:field="*{reference}"
+                                placeholder="Till exempel BANK-123456"
+                        >
+
+                        <p
+                                class="field-error"
+                                th:if="${#fields.hasErrors('reference')}"
+                                th:errors="*{reference}"
+                        >
+                            Felmeddelande
+                        </p>
+                    </div>
+
+                    <button
+                            class="register-payment-button"
+                            type="submit"
+                            th:disabled="${remainingToPay == 0
+                            or booking.status.name() == 'CANCELLED'}"
+                    >
+                        Registrera betalning
+                    </button>
+
+                    <p
+                            class="payment-form-notice"
+                            th:if="${remainingToPay == 0}"
+                    >
+                        Bokningen är redan fullbetald.
+                    </p>
+
+                    <p
+                            class="payment-form-notice"
+                            th:if="${booking.status.name() == 'CANCELLED'}"
+                    >
+                        Betalningar kan inte registreras på en
+                        avbokad bokning.
+                    </p>
+                </form>
+            </aside>
+        </div>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <div>
+        <strong>
+            EriGo Travel
+        </strong>
+
+        <p>
+            Resor att längta efter.
+        </p>
+    </div>
+
+    <p>
+        © 2026 EriGo Travel
+    </p>
+</footer>
+
+<script src="/js/home.js" defer></script>
+
+</body>
+</html>

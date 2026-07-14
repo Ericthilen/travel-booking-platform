@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Kontrollera bokningen – EriGo Travel</title>
+
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/booking-flow.css">
+    <link rel="stylesheet" href="/css/booking-contact.css">
+    <link rel="stylesheet" href="/css/booking-details.css">
+</head>
+
+<body>
+
+<div
+        th:replace="~{fragments/site-header :: siteHeader('travels')}"
+></div>
+
+<main class="booking-page">
+    <section class="booking-progress">
+        <div class="progress-step completed">
+            <span>✓</span>
+            <p>Resenärer och rum</p>
+        </div>
+
+        <div class="progress-line completed-line"></div>
+
+        <div class="progress-step completed">
+            <span>✓</span>
+            <p>Rumstyp</p>
+        </div>
+
+        <div class="progress-line completed-line"></div>
+
+        <div class="progress-step completed">
+            <span>✓</span>
+            <p>Uppgifter</p>
+        </div>
+
+        <div class="progress-line completed-line"></div>
+
+        <div class="progress-step active">
+            <span>4</span>
+            <p>Bekräfta</p>
+        </div>
+    </section>
+
+    <section class="contact-booking-layout">
+      <div class="booking-main-card">
+        <p class="eyebrow dark">Steg 4 av 4</p>
+
+        <h1>Kontrollera din bokning</h1>
+
+        <p class="booking-introduction">
+            Kontrollera uppgifterna och godkänn resevillkoren innan
+            bokningen skapas.
+        </p>
+
+        <div
+                class="form-error-message"
+                th:if="${bookingError}"
+                th:text="${bookingError}"
+        >
+            Bokningen kunde inte skapas.
+        </div>
+
+        <div class="temporary-selection-summary">
+            <h2>Resan</h2>
+
+            <p>
+                <strong>Resmål:</strong>
+                <span th:text="${bookingSummary.departure.travel.destination}">
+                    Mallorca
+                </span>
+            </p>
+
+            <p>
+                <strong>Hotell:</strong>
+                <span th:text="${bookingSummary.departure.travel.hotelName}">
+                    Sun Bay Resort
+                </span>
+            </p>
+
+            <p>
+                <strong>Avresa:</strong>
+                <span
+                        th:text="${#temporals.format(bookingSummary.departure.departureDate, 'dd MMMM yyyy')}"
+                >
+                    12 augusti 2026
+                </span>
+            </p>
+
+            <p>
+                <strong>Hemresa:</strong>
+                <span
+                        th:text="${#temporals.format(bookingSummary.departure.returnDate, 'dd MMMM yyyy')}"
+                >
+                    19 augusti 2026
+                </span>
+            </p>
+
+            <p>
+                <strong>Rumstyp:</strong>
+                <span th:text="${bookingSummary.roomType.name}">
+                    Standardrum
+                </span>
+            </p>
+
+            <p>
+                <strong>Antal rum:</strong>
+                <span th:text="${bookingSession.numberOfRooms}">
+                    1
+                </span>
+            </p>
+
+            <p>
+                <strong>Antal resenärer:</strong>
+                <span th:text="${bookingSession.numberOfTravelers}">
+                    2
+                </span>
+            </p>
+        </div>
+
+        <div class="temporary-selection-summary">
+            <h2>Bokningsansvarig</h2>
+
+            <p>
+                <strong>Namn:</strong>
+                <span
+                        th:text="${bookingSession.responsibleFirstName + ' ' + bookingSession.responsibleLastName}"
+                >
+                    Eric Thilen
+                </span>
+            </p>
+
+            <p>
+                <strong>Personnummer:</strong>
+                <span th:text="${bookingSession.responsiblePersonalNumber}">
+                    20030101-1234
+                </span>
+            </p>
+
+            <p>
+                <strong>Telefon:</strong>
+                <span th:text="${bookingSession.responsiblePhone}">
+                    070-123 45 67
+                </span>
+            </p>
+
+            <p>
+                <strong>E-post:</strong>
+                <span th:text="${bookingSession.responsibleEmail}">
+                    namn@exempel.se
+                </span>
+            </p>
+        </div>
+
+        <div class="temporary-selection-summary">
+            <h2>Resenärer</h2>
+
+            <p
+                    th:each="traveler, status : ${bookingSession.travelers}"
+            >
+                <strong>
+                    Resenär
+                    <span th:text="${status.index + 1}">1</span>:
+                </strong>
+
+                <span
+                        th:text="${traveler.firstName + ' ' + traveler.lastName}"
+                >
+                    Eric Thilen
+                </span>
+
+                ·
+
+                <span th:text="${traveler.personalNumber}">
+                    20030101-1234
+                </span>
+            </p>
+        </div>
+
+        <div class="temporary-selection-summary">
+            <h2>Pris</h2>
+
+            <p>
+                <strong>Resa:</strong>
+
+                <span>
+                    <span
+                            th:text="${#numbers.formatInteger(bookingSummary.travelPrice, 1, 'WHITESPACE')}"
+                    >
+                        14 990
+                    </span>
+                    kr
+                </span>
+            </p>
+
+            <p th:if="${bookingSummary.roomSupplement > 0}">
+                <strong>Rumstillägg:</strong>
+
+                <span>
+                    <span
+                            th:text="${#numbers.formatInteger(bookingSummary.roomSupplement, 1, 'WHITESPACE')}"
+                    >
+                        0
+                    </span>
+                    kr
+                </span>
+            </p>
+
+            <p>
+                <strong>Totalpris:</strong>
+
+                <span>
+                    <span
+                            th:text="${#numbers.formatInteger(bookingSummary.totalPrice, 1, 'WHITESPACE')}"
+                    >
+                        14 990
+                    </span>
+                    kr
+                </span>
+            </p>
+        </div>
+
+        <form
+                class="booking-form"
+                th:action="@{/bokning/bekrafta}"
+                th:object="${bookingConfirmationRequest}"
+                method="post"
+                id="bookingConfirmationForm"
+        >
+            <div class="temporary-selection-summary">
+                <div class="booking-field">
+                    <label for="discoverySource">
+                        Hur hittade du resan?
+                    </label>
+
+                    <select
+                            id="discoverySource"
+                            th:field="*{discoverySource}"
+                    >
+                        <option value="">
+                            Välj ett alternativ
+                        </option>
+
+                        <option
+                                th:each="source : ${discoverySources}"
+                                th:value="${source}"
+                                th:text="${source.displayName}"
+                        >
+                            EriGo Travels hemsida
+                        </option>
+                    </select>
+
+                    <p
+                            class="field-error"
+                            th:if="${#fields.hasErrors('discoverySource')}"
+                            th:errors="*{discoverySource}"
+                    >
+                        Felmeddelande
+                    </p>
+                </div>
+            </div>
+
+            <!-- Betalningssektion om omedelbar betalning krävs -->
+            <input type="hidden" th:field="*{paymentMethod}" id="hiddenMethod">
+            <input type="hidden" th:field="*{cardHolderName}" id="hiddenCardHolderName">
+            <input type="hidden" th:field="*{cardNumber}" id="hiddenCardNumber">
+            <input type="hidden" th:field="*{expiryDate}" id="hiddenExpiryDate">
+            <input type="hidden" th:field="*{cvc}" id="hiddenCvc">
+            <input type="hidden" th:field="*{phoneNumber}" id="hiddenPhoneNumber">
+
+            <div class="temporary-selection-summary">
+                <h2>Resevillkor</h2>
+
+                <p>
+                    När du bokar resan godkänner du våra resevillkor.
+                </p>
+
+                <p>
+                    <a href="#" target="_blank">
+                        Läs våra resevillkor för paketresor
+                    </a>
+                </p>
+
+                <p>
+                    Dessutom har EriGo Travel enligt lag ett skydd för
+                    att återbetala dina betalningar och, när transport
+                    ingår i paketresan, säkerställa din hemtransport om
+                    EriGo Travel hamnar på obestånd.
+                </p>
+
+                <p>
+                    De kombinerade resetjänster du erbjuds utgör en
+                    paketresa i den mening som avses i direktiv
+                    (EU) 2015/2302. Därför omfattas du av de
+                    EU-rättigheter som gäller för paketresor.
+                    EriGo Travel ansvarar för att paketresan som helhet
+                    fullgörs korrekt.
+                </p>
+
+                <label class="copy-responsible-label">
+                    <input
+                            type="checkbox"
+                            th:field="*{termsAccepted}"
+                    >
+
+                    <span>
+                        Jag har läst och godkänner resevillkoren.
+                    </span>
+                </label>
+
+                <p
+                        class="field-error"
+                        th:if="${#fields.hasErrors('termsAccepted')}"
+                        th:errors="*{termsAccepted}"
+                >
+                    Felmeddelande
+                </p>
+            </div>
+
+            <div class="booking-navigation">
+                <a
+                        class="previous-step-button"
+                        th:href="@{/bokning/kunduppgifter}"
+                >
+                    Ändra uppgifter
+                </a>
+
+                <button class="next-step-button" type="submit" id="mainSubmitBtn" th:text="${bookingSummary.immediatePaymentRequired ? 'Boka och betala' : 'Boka resan'}">
+                    Boka resan
+                </button>
+            </div>
+        </form>
+      </div>
+      <aside th:replace="~{fragments/booking-summary :: bookingSummary(${bookingSummary}, true)}"></aside>
+    </section>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal" th:if="${bookingSummary.immediatePaymentRequired}">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closePaymentModal()">&times;</span>
+            <h2 id="modalTitle">Betalning</h2>
+            <p class="modal-notice">
+                Denna resa kräver omedelbar betalning av
+                <strong th:text="${#numbers.formatInteger(bookingSummary.depositAmount, 1, 'WHITESPACE')}">2 500</strong> kr.
+                <br>
+                <strong>OBS: Använd endast falska testuppgifter!</strong>
+            </p>
+
+            <div id="methodSelection">
+                <p>Välj betalsätt:</p>
+                <div class="modal-method-buttons">
+                    <button type="button" class="modal-method-btn card-choice-btn" onclick="selectMethod('CARD')">Kort</button>
+                    <button type="button" class="modal-method-btn swish-choice-btn" onclick="selectMethod('SWISH')">Swish</button>
+                </div>
+            </div>
+
+            <div id="cardPaymentFields" style="display: none;">
+                <button type="button" class="back-to-methods" onclick="showMethods()">&larr; Tillbaka</button>
+                <div class="form-group">
+                    <label for="cardNameInput">Kortinnehavarens namn</label>
+                    <input type="text" id="cardNameInput" placeholder="Namn på kortet">
+                </div>
+                <div class="form-group">
+                    <label for="cardNumberInput">Kortnummer</label>
+                    <input type="text" id="cardNumberInput" placeholder="0000 0000 0000 0000">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="expiryInput">Giltighetstid (MM/ÅÅ)</label>
+                        <input type="text" id="expiryInput" placeholder="MM/ÅÅ">
+                    </div>
+                    <div class="form-group">
+                        <label for="cvcInput">CVC</label>
+                        <input type="text" id="cvcInput" placeholder="123">
+                    </div>
+                </div>
+                <button type="button" class="submit-payment-btn" onclick="finalizePayment('CARD')">
+                    Betala <span th:text="${#numbers.formatInteger(bookingSummary.depositAmount, 1, 'WHITESPACE')}">0</span> kr
+                </button>
+            </div>
+
+            <div id="swishPaymentFields" style="display: none;">
+                <button type="button" class="back-to-methods" onclick="showMethods()">&larr; Tillbaka</button>
+                <div class="form-group">
+                    <label for="phoneInput">Mobilnummer</label>
+                    <input type="text" id="phoneInput" placeholder="070-000 00 00">
+                </div>
+                <button type="button" class="submit-payment-btn" onclick="finalizePayment('SWISH')">
+                    Betala <span th:text="${#numbers.formatInteger(bookingSummary.depositAmount, 1, 'WHITESPACE')}">0</span> kr
+                </button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="/js/home.js" defer></script>
+<script src="/js/booking-review.js" defer></script>
+
+</body>
+</html>

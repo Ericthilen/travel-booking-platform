@@ -18,47 +18,9 @@
 
 <body>
 
-<header class="site-header">
-  <a class="logo" href="/">
-    <span class="logo-mark">E</span>
-    <span>EriGo Travel</span>
-  </a>
-
-  <nav class="navigation">
-    <a href="/">Hem</a>
-    <a class="active-link" href="/resor">Resor</a>
-
-    <a
-            href="/mina-bokningar"
-            sec:authorize="isAuthenticated()"
-    >
-      Mina bokningar
-    </a>
-
-    <a
-            class="login-link"
-            href="/login"
-            sec:authorize="isAnonymous()"
-    >
-      Logga in
-    </a>
-
-    <form
-            class="logout-form"
-            th:action="@{/logout}"
-            method="post"
-            sec:authorize="isAuthenticated()"
-    >
-      <button class="logout-button" type="submit">
-        Logga ut
-      </button>
-    </form>
-  </nav>
-
-  <button class="menu-button" type="button" aria-label="Öppna meny">
-    ☰
-  </button>
-</header>
+<div
+        th:replace="~{fragments/site-header :: siteHeader('travels')}"
+></div>
 
 <main>
   <section
@@ -66,7 +28,10 @@
           th:style="'background-image: linear-gradient(rgba(0, 45, 52, 0.25), rgba(0, 45, 52, 0.75)), url(' + ${travel.imageUrl} + ');'"
   >
     <div class="details-hero-content">
-      <a class="back-link" href="/resor">
+      <a
+              class="back-link"
+              th:href="@{/resor}"
+      >
         ← Tillbaka till alla resor
       </a>
 
@@ -95,10 +60,41 @@
     </div>
   </section>
 
+  <nav
+          class="travel-tabs"
+          aria-label="Reseinformation"
+  >
+    <div class="travel-tabs-inner">
+      <a
+              class="travel-tab active"
+              th:href="@{/resor/{id}(id=${travel.id})}"
+      >
+        Start
+      </a>
+
+      <a
+              class="travel-tab"
+              th:href="@{/resor/{id}/avgangar(id=${travel.id})}"
+      >
+        Avgångar
+      </a>
+
+      <span class="travel-tab disabled-tab">
+                Hotell och rum
+            </span>
+
+      <span class="travel-tab disabled-tab">
+                Information
+            </span>
+    </div>
+  </nav>
+
   <section class="details-page">
     <div class="details-main">
       <section class="details-card hotel-description">
-        <p class="eyebrow dark">Om resan</p>
+        <p class="eyebrow dark">
+          Om resan
+        </p>
 
         <h2 th:text="${travel.hotelName}">
           Hotellnamn
@@ -110,20 +106,31 @@
       </section>
 
       <section class="details-card">
-        <p class="eyebrow dark">Detta ingår</p>
+        <p class="eyebrow dark">
+          Detta ingår
+        </p>
 
-        <h2>Din paketresa</h2>
+        <h2>
+          Din paketresa
+        </h2>
 
         <div class="included-grid">
           <article>
-            <span class="included-icon">✈</span>
+                        <span class="included-icon">
+                            ✈
+                        </span>
 
             <div>
-              <h3>Flyg tur och retur</h3>
+              <h3>
+                Flyg tur och retur
+              </h3>
 
               <p>
                 Avresa från
-                <strong th:text="${travel.departureAirport}">
+
+                <strong
+                        th:text="${travel.departureAirport}"
+                >
                   Flygplats
                 </strong>
               </p>
@@ -131,14 +138,22 @@
           </article>
 
           <article>
-            <span class="included-icon">🏨</span>
+                        <span class="included-icon">
+                            🏨
+                        </span>
 
             <div>
-              <h3>Hotell</h3>
+              <h3>
+                Hotell
+              </h3>
 
               <p>
-                <strong th:text="${travel.nights}">7</strong>
+                <strong th:text="${travel.nights}">
+                  7
+                </strong>
+
                 nätter på
+
                 <strong th:text="${travel.hotelName}">
                   Hotell
                 </strong>
@@ -147,10 +162,14 @@
           </article>
 
           <article>
-            <span class="included-icon">🍽</span>
+                        <span class="included-icon">
+                            🍽
+                        </span>
 
             <div>
-              <h3>Måltider</h3>
+              <h3>
+                Måltider
+              </h3>
 
               <p th:text="${travel.mealType}">
                 Frukost
@@ -159,10 +178,14 @@
           </article>
 
           <article>
-            <span class="included-icon">🧳</span>
+                        <span class="included-icon">
+                            🧳
+                        </span>
 
             <div>
-              <h3>Bagage</h3>
+              <h3>
+                Bagage
+              </h3>
 
               <p>
                 Incheckat bagage och handbagage ingår.
@@ -173,9 +196,13 @@
       </section>
 
       <section class="details-card">
-        <p class="eyebrow dark">Hotellet</p>
+        <p class="eyebrow dark">
+          Hotellet
+        </p>
 
-        <h2>Faciliteter</h2>
+        <h2>
+          Faciliteter
+        </h2>
 
         <div class="facilities-grid">
           <div
@@ -183,14 +210,19 @@
                   th:each="facility : ${travel.facilities}"
           >
             <span>✓</span>
-            <p th:text="${facility}">Facilitet</p>
+
+            <p th:text="${facility}">
+              Facilitet
+            </p>
           </div>
         </div>
       </section>
     </div>
 
     <aside class="booking-card">
-      <p class="booking-label">Paketresa</p>
+      <p class="booking-label">
+        Paketresa
+      </p>
 
       <h2 th:text="${travel.destination}">
         Resmål
@@ -202,16 +234,23 @@
 
       <div class="booking-information">
         <div>
-          <span>Reslängd</span>
+                    <span>
+                        Reslängd
+                    </span>
 
           <strong>
-            <span th:text="${travel.nights}">7</span>
+                        <span th:text="${travel.nights}">
+                            7
+                        </span>
+
             nätter
           </strong>
         </div>
 
         <div>
-          <span>Måltider</span>
+                    <span>
+                        Måltider
+                    </span>
 
           <strong th:text="${travel.mealType}">
             Frukost
@@ -219,7 +258,9 @@
         </div>
 
         <div>
-          <span>Avreseflygplats</span>
+                    <span>
+                        Avreseflygplats
+                    </span>
 
           <strong th:text="${travel.departureAirport}">
             Flygplats
@@ -228,7 +269,9 @@
       </div>
 
       <div class="booking-price">
-        <small>Pris per person från</small>
+        <small>
+          Pris per person från
+        </small>
 
         <strong>
                     <span
@@ -236,16 +279,20 @@
                     >
                         7 495
                     </span>
+
           kr
         </strong>
       </div>
 
-      <button class="book-button" type="button">
-        Boka resa
-      </button>
+      <a
+              class="book-button"
+              th:href="@{/resor/{id}/avgangar(id=${travel.id})}"
+      >
+        Visa avgångar
+      </a>
 
       <p class="booking-notice">
-        Bokningsflödet byggs i ett senare steg.
+        Välj en avgång för att fortsätta bokningen.
       </p>
     </aside>
   </section>
@@ -254,7 +301,10 @@
 <footer class="site-footer">
   <div>
     <strong>EriGo Travel</strong>
-    <p>Resor att längta efter.</p>
+
+    <p>
+      Resor att längta efter.
+    </p>
   </div>
 
   <p>© 2026 EriGo Travel</p>

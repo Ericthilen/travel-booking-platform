@@ -16,39 +16,24 @@
 
 <body>
 
-<header class="site-header">
-    <a class="logo" href="/">
-        <span class="logo-mark">E</span>
-        <span>EriGo Travel</span>
-    </a>
-
-    <nav class="navigation">
-        <a href="/">Hem</a>
-        <a href="/resor">Resor</a>
-        <a class="active-link" href="/mina-bokningar">
-            Mina bokningar
-        </a>
-
-        <form
-                class="logout-form"
-                th:action="@{/logout}"
-                method="post"
-        >
-            <button class="logout-button" type="submit">
-                Logga ut
-            </button>
-        </form>
-    </nav>
-</header>
+<div
+        th:replace="~{fragments/site-header :: siteHeader('bookings')}"
+></div>
 
 <main>
     <section class="bookings-hero">
         <div>
-            <p class="eyebrow">Ditt konto</p>
-            <h1>Mina bokningar</h1>
+            <p class="eyebrow">
+                Ditt konto
+            </p>
+
+            <h1>
+                Mina bokningar
+            </h1>
 
             <p>
                 Inloggad som
+
                 <strong sec:authentication="name">
                     kund@exempel.se
                 </strong>
@@ -57,18 +42,190 @@
     </section>
 
     <section class="bookings-section">
-        <div class="empty-bookings-card">
-            <div class="empty-bookings-icon">✈</div>
+        <div
+                class="booking-warning-message"
+                th:if="${param.notFound}"
+        >
+            Bokningen kunde inte hittas eller tillhör inte ditt konto.
+        </div>
 
-            <h2>Du har inga bokningar ännu</h2>
+        <div
+                class="empty-bookings-card"
+                th:if="${bookings.isEmpty()}"
+        >
+            <div class="empty-bookings-icon">
+                ✈
+            </div>
+
+            <h2>
+                Du har inga bokningar ännu
+            </h2>
 
             <p>
-                När du bokar en resa kommer den att visas här.
+                Bokningar som görs när du är inloggad visas här.
             </p>
 
-            <a href="/resor">
+            <a th:href="@{/resor}">
                 Hitta en resa
             </a>
+        </div>
+
+        <div
+                class="bookings-list"
+                th:unless="${bookings.isEmpty()}"
+        >
+            <div class="bookings-heading">
+                <div>
+                    <p class="eyebrow dark">
+                        Dina resor
+                    </p>
+
+                    <h2>
+                        Aktuella bokningar
+                    </h2>
+                </div>
+
+                <p>
+                    <span th:text="${bookings.size()}">
+                        0
+                    </span>
+
+                    bokningar
+                </p>
+            </div>
+
+            <article
+                    class="booking-item"
+                    th:each="booking : ${bookings}"
+            >
+                <img
+                        class="booking-item-image"
+                        th:src="${booking.departure.travel.imageUrl}"
+                        th:alt="${booking.departure.travel.destination}"
+                >
+
+                <div class="booking-item-content">
+                    <div class="booking-item-header">
+                        <div>
+                            <p
+                                    class="booking-country"
+                                    th:text="${booking.departure.travel.country}"
+                            >
+                                Spanien
+                            </p>
+
+                            <h2
+                                    th:text="${booking.departure.travel.destination}"
+                            >
+                                Mallorca
+                            </h2>
+
+                            <h3
+                                    th:text="${booking.departure.travel.hotelName}"
+                            >
+                                Sun Bay Resort
+                            </h3>
+                        </div>
+
+                        <div class="booking-header-badges">
+                            <span
+                                    class="booking-status-badge"
+                                    th:classappend="${booking.status.name() == 'CANCELLED'} ? ' cancelled'"
+                                    th:text="${booking.status.displayName}"
+                            >
+                                Bekräftad
+                            </span>
+
+                            <span
+                                    class="booking-number"
+                                    th:text="${booking.bookingNumber}"
+                            >
+                                BK-2026-123456
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="booking-item-details">
+                        <div>
+                            <span>
+                                Avresa
+                            </span>
+
+                            <strong
+                                    th:text="${#temporals.format(booking.departure.departureDate, 'dd MMMM yyyy')}"
+                            >
+                                12 augusti 2026
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>
+                                Hemresa
+                            </span>
+
+                            <strong
+                                    th:text="${#temporals.format(booking.departure.returnDate, 'dd MMMM yyyy')}"
+                            >
+                                19 augusti 2026
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>
+                                Resenärer
+                            </span>
+
+                            <strong th:text="${booking.numberOfTravelers}">
+                                2
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>
+                                Rumstyp
+                            </span>
+
+                            <strong th:text="${booking.roomType.name}">
+                                Standardrum
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="booking-item-footer">
+                        <div>
+                            <small>
+                                Totalpris
+                            </small>
+
+                            <strong>
+                                <span
+                                        th:text="${#numbers.formatInteger(booking.totalPrice, 1, 'WHITESPACE')}"
+                                >
+                                    14 990
+                                </span>
+
+                                kr
+                            </strong>
+                        </div>
+
+                        <div class="booking-card-actions">
+                            <a
+                                    class="booking-invoice-link"
+                                    th:href="@{/mina-bokningar/{id}/faktura(id=${booking.id})}"
+                            >
+                                Faktura
+                            </a>
+
+                            <a
+                                    class="booking-details-link"
+                                    th:href="@{/mina-bokningar/{id}(id=${booking.id})}"
+                            >
+                                Visa bokning
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </article>
         </div>
     </section>
 </main>
@@ -76,11 +233,18 @@
 <footer class="site-footer">
     <div>
         <strong>EriGo Travel</strong>
-        <p>Resor att längta efter.</p>
+
+        <p>
+            Resor att längta efter.
+        </p>
     </div>
 
-    <p>© 2026 EriGo Travel</p>
+    <p>
+        © 2026 EriGo Travel
+    </p>
 </footer>
+
+<script src="/js/home.js" defer></script>
 
 </body>
 </html>

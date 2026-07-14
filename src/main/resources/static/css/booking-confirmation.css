@@ -1,0 +1,215 @@
+.confirmation-page {
+    min-height: calc(100vh - 78px);
+    padding: 70px 6%;
+    background: var(--background-color);
+}
+
+.confirmation-card {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 45px;
+    background: var(--white);
+    border-radius: 22px;
+    box-shadow: var(--shadow);
+}
+
+.confirmation-icon {
+    width: 76px;
+    height: 76px;
+    margin-bottom: 24px;
+    display: grid;
+    place-items: center;
+    color: var(--white);
+    background: var(--primary-color);
+    border-radius: 50%;
+    font-size: 34px;
+    font-weight: 800;
+}
+
+.confirmation-card h1 {
+    margin: 0;
+    font-size: 44px;
+}
+
+.email-status-message {
+    margin: 28px 0 32px;
+    padding: 18px 20px;
+    border-radius: 13px;
+    line-height: 1.6;
+}
+
+.email-status-message strong {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 17px;
+}
+
+.email-status-message p {
+    margin: 0;
+}
+
+.email-status-success {
+    color: #166534;
+    background: #dcfce7;
+    border: 1px solid #bbf7d0;
+}
+
+.email-status-warning {
+    color: #9a3412;
+    background: #ffedd5;
+    border: 1px solid #fed7aa;
+}
+
+.email-status-error {
+    color: #991b1b;
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+}
+
+.confirmation-introduction {
+    margin: 16px 0 32px;
+    color: var(--muted-text);
+    font-size: 17px;
+    line-height: 1.7;
+}
+
+.reference-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.reference-grid div {
+    padding: 22px;
+    background: var(--background-color);
+    border-radius: 14px;
+}
+
+.reference-grid span {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--muted-text);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.reference-grid strong {
+    color: var(--primary-dark);
+    font-size: 23px;
+}
+
+.confirmation-section {
+    margin-top: 30px;
+    padding: 28px;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+}
+
+.confirmation-section h2 {
+    margin: 0 0 22px;
+}
+
+.confirmation-details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.confirmation-details div {
+    display: grid;
+    gap: 6px;
+}
+
+.confirmation-details span {
+    color: var(--muted-text);
+    font-size: 13px;
+}
+
+.payment-section p {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.total-price-row {
+    margin-top: 22px;
+    padding-top: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--border-color);
+}
+
+.total-price-row strong {
+    font-size: 28px;
+}
+
+.reference-notice {
+    margin: 26px 0;
+    padding: 16px;
+    color: var(--primary-dark);
+    background: rgba(0, 107, 116, 0.08);
+    border-radius: 12px;
+    line-height: 1.6;
+}
+
+.confirmation-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.confirmation-actions a {
+    padding: 13px 20px;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 11px;
+    text-decoration: none;
+    font-weight: 800;
+}
+
+.confirmation-actions a:hover {
+    color: var(--white);
+    background: var(--primary-color);
+}
+
+.confirmation-actions .primary-action {
+    color: var(--white);
+    background: var(--primary-color);
+}
+
+.confirmation-actions .primary-action:hover {
+    background: var(--primary-dark);
+}
+
+@media (max-width: 650px) {
+    .confirmation-page {
+        padding: 40px 5%;
+    }
+
+    .confirmation-card {
+        padding: 28px 20px;
+    }
+
+    .confirmation-card h1 {
+        font-size: 34px;
+    }
+
+    .reference-grid,
+    .confirmation-details {
+        grid-template-columns: 1fr;
+    }
+
+    .payment-section p,
+    .total-price-row,
+    .confirmation-actions {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .confirmation-actions a {
+        width: 100%;
+        text-align: center;
+    }
+}

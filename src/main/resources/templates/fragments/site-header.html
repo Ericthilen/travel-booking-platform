@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+<body>
+
+<header
+        class="site-header"
+        th:fragment="siteHeader(activePage)"
+>
+    <a class="logo" th:href="@{/}">
+        <span class="logo-mark">E</span>
+        <span>EriGo Travel</span>
+    </a>
+
+    <nav class="navigation" aria-label="Huvudmeny">
+        <a
+                th:href="@{/}"
+                th:classappend="${activePage == 'home'} ? 'active-link'"
+        >
+            Hem
+        </a>
+
+        <a
+                th:href="@{/resor}"
+                th:classappend="${activePage == 'travels'} ? 'active-link'"
+        >
+            Resor
+        </a>
+
+        <a
+                th:href="@{/hitta-bokning}"
+                th:classappend="${activePage == 'lookup'} ? 'active-link'"
+        >
+            Hitta bokning
+        </a>
+
+        <a
+                th:href="@{/mina-bokningar}"
+                th:classappend="${activePage == 'bookings'} ? 'active-link'"
+                sec:authorize="isAuthenticated()"
+        >
+            Mina bokningar
+        </a>
+
+        <a
+                class="login-link"
+                th:href="@{/login}"
+                sec:authorize="isAnonymous()"
+        >
+            Logga in
+        </a>
+
+        <form
+                class="logout-form"
+                th:action="@{/logout}"
+                method="post"
+                sec:authorize="isAuthenticated()"
+        >
+            <button class="logout-button" type="submit">
+                Logga ut
+            </button>
+        </form>
+    </nav>
+
+    <button
+            class="menu-button"
+            type="button"
+            aria-label="Öppna meny"
+            aria-expanded="false"
+    >
+        ☰
+    </button>
+</header>
+
+</body>
+</html>

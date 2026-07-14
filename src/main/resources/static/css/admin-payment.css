@@ -1,0 +1,333 @@
+.admin-payment-page {
+    min-height: calc(100vh - 78px);
+    padding: 60px 6%;
+    background: var(--background-color);
+}
+
+.admin-payment-container {
+    max-width: 1250px;
+    margin: 0 auto;
+}
+
+.admin-back-link {
+    display: inline-block;
+    margin-bottom: 30px;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 800;
+}
+
+.admin-back-link:hover {
+    text-decoration: underline;
+}
+
+.admin-payment-heading {
+    margin-bottom: 30px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 25px;
+}
+
+.admin-payment-heading h1 {
+    margin: 0;
+    font-size: 44px;
+}
+
+.admin-payment-heading > div > p:last-child {
+    margin: 12px 0 0;
+    color: var(--muted-text);
+    font-size: 17px;
+}
+
+.booking-status-badge {
+    padding: 9px 14px;
+    color: #166534;
+    background: #dcfce7;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.booking-status-badge.cancelled {
+    color: #991b1b;
+    background: #fee2e2;
+}
+
+.admin-success-message {
+    margin-bottom: 25px;
+    padding: 16px 18px;
+    color: #166534;
+    background: #dcfce7;
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+.admin-payment-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 370px;
+    gap: 30px;
+    align-items: start;
+}
+
+.admin-payment-main {
+    display: grid;
+    gap: 25px;
+}
+
+.admin-card,
+.register-payment-card {
+    padding: 28px;
+    background: var(--white);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+}
+
+.admin-card h2,
+.register-payment-card h2 {
+    margin: 0 0 22px;
+}
+
+.booking-information-grid,
+.payment-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.booking-information-grid div,
+.payment-summary-grid div {
+    padding: 18px;
+    background: var(--background-color);
+    border-radius: 12px;
+}
+
+.booking-information-grid span,
+.payment-summary-grid span {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--muted-text);
+    font-size: 13px;
+}
+
+.payment-summary-grid strong {
+    font-size: 19px;
+}
+
+.empty-payment-history {
+    padding: 25px;
+    color: var(--muted-text);
+    background: var(--background-color);
+    border-radius: 12px;
+    text-align: center;
+}
+
+.payment-history {
+    display: grid;
+    gap: 15px;
+}
+
+.payment-history-item {
+    padding: 19px;
+    display: flex;
+    gap: 15px;
+    background: var(--background-color);
+    border-radius: 13px;
+}
+
+.payment-history-icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    color: var(--white);
+    background: var(--primary-color);
+    border-radius: 50%;
+    font-weight: 800;
+}
+
+.payment-history-content {
+    width: 100%;
+}
+
+.payment-history-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.payment-history-heading h3 {
+    margin: 0;
+    font-size: 17px;
+}
+
+.payment-history-heading p {
+    margin: 5px 0 0;
+    color: var(--muted-text);
+    font-size: 13px;
+}
+
+.payment-history-heading > strong {
+    color: var(--primary-dark);
+    font-size: 20px;
+}
+
+.payment-history-details {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    color: var(--muted-text);
+    font-size: 13px;
+}
+
+.payment-history-details strong {
+    color: var(--text-color);
+}
+
+.register-payment-card {
+    position: sticky;
+    top: 105px;
+}
+
+.register-payment-card > p {
+    margin: -10px 0 24px;
+    color: var(--muted-text);
+    line-height: 1.6;
+}
+
+.register-payment-form {
+    display: grid;
+    gap: 18px;
+}
+
+.admin-form-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.admin-form-field input,
+.admin-form-field select {
+    width: 100%;
+    height: 50px;
+    padding: 0 13px;
+    color: var(--text-color);
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    outline: none;
+}
+
+.admin-form-field input:focus,
+.admin-form-field select:focus {
+    border-color: var(--primary-color);
+}
+
+.amount-input {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 45px;
+}
+
+.amount-input input {
+    border-radius: 10px 0 0 10px;
+}
+
+.amount-input span {
+    display: grid;
+    place-items: center;
+    color: var(--muted-text);
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-left: 0;
+    border-radius: 0 10px 10px 0;
+    font-weight: 700;
+}
+
+.field-error {
+    margin: 7px 0 0;
+    color: #b42318;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.payment-form-error {
+    margin-bottom: 18px;
+    padding: 14px;
+    color: #991b1b;
+    background: #fee2e2;
+    border-radius: 10px;
+    font-weight: 700;
+}
+
+.payment-form-error p {
+    margin: 0;
+}
+
+.register-payment-button {
+    min-height: 52px;
+    border: 0;
+    border-radius: 11px;
+    color: var(--white);
+    background: var(--primary-color);
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.register-payment-button:hover:not(:disabled) {
+    background: var(--primary-dark);
+}
+
+.register-payment-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.payment-form-notice {
+    margin: 0;
+    color: var(--muted-text);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+@media (max-width: 950px) {
+    .admin-payment-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .register-payment-card {
+        position: static;
+    }
+}
+
+@media (max-width: 650px) {
+    .admin-payment-page {
+        padding: 40px 5%;
+    }
+
+    .admin-payment-heading,
+    .payment-history-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .admin-payment-heading h1 {
+        font-size: 35px;
+    }
+
+    .booking-information-grid,
+    .payment-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-card,
+    .register-payment-card {
+        padding: 22px;
+    }
+
+    .payment-history-item {
+        align-items: flex-start;
+    }
+}

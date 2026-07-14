@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Hitta bokning – EriGo Travel</title>
+
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/booking-lookup.css">
+</head>
+
+<body>
+
+<div
+        th:replace="~{fragments/site-header :: siteHeader('lookup')}"
+></div>
+
+<main class="lookup-page">
+  <section class="lookup-card">
+    <div class="lookup-heading">
+      <p class="eyebrow dark">
+        Din resa
+      </p>
+
+      <h1>
+        Hitta din bokning
+      </h1>
+
+      <p>
+        Ange uppgifterna från din bokningsbekräftelse.
+        Du hittar kundnumret och bokningsnumret på
+        bekräftelsesidan och fakturan.
+      </p>
+    </div>
+
+    <div
+            class="lookup-error-message"
+            th:if="${lookupError}"
+            th:text="${lookupError}"
+    >
+      Bokningen kunde inte hittas.
+    </div>
+
+    <form
+            class="lookup-form"
+            th:action="@{/hitta-bokning}"
+            th:object="${bookingLookupRequest}"
+            method="post"
+    >
+      <div class="lookup-field">
+        <label for="customerNumber">
+          Kundnummer
+        </label>
+
+        <input
+                id="customerNumber"
+                type="text"
+                th:field="*{customerNumber}"
+                placeholder="Till exempel ERG-123456"
+                autocomplete="off"
+        >
+
+        <p
+                class="field-error"
+                th:if="${#fields.hasErrors('customerNumber')}"
+                th:errors="*{customerNumber}"
+        >
+          Felmeddelande
+        </p>
+      </div>
+
+      <div class="lookup-field">
+        <label for="bookingNumber">
+          Bokningsnummer
+        </label>
+
+        <input
+                id="bookingNumber"
+                type="text"
+                th:field="*{bookingNumber}"
+                placeholder="Till exempel BK-2026-123456"
+                autocomplete="off"
+        >
+
+        <p
+                class="field-error"
+                th:if="${#fields.hasErrors('bookingNumber')}"
+                th:errors="*{bookingNumber}"
+        >
+          Felmeddelande
+        </p>
+      </div>
+
+      <div class="lookup-field">
+        <label for="email">
+          E-postadress
+        </label>
+
+        <input
+                id="email"
+                type="email"
+                th:field="*{email}"
+                placeholder="namn@exempel.se"
+                autocomplete="email"
+        >
+
+        <p
+                class="field-error"
+                th:if="${#fields.hasErrors('email')}"
+                th:errors="*{email}"
+        >
+          Felmeddelande
+        </p>
+      </div>
+
+      <button
+              class="lookup-button"
+              type="submit"
+      >
+        Hitta bokning
+      </button>
+    </form>
+
+    <div class="lookup-help">
+      <h2>
+        Hittar du inte uppgifterna?
+      </h2>
+
+      <p>
+        Kundnumret börjar med
+        <strong>ERG-</strong>
+        och bokningsnumret börjar med
+        <strong>BK-</strong>.
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div>
+    <strong>EriGo Travel</strong>
+
+    <p>
+      Resor att längta efter.
+    </p>
+  </div>
+
+  <p>
+    © 2026 EriGo Travel
+  </p>
+</footer>
+
+<script src="/js/home.js" defer></script>
+
+</body>
+</html>
