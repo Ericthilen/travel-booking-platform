@@ -39,7 +39,10 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/admin/**")
                         .hasRole("ADMIN")
-                        .requestMatchers("/mina-bokningar/**")
+                        .requestMatchers(
+                                "/mina-bokningar/**",
+                                "/mitt-konto/**"
+                        )
                         .hasAnyRole("USER", "ADMIN")
                         .anyRequest()
                         .authenticated()
@@ -48,7 +51,7 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .usernameParameter("email")
                         .defaultSuccessUrl(
-                                "/mina-bokningar",
+                                "/mitt-konto",
                                 false
                         )
                         .failureUrl("/login?error")
