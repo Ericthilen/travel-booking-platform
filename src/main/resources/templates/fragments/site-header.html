@@ -38,6 +38,14 @@
         </a>
 
         <a
+                th:href="@{/admin}"
+                th:classappend="${activePage == 'admin'} ? 'active-link'"
+                sec:authorize="hasRole('ADMIN')"
+        >
+            Admin
+        </a>
+
+        <a
                 th:href="@{/mitt-konto}"
                 th:classappend="${activePage == 'account'} ? 'active-link'"
                 sec:authorize="isAuthenticated()"

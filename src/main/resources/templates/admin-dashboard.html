@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin – EriGo Travel</title>
+
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/admin-dashboard.css">
+</head>
+
+<body>
+
+<div
+        th:replace="~{fragments/site-header :: siteHeader('admin')}"
+></div>
+
+<main class="admin-dashboard-page">
+    <section class="admin-dashboard-container">
+        <div
+                class="admin-alert"
+                th:if="${param.bookingNotFound}"
+        >
+            Bokningen kunde inte hittas.
+        </div>
+
+        <section class="admin-dashboard-heading">
+            <div>
+                <p class="eyebrow dark">
+                    Administration
+                </p>
+
+                <h1>
+                    Adminpanel
+                </h1>
+
+                <p>
+                    Översikt över bokningar, betalningar, avgångar och mejl.
+                </p>
+            </div>
+        </section>
+
+        <section class="admin-stat-grid">
+            <article class="admin-stat-card">
+                <span>Antal bokningar</span>
+                <strong th:text="${dashboard.numberOfBookings}">0</strong>
+            </article>
+
+            <article class="admin-stat-card">
+                <span>Nya bokningar idag</span>
+                <strong th:text="${dashboard.newBookingsToday}">0</strong>
+            </article>
+
+            <article class="admin-stat-card">
+                <span>Total försäljning</span>
+                <strong>
+                    <span th:text="${#numbers.formatInteger(dashboard.totalSales, 1, 'WHITESPACE')}">
+                        0
+                    </span>
+                    kr
+                </strong>
+            </article>
+
+            <article class="admin-stat-card">
+                <span>Inbetalt belopp</span>
+                <strong>
+                    <span th:text="${#numbers.formatInteger(dashboard.paidAmount, 1, 'WHITESPACE')}">
+                        0
+                    </span>
+                    kr
+                </strong>
+            </article>
+
+            <article class="admin-stat-card warning">
+                <span>Obetalda bokningar</span>
+                <strong th:text="${dashboard.unpaidBookings}">0</strong>
+            </article>
+
+            <article class="admin-stat-card danger">
+                <span>Avbokningar</span>
+                <strong th:text="${dashboard.cancellations}">0</strong>
+            </article>
+
+            <article class="admin-stat-card danger">
+                <span>Misslyckade mejl</span>
+                <strong th:text="${dashboard.failedEmails}">0</strong>
+            </article>
+        </section>
+
+        <section class="admin-search-card">
+            <div>
+                <p class="eyebrow dark">
+                    Sök bokning
+                </p>
+
+                <h2>
+                    Hitta bokning eller kund
+                </h2>
+            </div>
+
+            <form
+                    class="admin-search-form"
+                    th:action="@{/admin}"
+                    method="get"
+            >
+                <input
+                        type="search"
+                        name="query"
+                        th:value="${dashboard.searchQuery}"
+                        placeholder="Bokningsnummer, kundnummer, namn eller e-post"
+                >
+
+                <button type="submit">
+                    Sök
+                </button>
+            </form>
+
+            <div
+                    class="admin-search-results"
+                    th:if="${dashboard.hasSearchQuery()}"
+            >
+                <div class="admin-section-title">
+                    <h3>
+                        Sökresultat
+                    </h3>
+
+                    <p>
+                        <span th:text="${dashboard.searchResults.size()}">
+                            0
+                        </span>
+                        träffar
+                    </p>
+                </div>
+
+                <div
+                        class="empty-admin-list"
+                        th:if="${dashboard.searchResults.isEmpty()}"
+                >
+                    Inga bokningar matchade sökningen.
+                </div>
+
+                <div
+                        class="admin-booking-list"
+                        th:unless="${dashboard.searchResults.isEmpty()}"
+                >
+                    <article
+                            class="admin-booking-row"
+                            th:each="booking : ${dashboard.searchResults}"
+                    >
+                        <div>
+                            <strong th:text="${booking.bookingNumber}">
+                                BK-2026-123456
+                            </strong>
+
+                            <span
+                                    th:text="${booking.customer.firstName + ' ' + booking.customer.lastName + ' · ' + booking.customer.email}"
+                            >
+                                Kund
+                            </span>
+                        </div>
+
+                        <div class="admin-row-meta">
+                            <span th:text="${booking.status.displayName}">
+                                Bekräftad
+                            </span>
+
+                            <span>
+                                <span th:text="${#numbers.formatInteger(booking.totalPrice, 1, 'WHITESPACE')}">
+                                    0
+                                </span>
+                                kr
+                            </span>
+                        </div>
+
+                        <div class="admin-row-actions">
+                            <a th:href="@{/admin/bokningar/{id}(id=${booking.id})}">
+                                Detaljer
+                            </a>
+
+                            <a th:href="@{/admin/bokningar/{id}/betalningar(id=${booking.id})}">
+                                Betalningar
+                            </a>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="admin-dashboard-layout">
+            <div class="admin-main-column">
+                <section class="admin-panel">
+                    <div class="admin-section-title">
+                        <div>
+                            <p class="eyebrow dark">
+                                Senaste
+                            </p>
+
+                            <h2>
+                                Senaste bokningar
+                            </h2>
+                        </div>
+                    </div>
+
+                    <div
+                            class="empty-admin-list"
+                            th:if="${dashboard.latestBookings.isEmpty()}"
+                    >
+                        Inga bokningar finns ännu.
+                    </div>
+
+                    <div
+                            class="admin-booking-list"
+                            th:unless="${dashboard.latestBookings.isEmpty()}"
+                    >
+                        <article
+                                class="admin-booking-row"
+                                th:each="booking : ${dashboard.latestBookings}"
+                        >
+                            <div>
+                                <strong th:text="${booking.bookingNumber}">
+                                    BK-2026-123456
+                                </strong>
+
+                                <span
+                                        th:text="${booking.customer.firstName + ' ' + booking.customer.lastName + ' · ' + booking.departure.travel.destination}"
+                                >
+                                    Kund · Mallorca
+                                </span>
+                            </div>
+
+                            <div class="admin-row-meta">
+                                <span th:text="${booking.paymentStatus.displayName}">
+                                    Inte betald
+                                </span>
+
+                                <span>
+                                    <span th:text="${#numbers.formatInteger(booking.paidAmount, 1, 'WHITESPACE')}">
+                                        0
+                                    </span>
+                                    /
+                                    <span th:text="${#numbers.formatInteger(booking.totalPrice, 1, 'WHITESPACE')}">
+                                        0
+                                    </span>
+                                    kr
+                                </span>
+                            </div>
+
+                            <div class="admin-row-actions">
+                                <a th:href="@{/admin/bokningar/{id}(id=${booking.id})}">
+                                    Detaljer
+                                </a>
+
+                                <a th:href="@{/admin/bokningar/{id}/betalningar(id=${booking.id})}">
+                                    Betalningar
+                                </a>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+            </div>
+
+            <aside class="admin-side-column">
+                <section class="admin-panel">
+                    <div class="admin-section-title">
+                        <div>
+                            <p class="eyebrow dark">
+                                Avgångar
+                            </p>
+
+                            <h2>
+                                Kommande avgångar
+                            </h2>
+                        </div>
+                    </div>
+
+                    <div
+                            class="empty-admin-list"
+                            th:if="${dashboard.upcomingDepartures.isEmpty()}"
+                    >
+                        Det finns inga kommande avgångar.
+                    </div>
+
+                    <div
+                            class="admin-departure-list"
+                            th:unless="${dashboard.upcomingDepartures.isEmpty()}"
+                    >
+                        <article
+                                class="admin-departure-row"
+                                th:each="departure : ${dashboard.upcomingDepartures}"
+                        >
+                            <div>
+                                <strong th:text="${departure.travel.destination}">
+                                    Mallorca
+                                </strong>
+
+                                <span th:text="${departure.travel.hotelName}">
+                                    Hotell
+                                </span>
+                            </div>
+
+                            <div>
+                                <span th:text="${#temporals.format(departure.departureDate, 'dd MMM yyyy')}">
+                                    12 aug 2026
+                                </span>
+
+                                <strong>
+                                    <span th:text="${departure.availableSeats}">
+                                        0
+                                    </span>
+                                    platser
+                                </strong>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+            </aside>
+        </section>
+    </section>
+</main>
+
+<script src="/js/home.js" defer></script>
+
+</body>
+</html>
