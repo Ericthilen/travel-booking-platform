@@ -681,11 +681,11 @@ public class BookingService {
         String bookingNumber;
 
         do {
-            bookingNumber =
-                    "BK-"
-                            + LocalDate.now().getYear()
-                            + "-"
-                            + randomNumberPart();
+            bookingNumber = "E"
+                    + String.format(
+                    "%07d",
+                    random.nextInt(10_000_000)
+            );
         } while (bookingRepository
                 .existsByBookingNumber(
                         bookingNumber
