@@ -13,6 +13,7 @@
     </title>
 
     <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/flight-info.css">
     <link rel="stylesheet" href="/css/travel-departures.css">
 </head>
 
@@ -142,105 +143,175 @@
                     </small>
                 </div>
 
-                <div class="flight-information">
-                    <div class="flight-row">
-                        <div>
-                            <span>
+                <div class="flight-times-card">
+                    <div class="flight-times-grid">
+                        <section class="flight-times-leg">
+                            <h3 class="flight-times-leg-title">
                                 Utresa
-                            </span>
+                            </h3>
 
-                            <strong
-                                    th:text="${departure.outboundFlightNumber}"
-                            >
-                                ER101
-                            </strong>
-                        </div>
+                            <div class="flight-route-line">
+                                <div class="flight-time-place">
+                                    <strong th:text="${#temporals.format(departure.outboundDepartureTime, 'HH:mm')}">
+                                        07:10
+                                    </strong>
 
-                        <div class="flight-time">
-                            <strong
-                                    th:text="${#temporals.format(departure.outboundDepartureTime, 'HH:mm')}"
-                            >
-                                07:10
-                            </strong>
+                                    <span>
+                                        <span th:text="${departure.departureAirport}">
+                                            Göteborg Landvetter
+                                        </span>
 
-                            <span th:text="${departure.departureAirport}">
-                                Göteborg Landvetter
-                            </span>
-                        </div>
+                                        <span
+                                                th:if="${!departure.departureAirportCode.isBlank()}"
+                                                th:text="${'(' + departure.departureAirportCode + ')'}"
+                                        >
+                                            (GOT)
+                                        </span>
+                                    </span>
 
-                        <div class="flight-line">
-                            <span>
-                                Direktflyg
-                            </span>
+                                    <small th:text="${#temporals.format(departure.departureDate, 'yyyy-MM-dd')}">
+                                        2026-09-08
+                                    </small>
+                                </div>
 
-                            <div></div>
+                                <div class="flight-track">
+                                    <span th:text="${'Direktflyg · ' + departure.outboundDurationLabel}">
+                                        Direktflyg · 3h 35m
+                                    </span>
 
-                            <strong>
-                                ✈
-                            </strong>
-                        </div>
+                                    <div class="flight-track-line"></div>
+                                </div>
 
-                        <div class="flight-time right">
-                            <strong
-                                    th:text="${#temporals.format(departure.outboundArrivalTime, 'HH:mm')}"
-                            >
-                                10:45
-                            </strong>
+                                <div class="flight-time-place end">
+                                    <strong th:text="${#temporals.format(departure.outboundArrivalTime, 'HH:mm')}">
+                                        10:45
+                                    </strong>
 
-                            <span th:text="${departure.arrivalAirport}">
-                                Palma de Mallorca
-                            </span>
-                        </div>
-                    </div>
+                                    <span>
+                                        <span th:text="${departure.arrivalAirport}">
+                                            Palma de Mallorca
+                                        </span>
 
-                    <div class="flight-row return-flight">
-                        <div>
-                            <span>
+                                        <span
+                                                th:if="${!departure.arrivalAirportCode.isBlank()}"
+                                                th:text="${'(' + departure.arrivalAirportCode + ')'}"
+                                        >
+                                            (PMI)
+                                        </span>
+                                    </span>
+
+                                    <small th:text="${#temporals.format(departure.departureDate, 'yyyy-MM-dd')}">
+                                        2026-09-08
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="flight-meta-row">
+                                <span class="flight-logo">
+                                    EriGo
+                                </span>
+
+                                <span class="flight-number-pill" th:text="${departure.outboundFlightNumber}">
+                                    ER101
+                                </span>
+
+                                <span class="flight-bag-icon">
+                                </span>
+
+                                <span>
+                                    Incheckat bagage ingår
+                                </span>
+                            </div>
+
+                            <p class="flight-handbag-row">
+                                <strong>Handbagage</strong>
+                                Liten väska 30x40x20, ska få plats under sätet framför dig
+                            </p>
+                        </section>
+
+                        <section class="flight-times-leg">
+                            <h3 class="flight-times-leg-title">
                                 Hemresa
-                            </span>
+                            </h3>
 
-                            <strong
-                                    th:text="${departure.returnFlightNumber}"
-                            >
-                                ER102
-                            </strong>
-                        </div>
+                            <div class="flight-route-line">
+                                <div class="flight-time-place">
+                                    <strong th:text="${#temporals.format(departure.returnDepartureTime, 'HH:mm')}">
+                                        18:25
+                                    </strong>
 
-                        <div class="flight-time">
-                            <strong
-                                    th:text="${#temporals.format(departure.returnDepartureTime, 'HH:mm')}"
-                            >
-                                18:25
-                            </strong>
+                                    <span>
+                                        <span th:text="${departure.arrivalAirport}">
+                                            Palma de Mallorca
+                                        </span>
 
-                            <span th:text="${departure.arrivalAirport}">
-                                Palma de Mallorca
-                            </span>
-                        </div>
+                                        <span
+                                                th:if="${!departure.arrivalAirportCode.isBlank()}"
+                                                th:text="${'(' + departure.arrivalAirportCode + ')'}"
+                                        >
+                                            (PMI)
+                                        </span>
+                                    </span>
 
-                        <div class="flight-line">
-                            <span>
-                                Direktflyg
-                            </span>
+                                    <small th:text="${#temporals.format(departure.returnDate, 'yyyy-MM-dd')}">
+                                        2026-09-15
+                                    </small>
+                                </div>
 
-                            <div></div>
+                                <div class="flight-track">
+                                    <span th:text="${'Direktflyg · ' + departure.returnDurationLabel}">
+                                        Direktflyg · 3h 35m
+                                    </span>
 
-                            <strong>
-                                ✈
-                            </strong>
-                        </div>
+                                    <div class="flight-track-line"></div>
+                                </div>
 
-                        <div class="flight-time right">
-                            <strong
-                                    th:text="${#temporals.format(departure.returnArrivalTime, 'HH:mm')}"
-                            >
-                                22:00
-                            </strong>
+                                <div class="flight-time-place end">
+                                    <strong th:text="${#temporals.format(departure.returnArrivalTime, 'HH:mm')}">
+                                        22:00
+                                    </strong>
 
-                            <span th:text="${departure.departureAirport}">
-                                Göteborg Landvetter
-                            </span>
-                        </div>
+                                    <span>
+                                        <span th:text="${departure.departureAirport}">
+                                            Göteborg Landvetter
+                                        </span>
+
+                                        <span
+                                                th:if="${!departure.departureAirportCode.isBlank()}"
+                                                th:text="${'(' + departure.departureAirportCode + ')'}"
+                                        >
+                                            (GOT)
+                                        </span>
+                                    </span>
+
+                                    <small th:text="${#temporals.format(departure.returnDate, 'yyyy-MM-dd')}">
+                                        2026-09-15
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="flight-meta-row">
+                                <span class="flight-logo">
+                                    EriGo
+                                </span>
+
+                                <span class="flight-number-pill" th:text="${departure.returnFlightNumber}">
+                                    ER102
+                                </span>
+
+                                <span class="flight-bag-icon">
+                                </span>
+
+                                <span>
+                                    Incheckat bagage ingår
+                                </span>
+                            </div>
+
+                            <p class="flight-handbag-row">
+                                <strong>Handbagage</strong>
+                                Liten väska 30x40x20, ska få plats under sätet framför dig
+                            </p>
+                        </section>
                     </div>
                 </div>
 

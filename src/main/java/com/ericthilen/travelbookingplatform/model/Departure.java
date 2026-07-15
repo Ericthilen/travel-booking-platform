@@ -12,6 +12,7 @@ import jakarta.persistence.Table;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.Duration;
 
 @Entity
 @Table(name = "departures")
@@ -168,11 +169,71 @@ public class Departure {
         return returnArrivalTime;
     }
 
+    public String getOutboundDurationLabel() {
+        return formatDuration(
+                outboundDepartureTime,
+                outboundArrivalTime
+        );
+    }
+
+    public String getReturnDurationLabel() {
+        return formatDuration(
+                returnDepartureTime,
+                returnArrivalTime
+        );
+    }
+
+    public String getDepartureAirportCode() {
+        return airportCode(departureAirport);
+    }
+
+    public String getArrivalAirportCode() {
+        return airportCode(arrivalAirport);
+    }
+
     public int getPricePerPerson() {
         return pricePerPerson;
     }
 
     public int getAvailableSeats() {
         return availableSeats;
+    }
+
+    private String formatDuration(
+            LocalTime departureTime,
+            LocalTime arrivalTime
+    ) {
+        Duration duration = Duration.between(
+                departureTime,
+                arrivalTime
+        );
+
+        if (duration.isNegative()) {
+            duration = duration.plusHours(24);
+        }
+
+        long hours = duration.toHours();
+        long minutes = duration.toMinutesPart();
+
+        return hours + "h " + minutes + "m";
+    }
+
+    private String airportCode(String airport) {
+        if (airport == null) {
+            return "";
+        }
+
+        return switch (airport) {
+            case "Stockholm Arlanda" -> "ARN";
+            case "Göteborg Landvetter" -> "GOT";
+            case "Köpenhamn Kastrup" -> "CPH";
+            case "Palma de Mallorca" -> "PMI";
+            case "Chania" -> "CHQ";
+            case "Larnaca" -> "LCA";
+            case "Las Palmas" -> "LPA";
+            case "Catania" -> "CTA";
+            case "Antalya" -> "AYT";
+            default -> "";
+        };
     }
 }

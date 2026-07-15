@@ -1,0 +1,203 @@
+.flight-times-card {
+    overflow: hidden;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    border: 1px solid #c4ccd8;
+    border-radius: 14px;
+    background: var(--white);
+}
+
+.flight-times-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+}
+
+.flight-times-leg {
+    padding: 18px 22px;
+}
+
+.flight-times-leg + .flight-times-leg {
+    border-top: 1px solid #c4ccd8;
+}
+
+.flight-times-leg-title {
+    margin: 0 0 12px;
+    color: #8c919a;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.flight-route-line {
+    display: grid;
+    grid-template-columns: minmax(130px, 0.9fr) minmax(220px, 1.5fr) minmax(130px, 0.9fr);
+    gap: 18px;
+    align-items: start;
+}
+
+.flight-time-place {
+    min-width: 0;
+    display: grid;
+    gap: 6px;
+}
+
+.flight-time-place strong {
+    color: #111827;
+    font-size: 20px;
+}
+
+.flight-time-place span {
+    color: #111827;
+    font-size: 17px;
+    line-height: 1.22;
+    overflow-wrap: break-word;
+}
+
+.flight-time-place small {
+    color: #8c919a;
+    font-size: 14px;
+}
+
+.flight-time-place.end {
+    text-align: right;
+}
+
+.flight-track {
+    min-width: 0;
+    padding-top: 22px;
+    display: grid;
+    gap: 8px;
+}
+
+.flight-track span {
+    color: #8c919a;
+    font-size: 15px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.flight-track-line {
+    position: relative;
+    height: 3px;
+    background: #f3aa35;
+}
+
+.flight-track-line::before,
+.flight-track-line::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #f3aa35;
+    transform: translateY(-50%);
+}
+
+.flight-track-line::before {
+    left: 0;
+}
+
+.flight-track-line::after {
+    right: 0;
+}
+
+.flight-meta-row {
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 16px;
+    color: #8c919a;
+    font-size: 14px;
+}
+
+.flight-logo {
+    width: 42px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    color: var(--white);
+    background: #d63645;
+    border-bottom: 3px solid #1f3f70;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.flight-number-pill {
+    padding: 7px 10px;
+    color: var(--primary-dark);
+    background: var(--background-color);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.flight-bag-icon {
+    position: relative;
+    width: 22px;
+    height: 20px;
+    display: inline-block;
+    border-radius: 4px;
+    background: #20242c;
+}
+
+.flight-bag-icon::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: 6px;
+    width: 10px;
+    height: 8px;
+    border: 2px solid #20242c;
+    border-bottom: 0;
+    border-radius: 5px 5px 0 0;
+}
+
+.flight-bag-icon::after {
+    content: "";
+    position: absolute;
+    top: 4px;
+    left: 5px;
+    width: 2px;
+    height: 12px;
+    background: var(--white);
+    box-shadow: 10px 0 0 var(--white);
+}
+
+.flight-handbag-row {
+    margin-top: 12px;
+    color: #8c919a;
+    font-size: 14px;
+    line-height: 1.4;
+    max-width: 100%;
+}
+
+.flight-handbag-row strong {
+    color: #20242c;
+    margin-right: 6px;
+}
+
+@media (max-width: 720px) {
+    .flight-times-leg {
+        padding: 18px;
+    }
+
+    .flight-route-line {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .flight-track {
+        padding-top: 6px;
+    }
+
+    .flight-time-place.end {
+        text-align: left;
+    }
+
+    .flight-meta-row {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
