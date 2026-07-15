@@ -18,6 +18,34 @@ const previousTravelerSelects = document.querySelectorAll(
     ".previous-traveler-select"
 );
 
+const personalNumberInputs = document.querySelectorAll(
+    "#responsiblePersonalNumber, .traveler-personal-number"
+);
+
+function formatPersonalNumber(value) {
+    const digits = value.replace(/\D/g, "").slice(0, 12);
+
+    if (digits.length <= 8) {
+        return digits;
+    }
+
+    return digits.slice(0, 8) + "-" + digits.slice(8);
+}
+
+function applyPersonalNumberFormatting(input) {
+    input.value = formatPersonalNumber(input.value);
+}
+
+personalNumberInputs.forEach(function (input) {
+    input.addEventListener("input", function () {
+        applyPersonalNumberFormatting(input);
+    });
+
+    input.addEventListener("blur", function () {
+        applyPersonalNumberFormatting(input);
+    });
+});
+
 copyCheckboxes.forEach(function (checkbox) {
     checkbox.addEventListener("change", function () {
         const travelerCard = checkbox.closest(".traveler-card");
@@ -43,11 +71,15 @@ copyCheckboxes.forEach(function (checkbox) {
             firstNameInput.readOnly = false;
             lastNameInput.readOnly = false;
 
+            personalNumberInput.value = "";
+            firstNameInput.value = "";
+            lastNameInput.value = "";
+
             return;
         }
 
         personalNumberInput.value =
-            responsiblePersonalNumber.value;
+            formatPersonalNumber(responsiblePersonalNumber.value);
 
         firstNameInput.value =
             responsibleFirstName.value;
@@ -71,7 +103,9 @@ function updateCopiedTravelers() {
 
         travelerCard.querySelector(
             ".traveler-personal-number"
-        ).value = responsiblePersonalNumber.value;
+        ).value = formatPersonalNumber(
+            responsiblePersonalNumber.value
+        );
 
         travelerCard.querySelector(
             ".traveler-first-name"
@@ -131,7 +165,9 @@ previousTravelerSelects.forEach(function (select) {
         firstNameInput.readOnly = false;
         lastNameInput.readOnly = false;
 
-        personalNumberInput.value = selectedOption.dataset.personalNumber;
+        personalNumberInput.value = formatPersonalNumber(
+            selectedOption.dataset.personalNumber
+        );
         firstNameInput.value = selectedOption.dataset.firstName;
         lastNameInput.value = selectedOption.dataset.lastName;
     });

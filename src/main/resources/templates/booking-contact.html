@@ -92,6 +92,8 @@
                     type="text"
                     th:field="*{responsiblePersonalNumber}"
                     placeholder="ÅÅÅÅMMDD-XXXX"
+                    inputmode="numeric"
+                    maxlength="13"
                     autocomplete="off"
             >
 
@@ -277,6 +279,8 @@
                       type="text"
                       th:field="*{travelers[__${status.index}__].personalNumber}"
                       placeholder="ÅÅÅÅMMDD-XXXX"
+                      inputmode="numeric"
+                      maxlength="13"
               >
 
               <p
