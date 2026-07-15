@@ -78,10 +78,10 @@
 }
 
 .departures-section {
-    max-width: 1260px;
+    max-width: 1380px;
     min-height: 500px;
     margin: 0 auto;
-    padding: 70px 6%;
+    padding: 58px 4%;
 }
 
 .departures-heading {
@@ -109,18 +109,19 @@
 }
 
 .departure-card {
-    padding: 26px;
+    padding: 22px;
     display: grid;
-    grid-template-columns: 170px minmax(0, 1fr) 190px;
-    gap: 26px;
+    grid-template-columns: 130px minmax(0, 900px) 165px;
+    gap: 20px;
     align-items: stretch;
+    justify-content: center;
     background: var(--white);
     border-radius: 18px;
     box-shadow: var(--shadow);
 }
 
 .departure-date-column {
-    padding-right: 22px;
+    padding-right: 18px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -136,13 +137,63 @@
 }
 
 .departure-date-column > strong {
-    font-size: 20px;
+    font-size: 19px;
 }
 
 .departure-date-column small {
     margin-top: 13px;
     color: var(--muted-text);
     line-height: 1.6;
+}
+
+.departure-card .flight-times-card {
+    align-self: center;
+}
+
+.departure-card .flight-times-leg {
+    padding: 16px 20px;
+}
+
+.departure-card .flight-route-line {
+    grid-template-columns: minmax(120px, 0.9fr) minmax(210px, 1.45fr) minmax(120px, 0.9fr);
+    gap: 16px;
+}
+
+.departure-card .flight-time-place strong {
+    font-size: 18px;
+}
+
+.departure-card .flight-time-place span {
+    font-size: 15px;
+    line-height: 1.18;
+}
+
+.departure-card .flight-time-place small,
+.departure-card .flight-handbag-row {
+    font-size: 14px;
+}
+
+.departure-card .flight-meta-row {
+    margin-top: 13px;
+}
+
+.departure-card .flight-times-leg-title {
+    margin-bottom: 12px;
+    font-size: 16px;
+}
+
+.departure-card .flight-track {
+    padding-top: 21px;
+}
+
+.departure-card .flight-track span {
+    font-size: 14px;
+    white-space: normal;
+}
+
+.departure-card .flight-handbag-row {
+    margin-top: 12px;
+    line-height: 1.4;
 }
 
 .flight-information {
@@ -218,7 +269,7 @@
 }
 
 .departure-booking-column {
-    padding-left: 22px;
+    padding-left: 18px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -247,7 +298,7 @@
 
 .departure-price {
     margin: 5px 0 16px;
-    font-size: 25px;
+    font-size: 22px;
 }
 
 .select-departure-button {
@@ -293,7 +344,7 @@
     color: var(--primary-color) !important;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1100px) {
     .departure-card {
         grid-template-columns: 1fr;
     }
@@ -334,26 +385,13 @@
         gap: 24px;
     }
 
-    .flight-row {
-        grid-template-columns: 65px 1fr 1fr;
-    }
-
-    .flight-line {
-        display: none;
+    .departure-card .flight-route-line {
+        grid-template-columns: 1fr;
     }
 }
 
 @media (max-width: 480px) {
     .departure-card {
         padding: 20px;
-    }
-
-    .flight-row {
-        grid-template-columns: 60px 1fr 1fr;
-        gap: 10px;
-    }
-
-    .flight-time strong {
-        font-size: 17px;
     }
 }

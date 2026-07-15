@@ -15,6 +15,7 @@
     <title>Bokningsdetaljer – EriGo Travel</title>
 
     <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/flight-info.css">
     <link rel="stylesheet" href="/css/booking-details.css">
 </head>
 
@@ -222,58 +223,178 @@
 
         <section class="details-section">
             <h2>
-                Reseinformation
+                Preliminära flygtider
             </h2>
 
-            <div class="details-grid">
-                <div>
-                    <span>Avresa</span>
-                    <strong th:text="${#temporals.format(booking.departure.departureDate, 'dd MMMM yyyy')}">
-                        12 augusti 2026
-                    </strong>
-                </div>
+            <div class="flight-times-card">
+                <div class="flight-times-grid">
+                    <section class="flight-times-leg">
+                        <h3 class="flight-times-leg-title">
+                            Utresa
+                        </h3>
 
-                <div>
-                    <span>Hemresa</span>
-                    <strong th:text="${#temporals.format(booking.departure.returnDate, 'dd MMMM yyyy')}">
-                        19 augusti 2026
-                    </strong>
-                </div>
+                        <div class="flight-route-line">
+                            <div class="flight-time-place">
+                                <strong th:text="${#temporals.format(booking.departure.outboundDepartureTime, 'HH:mm')}">
+                                    07:10
+                                </strong>
 
-                <div>
-                    <span>Avreseflygplats</span>
-                    <strong th:text="${booking.departure.departureAirport}">
-                        Göteborg Landvetter
-                    </strong>
-                </div>
+                                <span>
+                                    <span th:text="${booking.departure.departureAirport}">
+                                        Göteborg Landvetter
+                                    </span>
 
-                <div>
-                    <span>Ankomstflygplats</span>
-                    <strong th:text="${booking.departure.arrivalAirport}">
-                        Palma de Mallorca
-                    </strong>
-                </div>
+                                    <span
+                                            th:if="${!booking.departure.departureAirportCode.isBlank()}"
+                                            th:text="${'(' + booking.departure.departureAirportCode + ')'}"
+                                    >
+                                        (GOT)
+                                    </span>
+                                </span>
 
-                <div>
-                    <span>Utresa</span>
-                    <strong>
-                        <span th:text="${booking.departure.outboundFlightNumber}">ER101</span>
-                        ·
-                        <span th:text="${#temporals.format(booking.departure.outboundDepartureTime, 'HH:mm')}">
-                            07:10
-                        </span>
-                    </strong>
-                </div>
+                                <small th:text="${#temporals.format(booking.departure.departureDate, 'yyyy-MM-dd')}">
+                                    2026-09-08
+                                </small>
+                            </div>
 
-                <div>
-                    <span>Hemresa</span>
-                    <strong>
-                        <span th:text="${booking.departure.returnFlightNumber}">ER102</span>
-                        ·
-                        <span th:text="${#temporals.format(booking.departure.returnDepartureTime, 'HH:mm')}">
-                            18:25
-                        </span>
-                    </strong>
+                            <div class="flight-track">
+                                <span th:text="${'Direktflyg · ' + booking.departure.outboundDurationLabel}">
+                                    Direktflyg · 3h 35m
+                                </span>
+
+                                <div class="flight-track-line"></div>
+                            </div>
+
+                            <div class="flight-time-place end">
+                                <strong th:text="${#temporals.format(booking.departure.outboundArrivalTime, 'HH:mm')}">
+                                    10:45
+                                </strong>
+
+                                <span>
+                                    <span th:text="${booking.departure.arrivalAirport}">
+                                        Palma de Mallorca
+                                    </span>
+
+                                    <span
+                                            th:if="${!booking.departure.arrivalAirportCode.isBlank()}"
+                                            th:text="${'(' + booking.departure.arrivalAirportCode + ')'}"
+                                    >
+                                        (PMI)
+                                    </span>
+                                </span>
+
+                                <small th:text="${#temporals.format(booking.departure.departureDate, 'yyyy-MM-dd')}">
+                                    2026-09-08
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="flight-meta-row">
+                            <span class="flight-logo">
+                                EriGo
+                            </span>
+
+                            <span class="flight-number-pill" th:text="${booking.departure.outboundFlightNumber}">
+                                ER101
+                            </span>
+
+                            <span class="flight-bag-icon">
+                            </span>
+
+                            <span>
+                                Incheckat bagage ingår
+                            </span>
+                        </div>
+
+                        <p class="flight-handbag-row">
+                            <strong>Handbagage</strong>
+                            Liten väska 30x40x20, ska få plats under sätet framför dig
+                        </p>
+                    </section>
+
+                    <section class="flight-times-leg">
+                        <h3 class="flight-times-leg-title">
+                            Hemresa
+                        </h3>
+
+                        <div class="flight-route-line">
+                            <div class="flight-time-place">
+                                <strong th:text="${#temporals.format(booking.departure.returnDepartureTime, 'HH:mm')}">
+                                    18:25
+                                </strong>
+
+                                <span>
+                                    <span th:text="${booking.departure.arrivalAirport}">
+                                        Palma de Mallorca
+                                    </span>
+
+                                    <span
+                                            th:if="${!booking.departure.arrivalAirportCode.isBlank()}"
+                                            th:text="${'(' + booking.departure.arrivalAirportCode + ')'}"
+                                    >
+                                        (PMI)
+                                    </span>
+                                </span>
+
+                                <small th:text="${#temporals.format(booking.departure.returnDate, 'yyyy-MM-dd')}">
+                                    2026-09-15
+                                </small>
+                            </div>
+
+                            <div class="flight-track">
+                                <span th:text="${'Direktflyg · ' + booking.departure.returnDurationLabel}">
+                                    Direktflyg · 3h 35m
+                                </span>
+
+                                <div class="flight-track-line"></div>
+                            </div>
+
+                            <div class="flight-time-place end">
+                                <strong th:text="${#temporals.format(booking.departure.returnArrivalTime, 'HH:mm')}">
+                                    22:00
+                                </strong>
+
+                                <span>
+                                    <span th:text="${booking.departure.departureAirport}">
+                                        Göteborg Landvetter
+                                    </span>
+
+                                    <span
+                                            th:if="${!booking.departure.departureAirportCode.isBlank()}"
+                                            th:text="${'(' + booking.departure.departureAirportCode + ')'}"
+                                    >
+                                        (GOT)
+                                    </span>
+                                </span>
+
+                                <small th:text="${#temporals.format(booking.departure.returnDate, 'yyyy-MM-dd')}">
+                                    2026-09-15
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="flight-meta-row">
+                            <span class="flight-logo">
+                                EriGo
+                            </span>
+
+                            <span class="flight-number-pill" th:text="${booking.departure.returnFlightNumber}">
+                                ER102
+                            </span>
+
+                            <span class="flight-bag-icon">
+                            </span>
+
+                            <span>
+                                Incheckat bagage ingår
+                            </span>
+                        </div>
+
+                        <p class="flight-handbag-row">
+                            <strong>Handbagage</strong>
+                            Liten väska 30x40x20, ska få plats under sätet framför dig
+                        </p>
+                    </section>
                 </div>
             </div>
         </section>
