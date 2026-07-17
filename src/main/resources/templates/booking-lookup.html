@@ -23,8 +23,14 @@
 <main class="lookup-page">
   <section class="lookup-card">
     <div class="lookup-heading">
+      <div class="lookup-illustration" aria-hidden="true">
+        <span class="illustration-sun"></span>
+        <span class="illustration-card"></span>
+        <span class="illustration-plane">✈</span>
+      </div>
+
       <p class="eyebrow dark">
-        Din resa
+        Trygg bokningssökning
       </p>
 
       <h1>
@@ -32,9 +38,8 @@
       </h1>
 
       <p>
-        Ange uppgifterna från din bokningsbekräftelse.
-        Du hittar kundnumret och bokningsnumret på
-        bekräftelsesidan och fakturan.
+        Ange uppgifterna från din bokningsbekräftelse så hämtar
+        vi fram resan, betalningsinformationen och dina detaljer.
       </p>
     </div>
 
@@ -57,13 +62,17 @@
           Kundnummer
         </label>
 
-        <input
-                id="customerNumber"
-                type="text"
-                th:field="*{customerNumber}"
-                placeholder="Till exempel ERG-123456"
-                autocomplete="off"
-        >
+        <div class="lookup-input-wrap">
+          <span aria-hidden="true">👤</span>
+
+          <input
+                  id="customerNumber"
+                  type="text"
+                  th:field="*{customerNumber}"
+                  placeholder="Till exempel ERG-123456"
+                  autocomplete="off"
+          >
+        </div>
 
         <p
                 class="field-error"
@@ -79,13 +88,17 @@
           Bokningsnummer
         </label>
 
-        <input
-                id="bookingNumber"
-                type="text"
-                th:field="*{bookingNumber}"
-                placeholder="Till exempel BK-2026-123456"
-                autocomplete="off"
-        >
+        <div class="lookup-input-wrap">
+          <span aria-hidden="true">#</span>
+
+          <input
+                  id="bookingNumber"
+                  type="text"
+                  th:field="*{bookingNumber}"
+                  placeholder="Till exempel E1234567"
+                  autocomplete="off"
+          >
+        </div>
 
         <p
                 class="field-error"
@@ -101,13 +114,17 @@
           E-postadress
         </label>
 
-        <input
-                id="email"
-                type="email"
-                th:field="*{email}"
-                placeholder="namn@exempel.se"
-                autocomplete="email"
-        >
+        <div class="lookup-input-wrap">
+          <span aria-hidden="true">@</span>
+
+          <input
+                  id="email"
+                  type="email"
+                  th:field="*{email}"
+                  placeholder="namn@exempel.se"
+                  autocomplete="email"
+          >
+        </div>
 
         <p
                 class="field-error"
@@ -126,27 +143,46 @@
       </button>
     </form>
 
-    <div class="lookup-help">
+    <div class="lookup-info-box">
       <h2>
-        Hittar du inte uppgifterna?
+        Var hittar jag bokningsnumret?
       </h2>
 
       <p>
-        Kundnumret börjar med
-        <strong>ERG-</strong>
-        och bokningsnumret börjar med
-        <strong>BK-</strong>.
+        Bokningsnumret finns i mejlet med bokningsbekräftelsen,
+        på bekräftelsesidan och på fakturan. Kundnumret står bredvid
+        dina kontaktuppgifter.
       </p>
+    </div>
+
+    <div class="lookup-help">
+      <h2>
+        Behöver du hjälp?
+      </h2>
+
+      <p>
+        Kontakta kundservice så hjälper vi dig att hitta bokningen.
+      </p>
+
+      <div class="lookup-contact-grid">
+        <a href="mailto:support@erigo.se">
+          support@erigo.se
+        </a>
+
+        <a href="tel:+46812345678">
+          08-123 456 78
+        </a>
+      </div>
     </div>
   </section>
 </main>
 
-<footer class="site-footer">
+<footer class="site-footer lookup-footer">
   <div>
     <strong>EriGo Travel</strong>
 
     <p>
-      Resor att längta efter.
+      Trygga resor från bokning till hemkomst.
     </p>
   </div>
 
