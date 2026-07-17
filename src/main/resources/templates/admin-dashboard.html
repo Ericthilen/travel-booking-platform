@@ -43,56 +43,82 @@
                     Översikt över bokningar, betalningar, avgångar och mejl.
                 </p>
             </div>
+
+            <div class="admin-heading-actions">
+                <a href="#admin-search">Sök bokning</a>
+                <a href="#latest-bookings">Senaste bokningar</a>
+            </div>
         </section>
 
         <section class="admin-stat-grid">
             <article class="admin-stat-card">
-                <span>Antal bokningar</span>
-                <strong th:text="${dashboard.numberOfBookings}">0</strong>
+                <div class="admin-stat-icon">▣</div>
+                <div>
+                    <span>Antal bokningar</span>
+                    <strong th:text="${dashboard.numberOfBookings}">0</strong>
+                </div>
             </article>
 
             <article class="admin-stat-card">
-                <span>Nya bokningar idag</span>
-                <strong th:text="${dashboard.newBookingsToday}">0</strong>
+                <div class="admin-stat-icon">+</div>
+                <div>
+                    <span>Nya bokningar idag</span>
+                    <strong th:text="${dashboard.newBookingsToday}">0</strong>
+                </div>
             </article>
 
             <article class="admin-stat-card">
-                <span>Total försäljning</span>
-                <strong>
-                    <span th:text="${#numbers.formatInteger(dashboard.totalSales, 1, 'WHITESPACE')}">
-                        0
-                    </span>
-                    kr
-                </strong>
+                <div class="admin-stat-icon">kr</div>
+                <div>
+                    <span>Total försäljning</span>
+                    <strong>
+                        <span th:text="${#numbers.formatInteger(dashboard.totalSales, 1, 'WHITESPACE')}">
+                            0
+                        </span>
+                        kr
+                    </strong>
+                </div>
             </article>
 
             <article class="admin-stat-card">
-                <span>Inbetalt belopp</span>
-                <strong>
-                    <span th:text="${#numbers.formatInteger(dashboard.paidAmount, 1, 'WHITESPACE')}">
-                        0
-                    </span>
-                    kr
-                </strong>
+                <div class="admin-stat-icon">✓</div>
+                <div>
+                    <span>Inbetalt belopp</span>
+                    <strong>
+                        <span th:text="${#numbers.formatInteger(dashboard.paidAmount, 1, 'WHITESPACE')}">
+                            0
+                        </span>
+                        kr
+                    </strong>
+                </div>
             </article>
 
             <article class="admin-stat-card warning">
-                <span>Obetalda bokningar</span>
-                <strong th:text="${dashboard.unpaidBookings}">0</strong>
+                <div class="admin-stat-icon">!</div>
+                <div>
+                    <span>Obetalda bokningar</span>
+                    <strong th:text="${dashboard.unpaidBookings}">0</strong>
+                </div>
             </article>
 
             <article class="admin-stat-card danger">
-                <span>Avbokningar</span>
-                <strong th:text="${dashboard.cancellations}">0</strong>
+                <div class="admin-stat-icon">×</div>
+                <div>
+                    <span>Avbokningar</span>
+                    <strong th:text="${dashboard.cancellations}">0</strong>
+                </div>
             </article>
 
             <article class="admin-stat-card danger">
-                <span>Misslyckade mejl</span>
-                <strong th:text="${dashboard.failedEmails}">0</strong>
+                <div class="admin-stat-icon">✉</div>
+                <div>
+                    <span>Misslyckade mejl</span>
+                    <strong th:text="${dashboard.failedEmails}">0</strong>
+                </div>
             </article>
         </section>
 
-        <section class="admin-search-card">
+        <section class="admin-search-card" id="admin-search">
             <div>
                 <p class="eyebrow dark">
                     Sök bokning
@@ -152,7 +178,7 @@
                             class="admin-booking-row"
                             th:each="booking : ${dashboard.searchResults}"
                     >
-                        <div>
+                        <div class="admin-row-main">
                             <strong th:text="${booking.bookingNumber}">
                                 BK-2026-123456
                             </strong>
@@ -193,7 +219,7 @@
 
         <section class="admin-dashboard-layout">
             <div class="admin-main-column">
-                <section class="admin-panel">
+                <section class="admin-panel" id="latest-bookings">
                     <div class="admin-section-title">
                         <div>
                             <p class="eyebrow dark">
@@ -221,7 +247,7 @@
                                 class="admin-booking-row"
                                 th:each="booking : ${dashboard.latestBookings}"
                         >
-                            <div>
+                            <div class="admin-row-main">
                                 <strong th:text="${booking.bookingNumber}">
                                     BK-2026-123456
                                 </strong>
@@ -265,7 +291,7 @@
             </div>
 
             <aside class="admin-side-column">
-                <section class="admin-panel">
+                <section class="admin-panel admin-departure-panel">
                     <div class="admin-section-title">
                         <div>
                             <p class="eyebrow dark">

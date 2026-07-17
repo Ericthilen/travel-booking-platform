@@ -8,7 +8,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Alla resor – EriGo Travel</title>
+    <title>Resor – EriGo Travel</title>
 
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="/css/travels.css">
@@ -16,142 +16,268 @@
 
 <body>
 
-<div
-        th:replace="~{fragments/site-header :: siteHeader('travels')}"
-></div>
+<div th:replace="~{fragments/site-header :: siteHeader('travels')}"></div>
 
 <main>
-    <section class="travel-page-hero">
-        <div>
-            <p class="eyebrow">
-                EriGo Travel
-            </p>
-
-            <h1>
-                Hitta din nästa resa
-            </h1>
-
-            <p>
-                Upptäck våra utvalda charterresor till några av Europas
-                mest populära resmål.
-            </p>
-        </div>
-    </section>
-
     <section class="travel-list-section">
-        <div class="travel-list-heading">
-            <div>
-                <p class="eyebrow dark">
-                    Våra resor
-                </p>
-
+        <aside class="travel-filter-panel">
+            <div class="filter-heading">
                 <h2>
-                    Alla tillgängliga resor
+                    Filtrera
                 </h2>
+
+                <a th:href="@{/resor}">
+                    Rensa
+                </a>
             </div>
 
-            <p>
-                <span th:text="${travels.size()}">
-                    0
-                </span>
-
-                resor hittades
-            </p>
-        </div>
-
-        <div
-                class="travel-list-grid"
-                th:if="${!travels.isEmpty()}"
-        >
-            <article
-                    class="travel-list-card"
-                    th:each="travel : ${travels}"
-            >
-                <img
-                        class="travel-list-image"
-                        th:src="${travel.imageUrl}"
-                        th:alt="${travel.destination}"
-                >
-
-                <div class="travel-list-content">
-                    <p
-                            class="travel-country"
-                            th:text="${travel.country}"
+            <form class="travel-filter-form" th:action="@{/resor}" method="get">
+                <label>
+                    Resmål
+                    <select
+                            name="destination"
                     >
-                        Land
-                    </p>
-
-                    <h2 th:text="${travel.destination}">
-                        Resmål
-                    </h2>
-
-                    <h3 th:text="${travel.hotelName}">
-                        Hotellnamn
-                    </h3>
-
-                    <p
-                            class="travel-description"
-                            th:text="${travel.description}"
-                    >
-                        Beskrivning av resan.
-                    </p>
-
-                    <div class="travel-details">
-                        <span>
-                            <strong th:text="${travel.nights}">
-                                7
-                            </strong>
-
-                            nätter
-                        </span>
-
-                        <span>
-                            Flyg och hotell
-                        </span>
-                    </div>
-
-                    <div class="travel-list-footer">
-                        <div>
-                            <small>
-                                Pris per person från
-                            </small>
-
-                            <strong>
-                                <span
-                                        th:text="${#numbers.formatInteger(travel.price, 1, 'WHITESPACE')}"
-                                >
-                                    0
-                                </span>
-
-                                kr
-                            </strong>
-                        </div>
-
-                        <a
-                                th:href="@{/resor/{id}(id=${travel.id})}"
+                        <option value="">Alla resmål</option>
+                        <option
+                                th:each="destinationOption : ${destinations}"
+                                th:value="${destinationOption}"
+                                th:selected="${destinationOption == destination}"
+                                th:text="${destinationOption}"
                         >
-                            Visa resa
-                        </a>
+                            Antalya
+                        </option>
+                    </select>
+                </label>
+
+                <label>
+                    Avresa
+                    <input
+                            type="date"
+                            name="departureDate"
+                            th:value="${departureDate}"
+                    >
+                </label>
+
+                <label>
+                    Resenärer
+                    <select name="travelers">
+                        <option>2 vuxna</option>
+                        <option>1 vuxen</option>
+                        <option>2 vuxna, 1 barn</option>
+                        <option>2 vuxna, 2 barn</option>
+                    </select>
+                </label>
+
+                <label>
+                    Reslängd
+                    <select name="nights">
+                        <option value="">Alla längder</option>
+                        <option
+                                th:each="nightOption : ${nightOptions}"
+                                th:value="${nightOption}"
+                                th:selected="${nightOption == nights}"
+                                th:text="${nightOption + ' nätter'}"
+                        >
+                            7 nätter
+                        </option>
+                    </select>
+                </label>
+
+                <div class="filter-price">
+                    <label for="maxPrice">Pris per person</label>
+                    <input
+                            id="maxPrice"
+                            type="range"
+                            min="0"
+                            max="20000"
+                            step="500"
+                            name="maxPrice"
+                            th:value="${maxPrice != null ? maxPrice : 20000}"
+                    >
+
+                    <div>
+                        <span>0 kr</span>
+                        <span
+                                data-price-value
+                                th:text="${maxPrice != null ? #numbers.formatInteger(maxPrice, 1, 'WHITESPACE') + ' kr' : '20 000+ kr'}"
+                        >
+                            20 000+ kr
+                        </span>
                     </div>
                 </div>
-            </article>
-        </div>
 
-        <div
-                class="empty-travel-result"
-                th:if="${travels.isEmpty()}"
-        >
-            <h2>
-                Inga resor hittades
-            </h2>
+                <button type="submit">
+                    Visa <span th:text="${travels.size()}">32</span> resor
+                </button>
+            </form>
+        </aside>
 
-            <p>
-                Prova att söka efter ett annat resmål.
-            </p>
+        <div class="travel-results-area">
+            <div class="travel-list-heading">
+                <div>
+                    <p class="eyebrow dark">
+                        Våra resor
+                    </p>
 
-            <a th:href="@{/resor}">
-                Visa alla resor
-            </a>
+                    <h1>
+                        Alla tillgängliga resor
+                    </h1>
+                </div>
+
+                <form class="travel-sort-form" th:action="@{/resor}" method="get">
+                    <input type="hidden" name="destination" th:value="${destination}">
+                    <input type="hidden" name="country" th:value="${country}">
+                    <input type="hidden" name="maxPrice" th:value="${maxPrice}">
+                    <input type="hidden" name="hotelStars" th:value="${hotelStars}">
+                    <input type="hidden" name="nights" th:value="${nights}">
+                    <input type="hidden" name="mealType" th:value="${mealType}">
+                    <input type="hidden" name="departureAirport" th:value="${departureAirport}">
+                    <input type="hidden" name="departureDate" th:value="${departureDate}">
+
+                    <label>
+                        Sortera efter
+                        <select name="sort" onchange="this.form.submit()">
+                            <option value="" th:selected="${sort == null or sort.isBlank()}">
+                                Mest populära
+                            </option>
+                            <option value="price-low" th:selected="${sort == 'price-low'}">
+                                Lägst pris
+                            </option>
+                            <option value="price-high" th:selected="${sort == 'price-high'}">
+                                Högst pris
+                            </option>
+                            <option value="hotel" th:selected="${sort == 'hotel'}">
+                                Hotellnamn
+                            </option>
+                        </select>
+                    </label>
+                </form>
+            </div>
+
+            <div class="active-filter-line">
+                <span th:if="${destination != null and !destination.isBlank()}">
+                    Resmål: <strong th:text="${destination}">Mallorca</strong>
+                </span>
+
+                <span th:if="${country != null and !country.isBlank()}">
+                    Land: <strong th:text="${country}">Spanien</strong>
+                </span>
+
+                <span th:if="${mealType != null and !mealType.isBlank()}">
+                    Måltider: <strong th:text="${mealType}">Frukost</strong>
+                </span>
+
+                <span th:if="${departureAirport != null and !departureAirport.isBlank()}">
+                    Flygplats: <strong th:text="${departureAirport}">Göteborg</strong>
+                </span>
+            </div>
+
+            <div
+                    class="travel-list-grid"
+                    th:if="${!travels.isEmpty()}"
+            >
+                <article
+                        class="travel-list-card"
+                        th:each="travel : ${travels}"
+                >
+                    <a
+                            class="travel-image-link"
+                            th:href="@{/resor/{id}(id=${travel.id})}"
+                    >
+                        <img
+                                class="travel-list-image"
+                                th:src="${travel.imageUrl}"
+                                th:alt="${travel.destination}"
+                        >
+
+                        <span class="travel-card-favorite">♥</span>
+                    </a>
+
+                    <div class="travel-list-content">
+                        <p
+                                class="travel-country"
+                                th:text="${travel.country}"
+                        >
+                            Land
+                        </p>
+
+                        <h2 th:text="${travel.destination}">
+                            Resmål
+                        </h2>
+
+                        <h3 th:text="${travel.hotelName}">
+                            Hotellnamn
+                        </h3>
+
+                        <p
+                                class="travel-description"
+                                th:text="${travel.description}"
+                        >
+                            Beskrivning av resan.
+                        </p>
+
+                        <div class="travel-details">
+                            <span>
+                                ✓
+                                <span th:text="${travel.nights}">
+                                    7
+                                </span>
+                                nätter
+                            </span>
+
+                            <span>
+                                ✓
+                                <span th:text="${travel.mealType}">
+                                    Frukost
+                                </span>
+                            </span>
+                        </div>
+
+                        <div class="travel-list-footer">
+                            <div>
+                                <small>
+                                    Från
+                                </small>
+
+                                <strong>
+                                    <span
+                                            th:text="${#numbers.formatInteger(travel.price, 1, 'WHITESPACE')}"
+                                    >
+                                        0
+                                    </span>
+
+                                    kr
+                                </strong>
+
+                                <small>
+                                    per person
+                                </small>
+                            </div>
+
+                            <a th:href="@{/resor/{id}(id=${travel.id})}">
+                                Visa resa
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <div
+                    class="empty-travel-result"
+                    th:if="${travels.isEmpty()}"
+            >
+                <h2>
+                    Inga resor matchade filtren
+                </h2>
+
+                <p>
+                    Prova att ta bort något filter eller sök bredare.
+                </p>
+
+                <a th:href="@{/resor}">
+                    Visa alla resor
+                </a>
+            </div>
         </div>
     </section>
 </main>
@@ -161,14 +287,21 @@
         <strong>EriGo Travel</strong>
 
         <p>
-            Resor att längta efter.
+            Utvalda paketresor med flyg, hotell och trygg bokning.
         </p>
     </div>
+
+    <nav aria-label="Footer">
+        <a th:href="@{/resor}">Resor</a>
+        <a th:href="@{/hitta-bokning}">Hitta bokning</a>
+        <a th:href="@{/mitt-konto}">Mitt konto</a>
+    </nav>
 
     <p>© 2026 EriGo Travel</p>
 </footer>
 
 <script src="/js/home.js" defer></script>
+<script src="/js/travel-filters.js" defer></script>
 
 </body>
 </html>
