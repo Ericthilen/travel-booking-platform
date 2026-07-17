@@ -8,49 +8,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>EriGo Travel – Hitta din nästa resa</title>
+    <title>EriGo Travel – Exklusiva resor till utvalda hotell</title>
 
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 
 <body>
 
-<div
-        th:replace="~{fragments/site-header :: siteHeader('home')}"
-></div>
+<div th:replace="~{fragments/site-header :: siteHeader('home')}"></div>
 
 <main>
-    <section class="hero">
+    <section class="hero luxury-hero">
         <div class="hero-overlay"></div>
 
         <div class="hero-content">
-            <p class="eyebrow">Din semester börjar här</p>
+            <p class="eyebrow">EriGo Travel</p>
 
-            <h1>Hitta resan du längtar efter</h1>
+            <h1>Handplockade resor med trygghet från första klicket.</h1>
 
             <p class="hero-description">
-                Upptäck soliga destinationer, handplockade hotell och
-                prisvärda charterresor.
+                Upptäck utvalda hotell, bekväma flygtider och destinationer
+                skapade för dig som vill resa enkelt, snyggt och säkert.
             </p>
 
-            <form class="search-form">
+            <form class="search-form luxury-search">
                 <div class="search-field">
-                    <label for="destination">
-                        Resmål
-                    </label>
+                    <label for="destination">Resmål</label>
 
                     <input
                             id="destination"
                             name="destination"
                             type="text"
-                            placeholder="Till exempel Mallorca"
+                            placeholder="Mallorca, Kreta, Antalya"
                     >
                 </div>
 
                 <div class="search-field">
-                    <label for="departureDate">
-                        Avresa
-                    </label>
+                    <label for="departureDate">Avresedatum</label>
 
                     <input
                             id="departureDate"
@@ -60,51 +54,32 @@
                 </div>
 
                 <div class="search-field">
-                    <label for="travelers">
-                        Resenärer
-                    </label>
+                    <label for="travelers">Antal resenärer</label>
 
-                    <select
-                            id="travelers"
-                            name="travelers"
-                    >
-                        <option value="1">
-                            1 vuxen
-                        </option>
-
-                        <option value="2" selected>
-                            2 vuxna
-                        </option>
-
-                        <option value="3">
-                            2 vuxna, 1 barn
-                        </option>
-
-                        <option value="4">
-                            2 vuxna, 2 barn
-                        </option>
+                    <select id="travelers" name="travelers">
+                        <option value="1">1 resenär</option>
+                        <option value="2" selected>2 resenärer</option>
+                        <option value="3">3 resenärer</option>
+                        <option value="4">4 resenärer</option>
                     </select>
                 </div>
 
-                <button
-                        class="search-button"
-                        type="submit"
-                >
+                <button class="search-button" type="submit">
                     Sök resor
                 </button>
             </form>
         </div>
     </section>
 
-    <section class="benefits">
+    <section class="benefits premium-benefits">
         <article>
             <span>✓</span>
 
             <div>
-                <h2>Trygg bokning</h2>
+                <h2>Trygg researrangör</h2>
 
                 <p>
-                    Boka din semester enkelt och säkert.
+                    Bokning, betalning och reseinformation samlat på ett ställe.
                 </p>
             </div>
         </article>
@@ -113,10 +88,10 @@
             <span>★</span>
 
             <div>
-                <h2>Utvalda hotell</h2>
+                <h2>Noggrant valda hotell</h2>
 
                 <p>
-                    Boenden valda för kvalitet och komfort.
+                    Hotell med bra lägen, tydlig standard och semesterkänsla.
                 </p>
             </div>
         </article>
@@ -125,28 +100,37 @@
             <span>♥</span>
 
             <div>
-                <h2>Personlig service</h2>
+                <h2>Service hela vägen</h2>
 
                 <p>
-                    Vi hjälper dig före, under och efter resan.
+                    Hjälp före bokning, efter köp och när resan närmar sig.
                 </p>
             </div>
         </article>
     </section>
 
-    <section
-            class="destinations-section"
-            id="destinations"
-    >
+    <section class="editorial-section">
+        <div class="editorial-copy">
+            <p class="eyebrow dark">Noggrant kurerat</p>
+
+            <h2>Resor som känns genomtänkta, inte slumpmässiga.</h2>
+
+            <p>
+                Vi samlar solresor med tydliga priser, bekväma hotell och
+                avgångar som passar svenska resenärer. Du slipper leta runt,
+                jämföra osäkra alternativ och fundera på vad som faktiskt ingår.
+            </p>
+        </div>
+
+        <div class="editorial-image"></div>
+    </section>
+
+    <section class="destinations-section" id="destinations">
         <div class="section-heading">
             <div>
-                <p class="eyebrow dark">
-                    Populärt just nu
-                </p>
+                <p class="eyebrow dark">Populära resmål</p>
 
-                <h2>
-                    Upptäck våra mest bokade resmål
-                </h2>
+                <h2>Utvalda favoriter för nästa semester</h2>
             </div>
 
             <a th:href="@{/resor}">
@@ -154,129 +138,215 @@
             </a>
         </div>
 
-        <div class="destination-grid">
-            <article class="destination-card">
-                <div class="destination-image mallorca">
+        <div class="destination-grid" th:if="${!popularTravels.isEmpty()}">
+            <article
+                    class="destination-card luxury-destination-card"
+                    th:each="travel : ${popularTravels}"
+            >
+                <a
+                        class="favorite-button"
+                        th:href="@{/resor/{id}(id=${travel.id})}"
+                        aria-label="Spara favorit"
+                >
+                    ♥
+                </a>
+
+                <a
+                        class="destination-image-link"
+                        th:href="@{/resor/{id}(id=${travel.id})}"
+                >
+                    <img
+                            class="destination-photo"
+                            th:src="${travel.imageUrl}"
+                            th:alt="${travel.destination}"
+                    >
+
                     <span class="destination-badge">
-                        Populärast
+                        Utvald resa
                     </span>
-                </div>
+                </a>
 
                 <div class="destination-content">
-                    <p>Spanien</p>
+                    <div class="destination-meta-row">
+                        <p th:text="${travel.country}">Spanien</p>
 
-                    <h3>Mallorca</h3>
-
-                    <span>
-                        7 nätter · Flyg och hotell
-                    </span>
-
-                    <div class="destination-price">
-                        <div>
-                            <small>
-                                Pris per person från
-                            </small>
-
-                            <strong>
-                                7 495 kr
-                            </strong>
-                        </div>
-
-                        <button
-                                type="button"
-                                onclick="window.location.href='/resor/1'"
-                        >
-                            Visa resa
-                        </button>
+                        <span class="hotel-stars">
+                            <span
+                                    th:each="star : ${#numbers.sequence(1, travel.hotelStars)}"
+                            >★</span>
+                        </span>
                     </div>
-                </div>
-            </article>
 
-            <article class="destination-card">
-                <div class="destination-image crete">
-                    <span class="destination-badge">
-                        Familjefavorit
-                    </span>
-                </div>
+                    <h3 th:text="${travel.destination}">Mallorca</h3>
 
-                <div class="destination-content">
-                    <p>Grekland</p>
+                    <strong
+                            class="hotel-name"
+                            th:text="${travel.hotelName}"
+                    >
+                        Sun Bay Resort
+                    </strong>
 
-                    <h3>Kreta</h3>
-
-                    <span>
-                        7 nätter · Flyg och hotell
-                    </span>
+                    <p
+                            class="destination-description"
+                            th:text="${travel.description}"
+                    >
+                        Kort beskrivning.
+                    </p>
 
                     <div class="destination-price">
                         <div>
-                            <small>
-                                Pris per person från
-                            </small>
+                            <small>Pris per person från</small>
 
                             <strong>
-                                8 295 kr
+                                <span th:text="${#numbers.formatInteger(travel.price, 1, 'WHITESPACE')}">
+                                    7 495
+                                </span>
+                                kr
                             </strong>
                         </div>
 
-                        <button
-                                type="button"
-                                onclick="window.location.href='/resor/2'"
-                        >
+                        <a th:href="@{/resor/{id}(id=${travel.id})}">
                             Visa resa
-                        </button>
-                    </div>
-                </div>
-            </article>
-
-            <article class="destination-card">
-                <div class="destination-image cyprus">
-                    <span class="destination-badge">
-                        Solgaranti
-                    </span>
-                </div>
-
-                <div class="destination-content">
-                    <p>Cypern</p>
-
-                    <h3>Ayia Napa</h3>
-
-                    <span>
-                        7 nätter · Flyg och hotell
-                    </span>
-
-                    <div class="destination-price">
-                        <div>
-                            <small>
-                                Pris per person från
-                            </small>
-
-                            <strong>
-                                8 995 kr
-                            </strong>
-                        </div>
-
-                        <button
-                                type="button"
-                                onclick="window.location.href='/resor/3'"
-                        >
-                            Visa resa
-                        </button>
+                        </a>
                     </div>
                 </div>
             </article>
         </div>
     </section>
+
+    <section class="inspiration-grid">
+        <article class="inspiration-card wide">
+            <p class="eyebrow">För familjen</p>
+
+            <h2>Hotell med pool, strandläge och smidiga flygtider.</h2>
+        </article>
+
+        <article class="inspiration-card calm">
+            <p class="eyebrow">För par</p>
+
+            <h2>Vuxnare hotell, bättre lägen och mer tid att landa.</h2>
+        </article>
+
+        <article class="inspiration-card city">
+            <p class="eyebrow">För upptäckare</p>
+
+            <h2>Solresor nära restauranger, kultur och kvällsliv.</h2>
+        </article>
+    </section>
+
+    <section class="customer-benefits-section">
+        <div>
+            <p class="eyebrow dark">Kundfördelar</p>
+
+            <h2>Det ska kännas tryggt att boka semester.</h2>
+        </div>
+
+        <div class="customer-benefits-grid">
+            <article>
+                <strong>01</strong>
+                <h3>Tydliga priser</h3>
+                <p>Du ser resa, hotell och tillval innan bokningen slutförs.</p>
+            </article>
+
+            <article>
+                <strong>02</strong>
+                <h3>Samlad bokning</h3>
+                <p>Fakturor, betalningar och reseuppgifter finns på kontot.</p>
+            </article>
+
+            <article>
+                <strong>03</strong>
+                <h3>Utvalda avgångar</h3>
+                <p>Resor med flyg, hotell och hemresa tydligt presenterat.</p>
+            </article>
+
+            <article>
+                <strong>04</strong>
+                <h3>Personlig känsla</h3>
+                <p>En reseupplevelse som känns genomtänkt från start.</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="stats-section">
+        <article>
+            <strong>6</strong>
+            <span>utvalda resmål</span>
+        </article>
+
+        <article>
+            <strong>4.7/5</strong>
+            <span>kundkänsla</span>
+        </article>
+
+        <article>
+            <strong>24h</strong>
+            <span>smidig bokningsöversikt</span>
+        </article>
+
+        <article>
+            <strong>100%</strong>
+            <span>tydliga resevillkor</span>
+        </article>
+    </section>
+
+    <section class="reviews-section">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow dark">Kundrecensioner</p>
+
+                <h2>Resenärer som vill boka lika enkelt nästa gång.</h2>
+            </div>
+        </div>
+
+        <div class="reviews-grid">
+            <article>
+                <p>
+                    “Allt var tydligt från början. Hotell, tider och betalning
+                    låg samlat, vilket gjorde bokningen väldigt enkel.”
+                </p>
+
+                <strong>Maria L.</strong>
+                <span>Mallorca</span>
+            </article>
+
+            <article>
+                <p>
+                    “Sidan känns seriös och lätt att förstå. Det var skönt att
+                    se exakt vad som ingick innan vi bokade.”
+                </p>
+
+                <strong>Jonas R.</strong>
+                <span>Kreta</span>
+            </article>
+
+            <article>
+                <p>
+                    “Resekorten gjorde valet enkelt. Bra bilder, tydliga priser
+                    och hotellinformationen var precis det jag behövde.”
+                </p>
+
+                <strong>Elin S.</strong>
+                <span>Gran Canaria</span>
+            </article>
+        </div>
+    </section>
 </main>
 
-<footer class="site-footer">
+<footer class="site-footer luxury-footer">
     <div>
         <strong>EriGo Travel</strong>
 
         <p>
-            Resor att längta efter.
+            Utvalda paketresor med flyg, hotell och trygg bokning.
         </p>
     </div>
+
+    <nav aria-label="Footer">
+        <a th:href="@{/resor}">Resor</a>
+        <a th:href="@{/hitta-bokning}">Hitta bokning</a>
+        <a th:href="@{/mitt-konto}">Mitt konto</a>
+    </nav>
 
     <p>© 2026 EriGo Travel</p>
 </footer>
