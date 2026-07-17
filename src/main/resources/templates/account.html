@@ -16,461 +16,415 @@
 
 <body>
 
-<div
-        th:replace="~{fragments/site-header :: siteHeader('account')}"
-></div>
+<div th:replace="~{fragments/site-header :: siteHeader('account')}"></div>
 
-<main>
-    <section class="account-hero">
-        <div>
-            <p class="eyebrow">
-                Mitt konto
-            </p>
+<main class="account-page">
+    <section class="account-showcase">
+        <div class="account-showcase-copy">
+            <p class="eyebrow">Ditt äventyr börjar här</p>
 
             <h1>
-                Hej,
-                <span th:text="${user.fullName}">
-                    Kund
-                </span>
+                Hitta resan du längtar efter
             </h1>
 
             <p>
-                Här finns dina uppgifter, bokningar, fakturor och betalningar.
+                Upptäck handplockade resmål, utvalda hotell och prisvärda
+                charterresor med allt samlat på ett tryggt konto.
             </p>
+
+            <div class="account-trust-list">
+                <article>
+                    <span>✓</span>
+                    <div>
+                        <strong>Trygg bokning</strong>
+                        <p>Boka din semester enkelt och säkert.</p>
+                    </div>
+                </article>
+
+                <article>
+                    <span>☆</span>
+                    <div>
+                        <strong>Utvalda hotell</strong>
+                        <p>Boenden valda för kvalitet och komfort.</p>
+                    </div>
+                </article>
+
+                <article>
+                    <span>♧</span>
+                    <div>
+                        <strong>Personlig service</strong>
+                        <p>Vi hjälper dig före, under och efter resan.</p>
+                    </div>
+                </article>
+            </div>
         </div>
+
+        <section
+                class="account-preview-card"
+                th:data-active-tab="${activeAccountPage}"
+        >
+            <aside class="account-menu" aria-label="Mitt konto">
+                <a
+                        href="#account-overview"
+                        data-account-target="profile"
+                        th:classappend="${activeAccountPage == 'profile'} ? ' active-account-link'"
+                >
+                    <span>♙</span>Översikt
+                </a>
+
+                <a
+                        href="#account-bookings"
+                        data-account-target="bookings"
+                        th:classappend="${activeAccountPage == 'bookings'} ? ' active-account-link'"
+                >
+                    <span>▣</span>Mina bokningar
+                </a>
+
+                <a
+                        href="#account-invoices"
+                        data-account-target="invoices"
+                        th:classappend="${activeAccountPage == 'invoices'} ? ' active-account-link'"
+                >
+                    <span>□</span>Mina fakturor
+                </a>
+
+                <a
+                        href="#account-payments"
+                        data-account-target="payments"
+                        th:classappend="${activeAccountPage == 'payments'} ? ' active-account-link'"
+                >
+                    <span>▤</span>Mina betalningar
+                </a>
+
+                <a
+                        href="#account-cancelled"
+                        data-account-target="cancelled"
+                        th:classappend="${activeAccountPage == 'cancelled'} ? ' active-account-link'"
+                >
+                    <span>×</span>Avbokade resor
+                </a>
+
+                <a
+                        href="#account-settings"
+                        data-account-target="settings"
+                        th:classappend="${activeAccountPage == 'settings'} ? ' active-account-link'"
+                >
+                    <span>⚙</span>Inställningar
+                </a>
+
+                <a
+                        href="#account-password"
+                        data-account-target="password"
+                        th:classappend="${activeAccountPage == 'password'} ? ' active-account-link'"
+                >
+                    <span>♧</span>Lösenord
+                </a>
+            </aside>
+
+            <div class="account-preview-main">
+                <div
+                        class="account-message success"
+                        th:if="${accountMessage}"
+                        th:text="${accountMessage}"
+                >
+                    Sparat.
+                </div>
+
+                <div
+                        class="account-message success"
+                        th:if="${passwordMessage}"
+                        th:text="${passwordMessage}"
+                >
+                    Lösenordet har ändrats.
+                </div>
+
+                <div
+                        class="account-message success"
+                        th:if="${guestBookingMessage}"
+                        th:text="${guestBookingMessage}"
+                >
+                    Gästbokningar kopplades.
+                </div>
+
+                <section
+                        class="account-panel-view"
+                        id="account-overview"
+                        data-account-section="profile"
+                >
+                    <div class="preview-heading">
+                        <p class="eyebrow dark">Min profil</p>
+
+                        <a href="#account-settings" data-account-target="settings">Redigera</a>
+                    </div>
+
+                    <h2 th:text="${user.fullName}">
+                        Eric Thilen
+                    </h2>
+
+                    <div class="preview-facts">
+                        <div>
+                            <span>E-post</span>
+                            <strong th:text="${user.email}">eric@example.com</strong>
+                        </div>
+
+                        <div>
+                            <span>Telefon</span>
+                            <strong th:text="${customer != null ? customer.phone : 'Saknas'}">
+                                +46 70 000 00 00
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Roll</span>
+                            <strong th:text="${#strings.replace(user.role.name(), 'ROLE_', '')}">
+                                USER
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Kundnummer</span>
+                            <strong th:if="${customer != null}" th:text="${customer.customerNumber}">
+                                ERG-123456
+                            </strong>
+                            <strong th:if="${customer == null}">
+                                Skapas vid bokning
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="preview-shortcuts">
+                        <p class="eyebrow dark">Snabblänkar</p>
+
+                        <div>
+                            <a href="#account-bookings" data-account-target="bookings">
+                                <span>▣</span>
+                                <strong>Mina bokningar</strong>
+                                <small>Visa alla dina resor</small>
+                            </a>
+
+                            <a href="#account-invoices" data-account-target="invoices">
+                                <span>□</span>
+                                <strong>Mina fakturor</strong>
+                                <small>Se och ladda ner</small>
+                            </a>
+
+                            <a th:href="@{/hitta-bokning}">
+                                <span>♙</span>
+                                <strong>Hitta bokning</strong>
+                                <small>Ange bokningsuppgifter</small>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </section>
     </section>
 
-    <section class="account-layout">
-        <aside class="account-menu">
-            <a href="#profil">Profil</a>
-            <a href="#bokningar">Mina bokningar</a>
-            <a href="#fakturor">Mina fakturor</a>
-            <a href="#betalningar">Mina betalningar</a>
-            <a href="#avbokade">Avbokade resor</a>
-            <a href="#losenord">Lösenord</a>
-        </aside>
-
-        <div class="account-content">
-            <div
-                    class="account-message success"
-                    th:if="${accountMessage}"
-                    th:text="${accountMessage}"
-            >
-                Sparat.
-            </div>
-
-            <div
-                    class="account-message success"
-                    th:if="${passwordMessage}"
-                    th:text="${passwordMessage}"
-            >
-                Lösenordet har ändrats.
-            </div>
-
-            <div
-                    class="account-message success"
-                    th:if="${guestBookingMessage}"
-                    th:text="${guestBookingMessage}"
-            >
-                Gästbokningar kopplades.
-            </div>
-
-            <div
-                    class="account-message success"
-                    th:if="${connectedBookings > 0}"
-            >
-                <span th:text="${connectedBookings}">0</span>
-                tidigare gästbokningar kopplades automatiskt till kontot.
-            </div>
-
-            <section
-                    class="account-card"
-                    id="profil"
-            >
-                <div class="account-card-heading">
-                    <div>
-                        <p class="eyebrow dark">Profil</p>
-                        <h2>Dina uppgifter</h2>
-                    </div>
-                </div>
-
-                <div class="account-facts">
-                    <div>
-                        <span>Namn</span>
-                        <strong th:text="${user.fullName}">Namn</strong>
-                    </div>
-
-                    <div>
-                        <span>E-post</span>
-                        <strong th:text="${user.email}">kund@exempel.se</strong>
-                    </div>
-
-                    <div>
-                        <span>Roll</span>
-                        <strong th:text="${#strings.replace(user.role.name(), 'ROLE_', '')}">
-                            USER
-                        </strong>
-                    </div>
-
-                    <div>
-                        <span>Kundnummer</span>
-                        <strong
-                                th:if="${customer != null}"
-                                th:text="${customer.customerNumber}"
-                        >
-                            ERG-123456
-                        </strong>
-                        <strong th:if="${customer == null}">
-                            Skapas vid första bokning
-                        </strong>
-                    </div>
-                </div>
-
-                <form
-                        class="account-form"
-                        th:action="@{/mitt-konto/profil}"
-                        th:object="${profileRequest}"
-                        method="post"
+    <section class="account-detail-area" aria-label="Kontosektioner">
+        <div class="account-dashboard">
+                <section
+                        class="account-card account-detail-section"
+                        id="account-bookings"
+                        data-account-section="bookings"
                 >
-                    <div
-                            class="form-error-message"
-                            th:if="${#fields.hasGlobalErrors()}"
-                    >
-                        <p
-                                th:each="error : ${#fields.globalErrors()}"
-                                th:text="${error}"
-                        >
-                            Felmeddelande
-                        </p>
+                    <div class="preview-heading">
+                        <p class="eyebrow dark">Mina bokningar</p>
+
+                        <form class="inline-account-action" th:action="@{/mitt-konto/koppla-gastbokningar}" method="post">
+                            <button type="submit">Koppla gästbokningar</button>
+                        </form>
                     </div>
 
-                    <div class="account-field full-width">
-                        <label for="fullName">Namn</label>
-                        <input
-                                id="fullName"
-                                type="text"
-                                th:field="*{fullName}"
-                        >
-                        <p
-                                class="field-error"
-                                th:if="${#fields.hasErrors('fullName')}"
-                                th:errors="*{fullName}"
-                        >
-                            Fel
-                        </p>
+                    <h2>Kommande resor</h2>
+
+                    <div class="empty-account-list" th:if="${activeBookings.isEmpty()}">
+                        Du har inga aktiva bokningar ännu.
                     </div>
 
-                    <div class="account-field">
-                        <label for="phone">Telefonnummer</label>
-                        <input
-                                id="phone"
-                                type="tel"
-                                th:field="*{phone}"
-                                placeholder="Läggs till vid bokning"
-                        >
-                        <p
-                                class="field-error"
-                                th:if="${#fields.hasErrors('phone')}"
-                                th:errors="*{phone}"
-                        >
-                            Fel
-                        </p>
+                    <div class="account-row-list" th:unless="${activeBookings.isEmpty()}">
+                        <article th:each="booking : ${activeBookings}">
+                            <img th:src="${booking.departure.travel.imageUrl}" th:alt="${booking.departure.travel.destination}">
+                            <div>
+                                <strong th:text="${booking.departure.travel.destination}">Mallorca</strong>
+                                <span th:text="${booking.departure.travel.country}">Spanien</span>
+                            </div>
+                            <div>
+                                <strong>
+                                    <span th:text="${#temporals.format(booking.departure.departureDate, 'dd MMM')}">12 aug</span>
+                                    –
+                                    <span th:text="${#temporals.format(booking.departure.returnDate, 'dd MMM yyyy')}">19 aug 2026</span>
+                                </strong>
+                                <span><span th:text="${booking.departure.travel.nights}">7</span> nätter</span>
+                            </div>
+                            <a th:href="@{/mina-bokningar/{id}(id=${booking.id})}">Öppna</a>
+                        </article>
                     </div>
+                </section>
 
-                    <div class="account-field">
-                        <label for="email">E-post</label>
-                        <input
-                                id="email"
-                                type="email"
-                                th:field="*{email}"
-                        >
-                        <p
-                                class="field-error"
-                                th:if="${#fields.hasErrors('email')}"
-                                th:errors="*{email}"
-                        >
-                            Fel
-                        </p>
-                    </div>
-
-                    <button type="submit">
-                        Spara uppgifter
-                    </button>
-                </form>
-            </section>
-
-            <section
-                    class="account-card"
-                    id="bokningar"
-            >
-                <div class="account-card-heading">
-                    <div>
-                        <p class="eyebrow dark">Resor</p>
-                        <h2>Mina bokningar</h2>
-                    </div>
-
-                    <a th:href="@{/mina-bokningar}">
-                        Visa bokningssidan
-                    </a>
-                </div>
-
-                <form
-                        class="connect-bookings-form"
-                        th:action="@{/mitt-konto/koppla-gastbokningar}"
-                        method="post"
+                <section
+                        class="account-card account-detail-section"
+                        id="account-invoices"
+                        data-account-section="invoices"
                 >
-                    <p>
-                        Har du bokat som gäst tidigare kopplas bokningar hit när personnummer och e-post matchar.
-                    </p>
-                    <button type="submit">
-                        Koppla gästbokningar
-                    </button>
-                </form>
+                    <div class="preview-heading">
+                        <p class="eyebrow dark">Mina fakturor</p>
+                    </div>
 
-                <div
-                        class="empty-account-list"
-                        th:if="${activeBookings.isEmpty()}"
-                >
-                    Du har inga aktiva bokningar ännu.
-                </div>
+                    <h2>Fakturor</h2>
 
-                <div
-                        class="compact-list"
-                        th:unless="${activeBookings.isEmpty()}"
+                    <div class="empty-account-list" th:if="${invoices.isEmpty()}">
+                        Det finns inga fakturor ännu.
+                    </div>
+
+                    <div class="finance-account-list" th:unless="${invoices.isEmpty()}">
+                        <article th:each="invoice : ${invoices}">
+                            <div>
+                                <strong th:text="${invoice.invoiceNumber}">INV-2026-123456</strong>
+                                <span th:text="${invoice.booking.departure.travel.destination}">Mallorca</span>
+                            </div>
+                            <strong><span th:text="${#numbers.formatInteger(invoice.totalAmount, 1, 'WHITESPACE')}">14990</span> kr</strong>
+                            <a th:href="@{/mina-bokningar/{id}/faktura(id=${invoice.booking.id})}">Ladda ner</a>
+                        </article>
+                    </div>
+                </section>
+
+                <section
+                        class="account-card account-detail-section"
+                        id="account-payments"
+                        data-account-section="payments"
                 >
-                    <article th:each="booking : ${activeBookings}">
-                        <div>
-                            <strong th:text="${booking.departure.travel.destination}">
-                                Mallorca
-                            </strong>
-                            <span th:text="${booking.bookingNumber}">
-                                BK-2026-123456
-                            </span>
+                    <div class="preview-heading">
+                        <p class="eyebrow dark">Mina betalningar</p>
+                    </div>
+
+                    <h2>Betalningar</h2>
+
+                    <div class="empty-account-list" th:if="${payments.isEmpty()}">
+                        Inga betalningar är registrerade.
+                    </div>
+
+                    <div class="finance-account-list" th:unless="${payments.isEmpty()}">
+                        <article th:each="payment : ${payments}">
+                            <div>
+                                <strong><span th:text="${#numbers.formatInteger(payment.amount, 1, 'WHITESPACE')}">2500</span> kr</strong>
+                                <span><span th:text="${payment.paymentMethod.displayName}">Kort</span> · <span th:text="${payment.reference}">CARD-123</span></span>
+                            </div>
+                            <span th:text="${payment.booking.departure.travel.destination}">Mallorca</span>
+                            <a th:href="@{/mina-bokningar/{id}(id=${payment.booking.id})}">Bokning</a>
+                        </article>
+                    </div>
+                </section>
+
+                <section
+                        class="account-card account-detail-section"
+                        id="account-cancelled"
+                        data-account-section="cancelled"
+                >
+                    <div class="preview-heading">
+                        <p class="eyebrow dark">Avbokade resor</p>
+                    </div>
+
+                    <h2>Avbokade resor</h2>
+
+                    <div class="empty-account-list" th:if="${cancelledBookings.isEmpty()}">
+                        Du har inga avbokade resor.
+                    </div>
+
+                    <div class="account-row-list" th:unless="${cancelledBookings.isEmpty()}">
+                        <article th:each="booking : ${cancelledBookings}">
+                            <img th:src="${booking.departure.travel.imageUrl}" th:alt="${booking.departure.travel.destination}">
+                            <div>
+                                <strong th:text="${booking.departure.travel.destination}">Mallorca</strong>
+                                <span th:text="${booking.bookingNumber}">E1234567</span>
+                            </div>
+                            <span class="cancelled-chip">Avbokad</span>
+                            <a th:href="@{/mina-bokningar/{id}(id=${booking.id})}">Öppna</a>
+                        </article>
+                    </div>
+                </section>
+
+                <section
+                        class="account-card account-detail-section"
+                        id="account-settings"
+                        data-account-section="settings"
+                >
+                    <div class="preview-heading">
+                        <p class="eyebrow dark">Inställningar</p>
+                    </div>
+
+                    <h2>Uppdatera profil</h2>
+
+                    <form class="account-form" th:action="@{/mitt-konto/profil}" th:object="${profileRequest}" method="post">
+                        <div class="form-error-message" th:if="${#fields.hasGlobalErrors()}">
+                            <p th:each="error : ${#fields.globalErrors()}" th:text="${error}">Felmeddelande</p>
                         </div>
 
-                        <a th:href="@{/mina-bokningar/{id}(id=${booking.id})}">
-                            Öppna
-                        </a>
-                    </article>
-                </div>
-            </section>
-
-            <section
-                    class="account-card"
-                    id="fakturor"
-            >
-                <div class="account-card-heading">
-                    <div>
-                        <p class="eyebrow dark">Ekonomi</p>
-                        <h2>Mina fakturor</h2>
-                    </div>
-                </div>
-
-                <div
-                        class="empty-account-list"
-                        th:if="${invoices.isEmpty()}"
-                >
-                    Det finns inga fakturor ännu.
-                </div>
-
-                <div
-                        class="compact-list"
-                        th:unless="${invoices.isEmpty()}"
-                >
-                    <article th:each="invoice : ${invoices}">
-                        <div>
-                            <strong th:text="${invoice.invoiceNumber}">
-                                INV-2026-123456
-                            </strong>
-                            <span>
-                                <span th:text="${#numbers.formatInteger(invoice.totalAmount, 1, 'WHITESPACE')}">
-                                    14990
-                                </span>
-                                kr
-                            </span>
+                        <div class="account-field full-width">
+                            <label for="fullName">Namn</label>
+                            <input id="fullName" type="text" th:field="*{fullName}">
+                            <p class="field-error" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}">Fel</p>
                         </div>
 
-                        <a th:href="@{/mina-bokningar/{id}/faktura(id=${invoice.booking.id})}">
-                            Ladda ner
-                        </a>
-                    </article>
-                </div>
-            </section>
-
-            <section
-                    class="account-card"
-                    id="betalningar"
-            >
-                <div class="account-card-heading">
-                    <div>
-                        <p class="eyebrow dark">Betalningar</p>
-                        <h2>Mina betalningar</h2>
-                    </div>
-                </div>
-
-                <div
-                        class="empty-account-list"
-                        th:if="${payments.isEmpty()}"
-                >
-                    Inga betalningar är registrerade.
-                </div>
-
-                <div
-                        class="compact-list"
-                        th:unless="${payments.isEmpty()}"
-                >
-                    <article th:each="payment : ${payments}">
-                        <div>
-                            <strong>
-                                <span th:text="${#numbers.formatInteger(payment.amount, 1, 'WHITESPACE')}">
-                                    2500
-                                </span>
-                                kr
-                            </strong>
-                            <span>
-                                <span th:text="${payment.paymentMethod.displayName}">
-                                    Kort
-                                </span>
-                                ·
-                                <span th:text="${payment.reference}">
-                                    CARD-123
-                                </span>
-                            </span>
+                        <div class="account-field">
+                            <label for="phone">Telefonnummer</label>
+                            <input id="phone" type="tel" th:field="*{phone}" placeholder="Läggs till vid bokning">
+                            <p class="field-error" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}">Fel</p>
                         </div>
 
-                        <a th:href="@{/mina-bokningar/{id}(id=${payment.booking.id})}">
-                            Bokning
-                        </a>
-                    </article>
-                </div>
-            </section>
-
-            <section
-                    class="account-card"
-                    id="avbokade"
-            >
-                <div class="account-card-heading">
-                    <div>
-                        <p class="eyebrow dark">Historik</p>
-                        <h2>Avbokade resor</h2>
-                    </div>
-                </div>
-
-                <div
-                        class="empty-account-list"
-                        th:if="${cancelledBookings.isEmpty()}"
-                >
-                    Du har inga avbokade resor.
-                </div>
-
-                <div
-                        class="compact-list"
-                        th:unless="${cancelledBookings.isEmpty()}"
-                >
-                    <article th:each="booking : ${cancelledBookings}">
-                        <div>
-                            <strong th:text="${booking.departure.travel.destination}">
-                                Mallorca
-                            </strong>
-                            <span th:text="${booking.bookingNumber}">
-                                BK-2026-123456
-                            </span>
+                        <div class="account-field">
+                            <label for="email">E-post</label>
+                            <input id="email" type="email" th:field="*{email}">
+                            <p class="field-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Fel</p>
                         </div>
 
-                        <a th:href="@{/mina-bokningar/{id}(id=${booking.id})}">
-                            Öppna
-                        </a>
-                    </article>
-                </div>
-            </section>
+                        <button type="submit">Spara uppgifter</button>
+                    </form>
+                </section>
 
-            <section
-                    class="account-card"
-                    id="losenord"
-            >
-                <div class="account-card-heading">
-                    <div>
-                        <p class="eyebrow dark">Säkerhet</p>
-                        <h2>Ändra lösenord</h2>
-                    </div>
-                </div>
-
-                <form
-                        class="account-form"
-                        th:action="@{/mitt-konto/losenord}"
-                        th:object="${passwordRequest}"
-                        method="post"
+                <section
+                        class="account-card account-detail-section"
+                        id="account-password"
+                        data-account-section="password"
                 >
-                    <div
-                            class="form-error-message"
-                            th:if="${#fields.hasGlobalErrors()}"
-                    >
-                        <p
-                                th:each="error : ${#fields.globalErrors()}"
-                                th:text="${error}"
-                        >
-                            Felmeddelande
-                        </p>
+                    <div class="preview-heading">
+                        <p class="eyebrow dark">Lösenord</p>
                     </div>
 
-                    <div class="account-field full-width">
-                        <label for="currentPassword">Nuvarande lösenord</label>
-                        <input
-                                id="currentPassword"
-                                type="password"
-                                th:field="*{currentPassword}"
-                        >
-                        <p
-                                class="field-error"
-                                th:if="${#fields.hasErrors('currentPassword')}"
-                                th:errors="*{currentPassword}"
-                        >
-                            Fel
-                        </p>
-                    </div>
+                    <h2>Ändra lösenord</h2>
 
-                    <div class="account-field">
-                        <label for="newPassword">Nytt lösenord</label>
-                        <input
-                                id="newPassword"
-                                type="password"
-                                th:field="*{newPassword}"
-                        >
-                        <p
-                                class="field-error"
-                                th:if="${#fields.hasErrors('newPassword')}"
-                                th:errors="*{newPassword}"
-                        >
-                            Fel
-                        </p>
-                    </div>
+                    <form class="account-form" th:action="@{/mitt-konto/losenord}" th:object="${passwordRequest}" method="post">
+                        <div class="form-error-message" th:if="${#fields.hasGlobalErrors()}">
+                            <p th:each="error : ${#fields.globalErrors()}" th:text="${error}">Felmeddelande</p>
+                        </div>
 
-                    <div class="account-field">
-                        <label for="confirmPassword">Bekräfta lösenord</label>
-                        <input
-                                id="confirmPassword"
-                                type="password"
-                                th:field="*{confirmPassword}"
-                        >
-                        <p
-                                class="field-error"
-                                th:if="${#fields.hasErrors('confirmPassword')}"
-                                th:errors="*{confirmPassword}"
-                        >
-                            Fel
-                        </p>
-                    </div>
+                        <div class="account-field full-width">
+                            <label for="currentPassword">Nuvarande lösenord</label>
+                            <input id="currentPassword" type="password" th:field="*{currentPassword}">
+                            <p class="field-error" th:if="${#fields.hasErrors('currentPassword')}" th:errors="*{currentPassword}">Fel</p>
+                        </div>
 
-                    <button type="submit">
-                        Ändra lösenord
-                    </button>
-                </form>
-            </section>
-        </div>
-    </section>
+                        <div class="account-field">
+                            <label for="newPassword">Nytt lösenord</label>
+                            <input id="newPassword" type="password" th:field="*{newPassword}">
+                            <p class="field-error" th:if="${#fields.hasErrors('newPassword')}" th:errors="*{newPassword}">Fel</p>
+                        </div>
+
+                        <div class="account-field">
+                            <label for="confirmPassword">Bekräfta lösenord</label>
+                            <input id="confirmPassword" type="password" th:field="*{confirmPassword}">
+                            <p class="field-error" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}">Fel</p>
+                        </div>
+
+                        <button type="submit">Ändra lösenord</button>
+                    </form>
+                </section>
+            </div>
+        </section>
 </main>
 
 <script src="/js/home.js" defer></script>
+<script src="/js/account-tabs.js" defer></script>
 
 </body>
 </html>

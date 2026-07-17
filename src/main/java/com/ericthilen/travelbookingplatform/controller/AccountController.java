@@ -15,6 +15,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Optional;
@@ -31,9 +32,14 @@ public class AccountController {
     @GetMapping("/mitt-konto")
     public String showAccount(
             Authentication authentication,
+            @RequestParam(defaultValue = "profile") String page,
             Model model
     ) {
         loadAccountModel(authentication.getName(), model);
+        model.addAttribute(
+                "activeAccountPage",
+                cleanPage(page)
+        );
         return "account";
     }
 
@@ -48,6 +54,7 @@ public class AccountController {
         if (bindingResult.hasErrors()) {
             loadAccountModel(authentication.getName(), model);
             model.addAttribute("profileRequest", profileRequest);
+            model.addAttribute("activeAccountPage", "settings");
             return "account";
         }
 
@@ -75,10 +82,11 @@ public class AccountController {
             bindingResult.reject("profileError", exception.getMessage());
             loadAccountModel(authentication.getName(), model);
             model.addAttribute("profileRequest", profileRequest);
+            model.addAttribute("activeAccountPage", "settings");
             return "account";
         }
 
-        return "redirect:/mitt-konto";
+        return "redirect:/mitt-konto?page=settings";
     }
 
     @PostMapping("/mitt-konto/losenord")
@@ -101,6 +109,7 @@ public class AccountController {
         if (bindingResult.hasErrors()) {
             loadAccountModel(authentication.getName(), model);
             model.addAttribute("passwordRequest", passwordRequest);
+            model.addAttribute("activeAccountPage", "password");
             return "account";
         }
 
@@ -118,10 +127,11 @@ public class AccountController {
             bindingResult.reject("passwordError", exception.getMessage());
             loadAccountModel(authentication.getName(), model);
             model.addAttribute("passwordRequest", passwordRequest);
+            model.addAttribute("activeAccountPage", "password");
             return "account";
         }
 
-        return "redirect:/mitt-konto#losenord";
+        return "redirect:/mitt-konto?page=password";
     }
 
     @PostMapping("/mitt-konto/koppla-gastbokningar")
@@ -137,7 +147,7 @@ public class AccountController {
                 connectedBookings + " gästbokningar kopplades till kontot."
         );
 
-        return "redirect:/mitt-konto#bokningar";
+        return "redirect:/mitt-konto?page=bookings";
     }
 
     private void loadAccountModel(
@@ -149,6 +159,10 @@ public class AccountController {
         int connectedBookings = accountService.connectGuestBookings(user);
 
         model.addAttribute("user", user);
+        model.addAttribute(
+                "accountFirstName",
+                firstName(user.getFullName())
+        );
         model.addAttribute("customer", customer.orElse(null));
         model.addAttribute(
                 "connectedBookings",
@@ -184,5 +198,25 @@ public class AccountController {
                     new PasswordChangeRequest()
             );
         }
+    }
+
+    private String firstName(String fullName) {
+        if (fullName == null || fullName.isBlank()) {
+            return "Kund";
+        }
+
+        return fullName.trim().split("\\s+")[0];
+    }
+
+    private String cleanPage(String page) {
+        return switch (page) {
+            case "bookings",
+                    "invoices",
+                    "payments",
+                    "cancelled",
+                    "settings",
+                    "password" -> page;
+            default -> "profile";
+        };
     }
 }

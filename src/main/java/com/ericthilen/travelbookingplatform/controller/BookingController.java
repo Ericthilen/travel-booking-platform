@@ -15,7 +15,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -35,16 +38,15 @@ public class BookingController {
     @GetMapping("/mina-bokningar")
     public String showMyBookings(
             Authentication authentication,
+            @RequestParam(defaultValue = "kommande") String tab,
+            @RequestParam(required = false) String query,
             Model model
     ) {
-        model.addAttribute(
-                "bookings",
-                bookingService.getBookingsForUser(
-                        authentication.getName()
-                )
-        );
+        if ("avbokade".equals(tab)) {
+            return "redirect:/mitt-konto?page=cancelled";
+        }
 
-        return "my-bookings";
+        return "redirect:/mitt-konto?page=bookings";
     }
 
     @GetMapping("/mina-bokningar/{bookingId}")
@@ -182,5 +184,34 @@ public class BookingController {
         return "redirect:/mina-bokningar/"
                 + bookingId
                 + "?cancelled";
+    }
+
+    private List<Booking> filterByQuery(
+            List<Booking> bookings,
+            String query
+    ) {
+        if (query == null || query.isBlank()) {
+            return bookings;
+        }
+
+        String cleanedQuery = query.trim().toLowerCase();
+
+        return bookings.stream()
+                .filter(booking -> (
+                        booking.getBookingNumber()
+                                + " "
+                                + booking.getDeparture()
+                                .getTravel()
+                                .getDestination()
+                                + " "
+                                + booking.getDeparture()
+                                .getTravel()
+                                .getHotelName()
+                                + " "
+                                + booking.getDeparture()
+                                .getTravel()
+                                .getCountry()
+                ).toLowerCase().contains(cleanedQuery))
+                .toList();
     }
 }
