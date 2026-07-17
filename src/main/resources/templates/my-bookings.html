@@ -16,233 +16,293 @@
 
 <body>
 
-<div
-        th:replace="~{fragments/site-header :: siteHeader('bookings')}"
-></div>
+<div th:replace="~{fragments/site-header :: siteHeader('bookings')}"></div>
 
-<main>
-    <section class="bookings-hero">
-        <div>
-            <p class="eyebrow">
-                Ditt konto
-            </p>
+<main class="bookings-account-page">
+    <section class="bookings-shell">
+        <aside class="account-side-menu" aria-label="Mitt konto">
+            <p>Mitt konto</p>
 
-            <h1>
-                Mina bokningar
-            </h1>
+            <nav>
+                <a th:href="@{/mitt-konto}">
+                    <span>♙</span>
+                    Översikt
+                </a>
 
-            <p>
-                Inloggad som
+                <a class="active" th:href="@{/mina-bokningar}">
+                    <span>▣</span>
+                    Mina bokningar
+                </a>
 
-                <strong sec:authentication="name">
-                    kund@exempel.se
-                </strong>
-            </p>
-        </div>
-    </section>
+                <a th:href="@{/mina-bokningar#fakturor}">
+                    <span>□</span>
+                    Mina fakturor
+                </a>
 
-    <section class="bookings-section">
-        <div
-                class="booking-warning-message"
-                th:if="${param.notFound}"
-        >
-            Bokningen kunde inte hittas eller tillhör inte ditt konto.
-        </div>
+                <a th:href="@{/mina-bokningar#betalningar}">
+                    <span>▤</span>
+                    Mina betalningar
+                </a>
 
-        <div
-                class="empty-bookings-card"
-                th:if="${bookings.isEmpty()}"
-        >
-            <div class="empty-bookings-icon">
-                ✈
-            </div>
+                <a th:href="@{/mina-bokningar(tab='avbokade', query=${query})}">
+                    <span>×</span>
+                    Avbokade resor
+                </a>
 
-            <h2>
-                Du har inga bokningar ännu
-            </h2>
+                <a th:href="@{/mitt-konto#installningar}">
+                    <span>⚙</span>
+                    Inställningar
+                </a>
 
-            <p>
-                Bokningar som görs när du är inloggad visas här.
-            </p>
+                <a th:href="@{/mitt-konto#losenord}">
+                    <span>♧</span>
+                    Lösenord
+                </a>
+            </nav>
+        </aside>
 
-            <a th:href="@{/resor}">
-                Hitta en resa
-            </a>
-        </div>
+        <div class="bookings-content">
+            <section class="bookings-panel">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow dark">Resor</p>
 
-        <div
-                class="bookings-list"
-                th:unless="${bookings.isEmpty()}"
-        >
-            <div class="bookings-heading">
-                <div>
-                    <p class="eyebrow dark">
-                        Dina resor
-                    </p>
+                        <h1>
+                            Mina bokningar
+                        </h1>
+                    </div>
+
+                    <form
+                            class="connect-guest-form"
+                            th:action="@{/mitt-konto/koppla-gastbokningar}"
+                            method="post"
+                    >
+                        <button type="submit">
+                            Koppla gästbokningar
+                        </button>
+                    </form>
+                </div>
+
+                <div class="booking-tabs">
+                    <a
+                            th:href="@{/mina-bokningar(tab='kommande', query=${query})}"
+                            th:classappend="${activeTab == 'kommande'} ? ' active'"
+                    >
+                        Kommande resor
+                    </a>
+
+                    <a
+                            th:href="@{/mina-bokningar(tab='tidigare', query=${query})}"
+                            th:classappend="${activeTab == 'tidigare'} ? ' active'"
+                    >
+                        Tidigare resor
+                    </a>
+
+                    <a
+                            th:href="@{/mina-bokningar(tab='avbokade', query=${query})}"
+                            th:classappend="${activeTab == 'avbokade'} ? ' active'"
+                    >
+                        Avbokade resor
+                    </a>
+                </div>
+
+                <div
+                        class="booking-warning-message"
+                        th:if="${param.notFound}"
+                >
+                    Bokningen kunde inte hittas eller tillhör inte ditt konto.
+                </div>
+
+                <form class="booking-filter-form" th:action="@{/mina-bokningar}" method="get">
+                    <input type="hidden" name="tab" th:value="${activeTab}">
+
+                    <input
+                            type="search"
+                            name="query"
+                            th:value="${query}"
+                            placeholder="Sök bokningsnummer, hotell eller resmål"
+                    >
+
+                    <button type="submit">
+                        Sök
+                    </button>
+                </form>
+
+                <div
+                        class="empty-bookings-card"
+                        th:if="${bookings.isEmpty()}"
+                >
+                    <span>✈</span>
 
                     <h2>
-                        Aktuella bokningar
+                        Inga bokningar här ännu
                     </h2>
+
+                    <p>
+                        Prova en annan flik eller rensa sökningen.
+                    </p>
+
+                    <a th:href="@{/resor}">
+                        Hitta en resa
+                    </a>
                 </div>
 
-                <p>
-                    <span th:text="${bookings.size()}">
-                        0
-                    </span>
-
-                    bokningar
-                </p>
-            </div>
-
-            <article
-                    class="booking-item"
-                    th:each="booking : ${bookings}"
-            >
-                <img
-                        class="booking-item-image"
-                        th:src="${booking.departure.travel.imageUrl}"
-                        th:alt="${booking.departure.travel.destination}"
+                <div
+                        class="booking-rows"
+                        th:unless="${bookings.isEmpty()}"
                 >
+                    <article
+                            class="booking-row"
+                            th:each="booking : ${bookings}"
+                    >
+                        <img
+                                th:src="${booking.departure.travel.imageUrl}"
+                                th:alt="${booking.departure.travel.destination}"
+                        >
 
-                <div class="booking-item-content">
-                    <div class="booking-item-header">
-                        <div>
-                            <p
-                                    class="booking-country"
-                                    th:text="${booking.departure.travel.country}"
-                            >
-                                Spanien
-                            </p>
-
-                            <h2
-                                    th:text="${booking.departure.travel.destination}"
-                            >
+                        <div class="booking-destination">
+                            <strong th:text="${booking.departure.travel.destination}">
                                 Mallorca
-                            </h2>
-
-                            <h3
-                                    th:text="${booking.departure.travel.hotelName}"
-                            >
-                                Sun Bay Resort
-                            </h3>
-                        </div>
-
-                        <div class="booking-header-badges">
-                            <span
-                                    class="booking-status-badge"
-                                    th:classappend="${booking.status.name() == 'CANCELLED'} ? ' cancelled'"
-                                    th:text="${booking.status.displayName}"
-                            >
-                                Bekräftad
-                            </span>
-
-                            <span
-                                    class="booking-number"
-                                    th:text="${booking.bookingNumber}"
-                            >
-                                BK-2026-123456
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="booking-item-details">
-                        <div>
-                            <span>
-                                Avresa
-                            </span>
-
-                            <strong
-                                    th:text="${#temporals.format(booking.departure.departureDate, 'dd MMMM yyyy')}"
-                            >
-                                12 augusti 2026
                             </strong>
-                        </div>
 
-                        <div>
-                            <span>
-                                Hemresa
+                            <span th:text="${booking.departure.travel.country}">
+                                Spanien
                             </span>
-
-                            <strong
-                                    th:text="${#temporals.format(booking.departure.returnDate, 'dd MMMM yyyy')}"
-                            >
-                                19 augusti 2026
-                            </strong>
                         </div>
 
-                        <div>
-                            <span>
-                                Resenärer
-                            </span>
-
-                            <strong th:text="${booking.numberOfTravelers}">
-                                2
-                            </strong>
-                        </div>
-
-                        <div>
-                            <span>
-                                Rumstyp
-                            </span>
-
-                            <strong th:text="${booking.roomType.name}">
-                                Standardrum
-                            </strong>
-                        </div>
-                    </div>
-
-                    <div class="booking-item-footer">
-                        <div>
-                            <small>
-                                Totalpris
-                            </small>
-
+                        <div class="booking-date">
                             <strong>
-                                <span
-                                        th:text="${#numbers.formatInteger(booking.totalPrice, 1, 'WHITESPACE')}"
-                                >
-                                    14 990
+                                <span th:text="${#temporals.format(booking.departure.departureDate, 'dd MMM')}">
+                                    5 jul
                                 </span>
-
-                                kr
+                                –
+                                <span th:text="${#temporals.format(booking.departure.returnDate, 'dd MMM yyyy')}">
+                                    12 jul 2026
+                                </span>
                             </strong>
+
+                            <span>
+                                <span th:text="${booking.departure.travel.nights}">7</span>
+                                nätter
+                            </span>
                         </div>
 
-                        <div class="booking-card-actions">
-                            <a
-                                    class="booking-invoice-link"
-                                    th:href="@{/mina-bokningar/{id}/faktura(id=${booking.id})}"
-                            >
-                                Faktura
-                            </a>
+                        <span
+                                class="booking-status"
+                                th:classappend="${booking.status.name() == 'CANCELLED'} ? ' cancelled'"
+                                th:text="${booking.status.displayName}"
+                        >
+                            Bekräftad
+                        </span>
 
-                            <a
-                                    class="booking-details-link"
-                                    th:href="@{/mina-bokningar/{id}(id=${booking.id})}"
-                            >
-                                Visa bokning
-                            </a>
+                        <a
+                                class="booking-open-link"
+                                th:href="@{/mina-bokningar/{id}(id=${booking.id})}"
+                        >
+                            Öppna
+                        </a>
+                    </article>
+                </div>
+            </section>
+
+            <section class="bookings-panel compact-panel" id="fakturor">
+                <div class="panel-heading small">
+                    <div>
+                        <p class="eyebrow dark">Ekonomi</p>
+
+                        <h2>
+                            Mina fakturor
+                        </h2>
+                    </div>
+
+                    <a th:href="@{/mina-bokningar#fakturor}">
+                        Visa alla
+                    </a>
+                </div>
+
+                <div class="finance-list">
+                    <article
+                            th:each="booking : ${bookings}"
+                            th:if="${bookingStat.index < 3}"
+                    >
+                        <div>
+                            <strong th:text="${'INV-' + booking.bookingNumber}">
+                                INV-E1234567
+                            </strong>
+
+                            <span>
+                                <span th:text="${#numbers.formatInteger(booking.totalPrice, 1, 'WHITESPACE')}">
+                                    9 349
+                                </span>
+                                kr
+                            </span>
                         </div>
+
+                        <span th:text="${booking.departure.travel.destination}">
+                            Mallorca
+                        </span>
+
+                        <strong>
+                            <span th:text="${#numbers.formatInteger(booking.totalPrice, 1, 'WHITESPACE')}">
+                                9 349
+                            </span>
+                            kr
+                        </strong>
+
+                        <span
+                                class="paid-status"
+                                th:text="${booking.paymentStatus.displayName}"
+                        >
+                            Betald
+                        </span>
+
+                        <a th:href="@{/mina-bokningar/{id}/faktura(id=${booking.id})}">
+                            ⬇
+                        </a>
+                    </article>
+
+                    <div class="empty-mini" th:if="${bookings.isEmpty()}">
+                        Det finns inga fakturor att visa.
                     </div>
                 </div>
-            </article>
+            </section>
+
+            <section class="bookings-panel account-extra-grid">
+                <article class="mini-account-card" id="betalningar">
+                    <p class="eyebrow dark">Betalningar</p>
+
+                    <h2>
+                        Mina betalningar
+                    </h2>
+
+                    <p>
+                        Följ betalstatus, delbetalningar och kvitton för dina bokningar.
+                    </p>
+
+                    <a th:href="@{/mina-bokningar#betalningar}">
+                        Öppna betalningar
+                    </a>
+                </article>
+
+                <article class="mini-account-card">
+                    <p class="eyebrow dark">Inställningar</p>
+
+                    <h2>
+                        Profil och lösenord
+                    </h2>
+
+                    <p>
+                        Uppdatera kontaktuppgifter eller byt lösenord från kontosidan.
+                    </p>
+
+                    <a th:href="@{/mitt-konto#installningar}">
+                        Gå till inställningar
+                    </a>
+                </article>
+            </section>
         </div>
     </section>
 </main>
-
-<footer class="site-footer">
-    <div>
-        <strong>EriGo Travel</strong>
-
-        <p>
-            Resor att längta efter.
-        </p>
-    </div>
-
-    <p>
-        © 2026 EriGo Travel
-    </p>
-</footer>
 
 <script src="/js/home.js" defer></script>
 
