@@ -17,6 +17,11 @@ public class TravelService {
     }
 
     public List<Travel> getAllTravels() {
+        return travelRepository
+                .findBookableTravels();
+    }
+
+    public List<Travel> getAllTravelsForAdmin() {
         return travelRepository.findAll();
     }
 

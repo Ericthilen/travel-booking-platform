@@ -12,6 +12,7 @@ import com.ericthilen.travelbookingplatform.model.Customer;
 import com.ericthilen.travelbookingplatform.model.Departure;
 import com.ericthilen.travelbookingplatform.model.EmailStatus;
 import com.ericthilen.travelbookingplatform.model.Invoice;
+import com.ericthilen.travelbookingplatform.model.ManagementStatus;
 import com.ericthilen.travelbookingplatform.model.PaymentPlan;
 import com.ericthilen.travelbookingplatform.model.RoomType;
 import com.ericthilen.travelbookingplatform.model.Traveler;
@@ -526,6 +527,19 @@ public class BookingService {
 
             throw new IllegalArgumentException(
                     "Rumstypen tillhör inte den valda resan."
+            );
+        }
+
+        if (departure.getStatus() != ManagementStatus.ACTIVE
+                || departure.getTravel().getStatus() != ManagementStatus.ACTIVE) {
+            throw new IllegalStateException(
+                    "Den valda avgången är inte öppen för bokning."
+            );
+        }
+
+        if (roomType.getStatus() != ManagementStatus.ACTIVE) {
+            throw new IllegalStateException(
+                    "Den valda rumstypen är inte öppen för bokning."
             );
         }
 

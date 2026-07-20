@@ -20,6 +20,11 @@ public class RoomTypeService {
 
     public List<RoomType> getRoomTypesForTravel(Long travelId) {
         return roomTypeRepository
+                .findBookableRoomTypesForTravel(travelId);
+    }
+
+    public List<RoomType> getRoomTypesForTravelForAdmin(Long travelId) {
+        return roomTypeRepository
                 .findAllByTravelIdOrderByPriceSupplementPerRoomAsc(
                         travelId
                 );
