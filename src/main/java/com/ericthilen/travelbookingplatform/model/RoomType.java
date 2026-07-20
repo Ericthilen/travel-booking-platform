@@ -2,6 +2,8 @@ package com.ericthilen.travelbookingplatform.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -37,6 +39,13 @@ public class RoomType {
     @Column(nullable = false)
     private int availableRooms;
 
+    @Enumerated(EnumType.STRING)
+    @Column(
+            nullable = false,
+            columnDefinition = "varchar(30) default 'ACTIVE'"
+    )
+    private ManagementStatus status = ManagementStatus.ACTIVE;
+
     public RoomType() {
     }
 
@@ -54,6 +63,27 @@ public class RoomType {
         this.maxGuests = maxGuests;
         this.priceSupplementPerRoom = priceSupplementPerRoom;
         this.availableRooms = availableRooms;
+        this.status = ManagementStatus.ACTIVE;
+    }
+
+    public void updateDetails(
+            Travel travel,
+            String name,
+            String description,
+            int maxGuests,
+            int priceSupplementPerRoom,
+            int availableRooms
+    ) {
+        this.travel = travel;
+        this.name = name;
+        this.description = description;
+        this.maxGuests = maxGuests;
+        this.priceSupplementPerRoom = priceSupplementPerRoom;
+        this.availableRooms = availableRooms;
+    }
+
+    public void updateStatus(ManagementStatus status) {
+        this.status = status == null ? ManagementStatus.ACTIVE : status;
     }
 
     public void reserveRooms(int numberOfRooms) {
@@ -108,5 +138,9 @@ public class RoomType {
 
     public int getAvailableRooms() {
         return availableRooms;
+    }
+
+    public ManagementStatus getStatus() {
+        return status == null ? ManagementStatus.ACTIVE : status;
     }
 }

@@ -2,6 +2,8 @@ package com.ericthilen.travelbookingplatform.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -62,6 +64,13 @@ public class Departure {
     @Column(nullable = false)
     private int availableSeats;
 
+    @Enumerated(EnumType.STRING)
+    @Column(
+            nullable = false,
+            columnDefinition = "varchar(30) default 'ACTIVE'"
+    )
+    private ManagementStatus status = ManagementStatus.ACTIVE;
+
     public Departure() {
     }
 
@@ -93,6 +102,41 @@ public class Departure {
         this.returnArrivalTime = returnArrivalTime;
         this.pricePerPerson = pricePerPerson;
         this.availableSeats = availableSeats;
+        this.status = ManagementStatus.ACTIVE;
+    }
+
+    public void updateDetails(
+            Travel travel,
+            LocalDate departureDate,
+            LocalDate returnDate,
+            String departureAirport,
+            String arrivalAirport,
+            String outboundFlightNumber,
+            LocalTime outboundDepartureTime,
+            LocalTime outboundArrivalTime,
+            String returnFlightNumber,
+            LocalTime returnDepartureTime,
+            LocalTime returnArrivalTime,
+            int pricePerPerson,
+            int availableSeats
+    ) {
+        this.travel = travel;
+        this.departureDate = departureDate;
+        this.returnDate = returnDate;
+        this.departureAirport = departureAirport;
+        this.arrivalAirport = arrivalAirport;
+        this.outboundFlightNumber = outboundFlightNumber;
+        this.outboundDepartureTime = outboundDepartureTime;
+        this.outboundArrivalTime = outboundArrivalTime;
+        this.returnFlightNumber = returnFlightNumber;
+        this.returnDepartureTime = returnDepartureTime;
+        this.returnArrivalTime = returnArrivalTime;
+        this.pricePerPerson = pricePerPerson;
+        this.availableSeats = availableSeats;
+    }
+
+    public void updateStatus(ManagementStatus status) {
+        this.status = status == null ? ManagementStatus.ACTIVE : status;
     }
 
     public void reserveSeats(int numberOfSeats) {
@@ -197,6 +241,10 @@ public class Departure {
 
     public int getAvailableSeats() {
         return availableSeats;
+    }
+
+    public ManagementStatus getStatus() {
+        return status == null ? ManagementStatus.ACTIVE : status;
     }
 
     private String formatDuration(
