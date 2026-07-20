@@ -686,12 +686,203 @@ html {
     scroll-margin-top: 110px;
 }
 
+.travel-management-heading {
+    margin-bottom: 24px;
+}
+
+.management-grid {
+    margin-bottom: 24px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    align-items: start;
+}
+
+.management-create-card {
+    height: auto;
+}
+
+.management-section {
+    margin-bottom: 24px;
+    scroll-margin-top: 110px;
+}
+
+.management-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.management-form label,
+.status-form label {
+    display: grid;
+    gap: 8px;
+    color: #6a7678;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.management-form input,
+.management-form select,
+.management-form textarea,
+.status-form select {
+    width: 100%;
+    min-height: 46px;
+    padding: 0 13px;
+    color: #172326;
+    background: #fbfaf7;
+    border: 1px solid rgba(226, 222, 213, 0.86);
+    border-radius: 12px;
+    font: inherit;
+    outline: none;
+}
+
+.management-form textarea {
+    min-height: 92px;
+    padding: 12px 13px;
+    resize: vertical;
+}
+
+.management-form input:focus,
+.management-form select:focus,
+.management-form textarea:focus,
+.status-form select:focus {
+    background: var(--white);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(0, 107, 116, 0.10);
+}
+
+.management-form button,
+.status-form button {
+    min-height: 46px;
+    padding: 0 16px;
+    color: var(--white);
+    background: var(--primary-color);
+    border: 0;
+    border-radius: 12px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.management-form button:hover,
+.status-form button:hover {
+    background: var(--primary-dark);
+}
+
+.management-list {
+    display: grid;
+    gap: 14px;
+}
+
+.management-item {
+    padding: 0;
+    background: #fbfaf7;
+    border: 1px solid rgba(226, 222, 213, 0.82);
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+.management-item summary {
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.management-item summary::-webkit-details-marker {
+    display: none;
+}
+
+.management-item summary > span:first-child {
+    min-width: 0;
+    display: grid;
+    gap: 5px;
+}
+
+.management-item summary strong {
+    color: #172326;
+    font-size: 18px;
+}
+
+.management-item summary small {
+    color: #6a7678;
+    font-weight: 800;
+}
+
+.management-item[open] summary {
+    border-bottom: 1px solid rgba(226, 222, 213, 0.82);
+}
+
+.management-item .management-form,
+.management-item .status-form,
+.management-meta-grid {
+    margin: 18px;
+}
+
+.management-status {
+    width: fit-content;
+    padding: 8px 11px;
+    color: var(--primary-dark);
+    background: #eef7f7;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.status-form {
+    padding-top: 18px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    border-top: 1px solid rgba(226, 222, 213, 0.82);
+}
+
+.management-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.management-meta-grid div {
+    padding: 14px;
+    display: grid;
+    gap: 6px;
+    background: var(--white);
+    border: 1px solid rgba(226, 222, 213, 0.82);
+    border-radius: 14px;
+}
+
+.management-meta-grid span {
+    color: #6a7678;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.management-meta-grid strong {
+    color: #172326;
+    font-size: 20px;
+}
+
+.admin-alert.success {
+    color: #166534;
+    background: #dcfce7;
+    border-color: rgba(22, 101, 52, 0.20);
+}
+
 @media (max-width: 1050px) {
     .admin-stat-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .admin-search-card {
+        grid-template-columns: 1fr;
+    }
+
+    .management-grid {
         grid-template-columns: 1fr;
     }
 
@@ -733,7 +924,10 @@ html {
 
     .admin-stat-grid,
     .admin-search-form,
-    .admin-fact-grid {
+    .admin-fact-grid,
+    .management-form,
+    .status-form,
+    .management-meta-grid {
         grid-template-columns: 1fr;
     }
 
@@ -752,5 +946,10 @@ html {
     .admin-search-card,
     .admin-panel {
         padding: 22px;
+    }
+
+    .management-item summary {
+        align-items: flex-start;
+        flex-direction: column;
     }
 }

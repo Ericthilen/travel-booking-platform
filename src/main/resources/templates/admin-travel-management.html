@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Hantera resor – EriGo Travel</title>
+
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/admin-dashboard.css">
+</head>
+
+<body>
+
+<div th:replace="~{fragments/site-header :: siteHeader('admin')}"></div>
+
+<main class="admin-dashboard-page">
+    <section class="admin-dashboard-container">
+        <a class="admin-back-link" th:href="@{/admin}">
+            ← Tillbaka till admin
+        </a>
+
+        <div
+                class="admin-alert success"
+                th:if="${adminTravelMessage}"
+                th:text="${adminTravelMessage}"
+        >
+            Sparat.
+        </div>
+
+        <div
+                class="admin-alert"
+                th:if="${adminTravelError}"
+                th:text="${adminTravelError}"
+        >
+            Något gick fel.
+        </div>
+
+        <section class="admin-dashboard-heading travel-management-heading">
+            <div>
+                <p class="eyebrow dark">
+                    Administration
+                </p>
+
+                <h1>
+                    Hantera resor
+                </h1>
+
+                <p>
+                    Skapa och uppdatera resor, avgångar, flygtider och rumstyper.
+                </p>
+            </div>
+
+            <div class="admin-heading-actions">
+                <a href="#travels">Resor</a>
+                <a href="#departures">Avgångar</a>
+                <a href="#rooms">Rumstyper</a>
+            </div>
+        </section>
+
+        <section class="management-grid">
+            <article class="admin-panel management-create-card">
+                <div class="admin-section-title">
+                    <div>
+                        <p class="eyebrow dark">Ny resa</p>
+                        <h2>Skapa resa</h2>
+                    </div>
+                </div>
+
+                <form
+                        class="management-form"
+                        th:action="@{/admin/resor}"
+                        th:object="${travelRequest}"
+                        method="post"
+                >
+                    <label>
+                        Land
+                        <input type="text" th:field="*{country}" required>
+                    </label>
+
+                    <label>
+                        Destination
+                        <input type="text" th:field="*{destination}" required>
+                    </label>
+
+                    <label>
+                        Hotell
+                        <input type="text" th:field="*{hotelName}" required>
+                    </label>
+
+                    <label>
+                        Nätter
+                        <input type="number" min="1" th:field="*{nights}" required>
+                    </label>
+
+                    <label>
+                        Pris
+                        <input type="number" min="0" th:field="*{price}" required>
+                    </label>
+
+                    <label>
+                        Hotellstjärnor
+                        <input type="number" min="1" max="5" th:field="*{hotelStars}" required>
+                    </label>
+
+                    <label>
+                        Måltidstyp
+                        <input type="text" th:field="*{mealType}" placeholder="Frukost" required>
+                    </label>
+
+                    <label>
+                        Flygplats
+                        <input type="text" th:field="*{departureAirport}" placeholder="Göteborg Landvetter" required>
+                    </label>
+
+                    <label class="full-width">
+                        Bild-URL
+                        <input type="url" th:field="*{imageUrl}" required>
+                    </label>
+
+                    <label class="full-width">
+                        Beskrivning
+                        <textarea rows="3" th:field="*{description}" placeholder="Valfritt"></textarea>
+                    </label>
+
+                    <label class="full-width">
+                        Faciliteter
+                        <textarea rows="2" th:field="*{facilities}" placeholder="Pool, Gratis Wi-Fi, Nära stranden"></textarea>
+                    </label>
+
+                    <button type="submit">Skapa resa</button>
+                </form>
+            </article>
+
+            <article class="admin-panel management-create-card">
+                <div class="admin-section-title">
+                    <div>
+                        <p class="eyebrow dark">Ny avgång</p>
+                        <h2>Skapa avgång</h2>
+                    </div>
+                </div>
+
+                <form
+                        class="management-form"
+                        th:action="@{/admin/avgangar}"
+                        th:object="${departureRequest}"
+                        method="post"
+                >
+                    <label class="full-width">
+                        Resa
+                        <select th:field="*{travelId}" required>
+                            <option value="">Välj resa</option>
+                            <option
+                                    th:each="travel : ${travels}"
+                                    th:value="${travel.id}"
+                                    th:text="${travel.destination + ' · ' + travel.hotelName}"
+                            >
+                                Mallorca
+                            </option>
+                        </select>
+                    </label>
+
+                    <label>
+                        Avresa
+                        <input type="date" th:field="*{departureDate}" required>
+                    </label>
+
+                    <label>
+                        Hemresa
+                        <input type="date" th:field="*{returnDate}" required>
+                    </label>
+
+                    <label>
+                        Från flygplats
+                        <input type="text" th:field="*{departureAirport}" required>
+                    </label>
+
+                    <label>
+                        Till flygplats
+                        <input type="text" th:field="*{arrivalAirport}" required>
+                    </label>
+
+                    <label>
+                        Utresa flygnummer
+                        <input type="text" th:field="*{outboundFlightNumber}" required>
+                    </label>
+
+                    <label>
+                        Hemresa flygnummer
+                        <input type="text" th:field="*{returnFlightNumber}" required>
+                    </label>
+
+                    <label>
+                        Utresa avgång
+                        <input type="time" th:field="*{outboundDepartureTime}" required>
+                    </label>
+
+                    <label>
+                        Utresa ankomst
+                        <input type="time" th:field="*{outboundArrivalTime}" required>
+                    </label>
+
+                    <label>
+                        Hemresa avgång
+                        <input type="time" th:field="*{returnDepartureTime}" required>
+                    </label>
+
+                    <label>
+                        Hemresa ankomst
+                        <input type="time" th:field="*{returnArrivalTime}" required>
+                    </label>
+
+                    <label>
+                        Pris per person
+                        <input type="number" min="0" th:field="*{pricePerPerson}" required>
+                    </label>
+
+                    <label>
+                        Lediga platser
+                        <input type="number" min="0" th:field="*{availableSeats}" required>
+                    </label>
+
+                    <button type="submit">Skapa avgång</button>
+                </form>
+            </article>
+
+            <article class="admin-panel management-create-card">
+                <div class="admin-section-title">
+                    <div>
+                        <p class="eyebrow dark">Ny rumstyp</p>
+                        <h2>Skapa rumstyp</h2>
+                    </div>
+                </div>
+
+                <form
+                        class="management-form"
+                        th:action="@{/admin/rumstyper}"
+                        th:object="${roomTypeRequest}"
+                        method="post"
+                >
+                    <label class="full-width">
+                        Hotell
+                        <select th:field="*{travelId}" required>
+                            <option value="">Välj hotell</option>
+                            <option
+                                    th:each="travel : ${travels}"
+                                    th:value="${travel.id}"
+                                    th:text="${travel.hotelName + ' · ' + travel.destination}"
+                            >
+                                Hotell
+                            </option>
+                        </select>
+                    </label>
+
+                    <label>
+                        Namn
+                        <select name="name" required>
+                            <option value="Standardrum" selected>Standardrum</option>
+                            <option value="Premiumrum">Premiumrum</option>
+                            <option value="Svit">Svit</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        Max gäster
+                        <input type="number" min="1" th:field="*{maxGuests}" required>
+                    </label>
+
+                    <label>
+                        Pristillägg
+                        <input type="number" min="0" th:field="*{priceSupplementPerRoom}" required>
+                    </label>
+
+                    <label>
+                        Lediga rum
+                        <input type="number" min="0" th:field="*{availableRooms}" required>
+                    </label>
+
+                    <label class="full-width">
+                        Beskrivning
+                        <textarea
+                                rows="3"
+                                th:field="*{description}"
+                                placeholder="Valfritt"
+                        ></textarea>
+                    </label>
+
+                    <button type="submit">Skapa rumstyp</button>
+                </form>
+            </article>
+        </section>
+
+        <section class="admin-panel management-section" id="travels">
+            <div class="admin-section-title">
+                <div>
+                    <p class="eyebrow dark">Resor</p>
+                    <h2>Befintliga resor</h2>
+                </div>
+
+                <p>
+                    <span th:text="${travels.size()}">0</span> resor
+                </p>
+            </div>
+
+            <div class="management-list">
+                <details
+                        class="management-item"
+                        th:each="travel : ${travels}"
+                >
+                    <summary>
+                        <span>
+                            <strong th:text="${travel.destination}">Mallorca</strong>
+                            <small th:text="${travel.hotelName + ' · ' + travel.country}">Hotell</small>
+                        </span>
+
+                        <span class="management-status" th:text="${travel.status.displayName}">
+                            Aktiv
+                        </span>
+                    </summary>
+
+                    <form
+                            class="management-form"
+                            th:action="@{/admin/resor/{id}(id=${travel.id})}"
+                            method="post"
+                    >
+                        <label>
+                            Land
+                            <input type="text" name="country" th:value="${travel.country}" required>
+                        </label>
+
+                        <label>
+                            Destination
+                            <input type="text" name="destination" th:value="${travel.destination}" required>
+                        </label>
+
+                        <label>
+                            Hotell
+                            <input type="text" name="hotelName" th:value="${travel.hotelName}" required>
+                        </label>
+
+                        <label>
+                            Nätter
+                            <input type="number" min="1" name="nights" th:value="${travel.nights}" required>
+                        </label>
+
+                        <label>
+                            Pris
+                            <input type="number" min="0" name="price" th:value="${travel.price}" required>
+                        </label>
+
+                        <label>
+                            Hotellstjärnor
+                            <input type="number" min="1" max="5" name="hotelStars" th:value="${travel.hotelStars}" required>
+                        </label>
+
+                        <label>
+                            Måltidstyp
+                            <input type="text" name="mealType" th:value="${travel.mealType}" required>
+                        </label>
+
+                        <label>
+                            Flygplats
+                            <input type="text" name="departureAirport" th:value="${travel.departureAirport}" required>
+                        </label>
+
+                        <label class="full-width">
+                            Bild-URL
+                            <input type="url" name="imageUrl" th:value="${travel.imageUrl}" required>
+                        </label>
+
+                        <label class="full-width">
+                            Beskrivning
+                            <textarea rows="3" name="description" required th:text="${travel.description}"></textarea>
+                        </label>
+
+                        <label class="full-width">
+                            Faciliteter
+                            <textarea rows="2" name="facilities" th:text="${travel.facilitiesText}"></textarea>
+                        </label>
+
+                        <button type="submit">Spara resa</button>
+                    </form>
+
+                    <form
+                            class="status-form"
+                            th:action="@{/admin/resor/{id}/status(id=${travel.id})}"
+                            method="post"
+                    >
+                        <label>
+                            Status
+                            <select name="status">
+                                <option
+                                        th:each="status : ${statuses}"
+                                        th:value="${status}"
+                                        th:selected="${status == travel.status}"
+                                        th:text="${status.name()}"
+                                >
+                                    ACTIVE
+                                </option>
+                            </select>
+                        </label>
+
+                        <button type="submit">Uppdatera status</button>
+                    </form>
+                </details>
+            </div>
+        </section>
+
+        <section class="admin-panel management-section" id="departures">
+            <div class="admin-section-title">
+                <div>
+                    <p class="eyebrow dark">Avgångar</p>
+                    <h2>Flyg och platser</h2>
+                </div>
+
+                <p>
+                    <span th:text="${departures.size()}">0</span> avgångar
+                </p>
+            </div>
+
+            <div class="management-list">
+                <details
+                        class="management-item"
+                        th:each="summary : ${departures}"
+                >
+                    <summary>
+                        <span>
+                            <strong th:text="${summary.departure.travel.destination}">Mallorca</strong>
+                            <small>
+                                <span th:text="${#temporals.format(summary.departure.departureDate, 'dd MMM yyyy')}">12 aug</span>
+                                ·
+                                <span th:text="${summary.departure.outboundFlightNumber}">ER101</span>
+                            </small>
+                        </span>
+
+                        <span class="management-status">
+                            <span th:text="${summary.bookedSeats}">0</span> bokade /
+                            <span th:text="${summary.openSeats}">0</span> lediga
+                        </span>
+                    </summary>
+
+                    <form
+                            class="management-form"
+                            th:action="@{/admin/avgangar/{id}(id=${summary.departure.id})}"
+                            method="post"
+                    >
+                        <label class="full-width">
+                            Resa
+                            <select name="travelId" required>
+                                <option
+                                        th:each="travel : ${travels}"
+                                        th:value="${travel.id}"
+                                        th:selected="${travel.id == summary.departure.travel.id}"
+                                        th:text="${travel.destination + ' · ' + travel.hotelName}"
+                                >
+                                    Mallorca
+                                </option>
+                            </select>
+                        </label>
+
+                        <label>
+                            Avresa
+                            <input type="date" name="departureDate" th:value="${summary.departure.departureDate}" required>
+                        </label>
+
+                        <label>
+                            Hemresa
+                            <input type="date" name="returnDate" th:value="${summary.departure.returnDate}" required>
+                        </label>
+
+                        <label>
+                            Från flygplats
+                            <input type="text" name="departureAirport" th:value="${summary.departure.departureAirport}" required>
+                        </label>
+
+                        <label>
+                            Till flygplats
+                            <input type="text" name="arrivalAirport" th:value="${summary.departure.arrivalAirport}" required>
+                        </label>
+
+                        <label>
+                            Utresa flygnummer
+                            <input type="text" name="outboundFlightNumber" th:value="${summary.departure.outboundFlightNumber}" required>
+                        </label>
+
+                        <label>
+                            Hemresa flygnummer
+                            <input type="text" name="returnFlightNumber" th:value="${summary.departure.returnFlightNumber}" required>
+                        </label>
+
+                        <label>
+                            Utresa avgång
+                            <input type="time" name="outboundDepartureTime" th:value="${summary.departure.outboundDepartureTime}" required>
+                        </label>
+
+                        <label>
+                            Utresa ankomst
+                            <input type="time" name="outboundArrivalTime" th:value="${summary.departure.outboundArrivalTime}" required>
+                        </label>
+
+                        <label>
+                            Hemresa avgång
+                            <input type="time" name="returnDepartureTime" th:value="${summary.departure.returnDepartureTime}" required>
+                        </label>
+
+                        <label>
+                            Hemresa ankomst
+                            <input type="time" name="returnArrivalTime" th:value="${summary.departure.returnArrivalTime}" required>
+                        </label>
+
+                        <label>
+                            Pris per person
+                            <input type="number" min="0" name="pricePerPerson" th:value="${summary.departure.pricePerPerson}" required>
+                        </label>
+
+                        <label>
+                            Lediga platser
+                            <input type="number" min="0" name="availableSeats" th:value="${summary.departure.availableSeats}" required>
+                        </label>
+
+                        <button type="submit">Spara avgång</button>
+                    </form>
+
+                    <div class="management-meta-grid">
+                        <div>
+                            <span>Bokade platser</span>
+                            <strong th:text="${summary.bookedSeats}">0</strong>
+                        </div>
+                        <div>
+                            <span>Lediga platser</span>
+                            <strong th:text="${summary.openSeats}">0</strong>
+                        </div>
+                        <div>
+                            <span>Totalt</span>
+                            <strong th:text="${summary.totalSeats}">0</strong>
+                        </div>
+                        <div>
+                            <span>Status</span>
+                            <strong th:text="${summary.departure.status.name()}">ACTIVE</strong>
+                        </div>
+                    </div>
+
+                    <form
+                            class="status-form"
+                            th:action="@{/admin/avgangar/{id}/status(id=${summary.departure.id})}"
+                            method="post"
+                    >
+                        <label>
+                            Status
+                            <select name="status">
+                                <option
+                                        th:each="status : ${statuses}"
+                                        th:value="${status}"
+                                        th:selected="${status == summary.departure.status}"
+                                        th:text="${status.name()}"
+                                >
+                                    ACTIVE
+                                </option>
+                            </select>
+                        </label>
+
+                        <button type="submit">Uppdatera status</button>
+                    </form>
+                </details>
+            </div>
+        </section>
+
+        <section class="admin-panel management-section" id="rooms">
+            <div class="admin-section-title">
+                <div>
+                    <p class="eyebrow dark">Rumstyper</p>
+                    <h2>Hotellrum</h2>
+                </div>
+
+                <p>
+                    <span th:text="${roomTypes.size()}">0</span> rumstyper
+                </p>
+            </div>
+
+            <div class="management-list">
+                <details
+                        class="management-item"
+                        th:each="summary : ${roomTypes}"
+                >
+                    <summary>
+                        <span>
+                            <strong th:text="${summary.roomType.name}">Standardrum</strong>
+                            <small th:text="${summary.roomType.travel.hotelName + ' · ' + summary.roomType.travel.destination}">
+                                Hotell
+                            </small>
+                        </span>
+
+                        <span class="management-status">
+                            <span th:text="${summary.bookedRooms}">0</span> bokade /
+                            <span th:text="${summary.openRooms}">0</span> lediga
+                        </span>
+                    </summary>
+
+                    <form
+                            class="management-form"
+                            th:action="@{/admin/rumstyper/{id}(id=${summary.roomType.id})}"
+                            method="post"
+                    >
+                        <label class="full-width">
+                            Hotell
+                            <select name="travelId" required>
+                                <option
+                                        th:each="travel : ${travels}"
+                                        th:value="${travel.id}"
+                                        th:selected="${travel.id == summary.roomType.travel.id}"
+                                        th:text="${travel.hotelName + ' · ' + travel.destination}"
+                                >
+                                    Hotell
+                                </option>
+                            </select>
+                        </label>
+
+                        <label>
+                            Namn
+                            <input type="text" name="name" th:value="${summary.roomType.name}" required>
+                        </label>
+
+                        <label>
+                            Max gäster
+                            <input type="number" min="1" name="maxGuests" th:value="${summary.roomType.maxGuests}" required>
+                        </label>
+
+                        <label>
+                            Pristillägg
+                            <input type="number" min="0" name="priceSupplementPerRoom" th:value="${summary.roomType.priceSupplementPerRoom}" required>
+                        </label>
+
+                        <label>
+                            Lediga rum
+                            <input type="number" min="0" name="availableRooms" th:value="${summary.roomType.availableRooms}" required>
+                        </label>
+
+                        <label class="full-width">
+                            Beskrivning
+                            <textarea rows="3" name="description" th:text="${summary.roomType.description}"></textarea>
+                        </label>
+
+                        <button type="submit">Spara rumstyp</button>
+                    </form>
+
+                    <div class="management-meta-grid">
+                        <div>
+                            <span>Bokade rum</span>
+                            <strong th:text="${summary.bookedRooms}">0</strong>
+                        </div>
+                        <div>
+                            <span>Lediga rum</span>
+                            <strong th:text="${summary.openRooms}">0</strong>
+                        </div>
+                        <div>
+                            <span>Totalt</span>
+                            <strong th:text="${summary.totalRooms}">0</strong>
+                        </div>
+                        <div>
+                            <span>Status</span>
+                            <strong th:text="${summary.roomType.status.name()}">ACTIVE</strong>
+                        </div>
+                    </div>
+
+                    <form
+                            class="status-form"
+                            th:action="@{/admin/rumstyper/{id}/status(id=${summary.roomType.id})}"
+                            method="post"
+                    >
+                        <label>
+                            Status
+                            <select name="status">
+                                <option
+                                        th:each="status : ${statuses}"
+                                        th:value="${status}"
+                                        th:selected="${status == summary.roomType.status}"
+                                        th:text="${status.name()}"
+                                >
+                                    ACTIVE
+                                </option>
+                            </select>
+                        </label>
+
+                        <button type="submit">Uppdatera status</button>
+                    </form>
+                </details>
+            </div>
+        </section>
+    </section>
+</main>
+
+<script src="/js/home.js" defer></script>
+
+</body>
+</html>

@@ -1,5 +1,6 @@
 package com.ericthilen.travelbookingplatform.controller;
 
+import com.ericthilen.travelbookingplatform.model.ManagementStatus;
 import com.ericthilen.travelbookingplatform.model.Travel;
 import com.ericthilen.travelbookingplatform.service.DepartureService;
 import com.ericthilen.travelbookingplatform.service.TravelService;
@@ -155,7 +156,8 @@ public class TravelController {
     ) {
         Optional<Travel> travel = travelService.getTravelById(id);
 
-        if (travel.isEmpty()) {
+        if (travel.isEmpty()
+                || travel.get().getStatus() != ManagementStatus.ACTIVE) {
             return "redirect:/resor";
         }
 
@@ -171,7 +173,8 @@ public class TravelController {
     ) {
         Optional<Travel> travel = travelService.getTravelById(id);
 
-        if (travel.isEmpty()) {
+        if (travel.isEmpty()
+                || travel.get().getStatus() != ManagementStatus.ACTIVE) {
             return "redirect:/resor";
         }
 

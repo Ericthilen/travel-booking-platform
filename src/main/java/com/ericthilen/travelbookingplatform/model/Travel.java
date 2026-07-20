@@ -4,6 +4,8 @@ import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -52,6 +54,13 @@ public class Travel {
     @Column(nullable = false)
     private int hotelStars;
 
+    @Enumerated(EnumType.STRING)
+    @Column(
+            nullable = false,
+            columnDefinition = "varchar(30) default 'ACTIVE'"
+    )
+    private ManagementStatus status = ManagementStatus.ACTIVE;
+
     @ElementCollection
     @CollectionTable(
             name = "travel_facilities",
@@ -88,6 +97,37 @@ public class Travel {
         this.departureAirport = departureAirport;
         this.hotelStars = hotelStars;
         this.facilities = new ArrayList<>(facilities);
+        this.status = ManagementStatus.ACTIVE;
+    }
+
+    public void updateDetails(
+            String country,
+            String destination,
+            String hotelName,
+            int nights,
+            int price,
+            String imageUrl,
+            String description,
+            String mealType,
+            String departureAirport,
+            int hotelStars,
+            List<String> facilities
+    ) {
+        this.country = country;
+        this.destination = destination;
+        this.hotelName = hotelName;
+        this.nights = nights;
+        this.price = price;
+        this.imageUrl = imageUrl;
+        this.description = description;
+        this.mealType = mealType;
+        this.departureAirport = departureAirport;
+        this.hotelStars = hotelStars;
+        this.facilities = new ArrayList<>(facilities);
+    }
+
+    public void updateStatus(ManagementStatus status) {
+        this.status = status == null ? ManagementStatus.ACTIVE : status;
     }
 
     public Long getId() {
@@ -136,5 +176,16 @@ public class Travel {
 
     public List<String> getFacilities() {
         return facilities;
+    }
+
+    public String getFacilitiesText() {
+        return String.join(
+                ", ",
+                facilities
+        );
+    }
+
+    public ManagementStatus getStatus() {
+        return status == null ? ManagementStatus.ACTIVE : status;
     }
 }

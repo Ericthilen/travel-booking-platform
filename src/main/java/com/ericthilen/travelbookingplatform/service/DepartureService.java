@@ -20,6 +20,14 @@ public class DepartureService {
 
     public List<Departure> getDeparturesForTravel(Long travelId) {
         return departureRepository
+                .findBookableDeparturesForTravel(travelId)
+                .stream()
+                .filter(departure -> departure.getAvailableSeats() > 0)
+                .toList();
+    }
+
+    public List<Departure> getDeparturesForTravelForAdmin(Long travelId) {
+        return departureRepository
                 .findAllByTravelIdOrderByDepartureDateAsc(travelId);
     }
 

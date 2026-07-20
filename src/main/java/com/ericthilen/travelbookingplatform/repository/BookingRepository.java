@@ -51,6 +51,28 @@ public interface BookingRepository
     Long sumPaidAmount();
 
     @Query("""
+            select coalesce(sum(booking.numberOfTravelers), 0)
+            from Booking booking
+            where booking.departure.id = :departureId
+              and booking.status <> :cancelledStatus
+            """)
+    Long sumBookedSeatsForDeparture(
+            @Param("departureId") Long departureId,
+            @Param("cancelledStatus") BookingStatus cancelledStatus
+    );
+
+    @Query("""
+            select coalesce(sum(booking.numberOfRooms), 0)
+            from Booking booking
+            where booking.roomType.id = :roomTypeId
+              and booking.status <> :cancelledStatus
+            """)
+    Long sumBookedRoomsForRoomType(
+            @Param("roomTypeId") Long roomTypeId,
+            @Param("cancelledStatus") BookingStatus cancelledStatus
+    );
+
+    @Query("""
             select booking
             from Booking booking
             where lower(booking.bookingNumber) like lower(concat('%', :query, '%'))
