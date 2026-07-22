@@ -377,6 +377,249 @@
     color: var(--text-color);
 }
 
+.admin-booking-page {
+    background:
+            radial-gradient(circle at top left, rgba(0, 107, 116, 0.08), transparent 32%),
+            var(--background-color);
+}
+
+.admin-booking-card {
+    max-width: 1120px;
+}
+
+.admin-actions-section {
+    background: #fbfaf7;
+}
+
+.admin-document-actions {
+    margin-top: 22px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 13px;
+}
+
+.admin-document-actions a,
+.admin-document-actions button,
+.admin-edit-form button,
+.admin-traveler-edit-item button,
+.admin-note-form button {
+    min-height: 48px;
+    width: 100%;
+    padding: 0 16px;
+    display: inline-grid;
+    place-items: center;
+    color: var(--white);
+    background: var(--primary-color);
+    border: 0;
+    border-radius: 12px;
+    font: inherit;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.admin-document-actions a:hover,
+.admin-document-actions button:hover,
+.admin-edit-form button:hover,
+.admin-traveler-edit-item button:hover,
+.admin-note-form button:hover {
+    background: var(--primary-dark);
+}
+
+.admin-cancellation-form {
+    margin-top: 24px;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1.25fr 1fr;
+    gap: 18px;
+    align-items: end;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 16px;
+}
+
+.admin-cancellation-form h3 {
+    margin: 0;
+    color: #9a3412;
+}
+
+.admin-cancellation-form p {
+    margin: 8px 0 0;
+    color: var(--muted-text);
+    line-height: 1.6;
+}
+
+.admin-cancellation-summary {
+    grid-column: 1 / -1;
+    padding: 18px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 13px;
+    background: var(--white);
+    border: 1px solid #fed7aa;
+    border-radius: 14px;
+}
+
+.admin-cancellation-summary h4,
+.admin-cancellation-summary p {
+    grid-column: 1 / -1;
+}
+
+.admin-cancellation-summary h4 {
+    margin: 0;
+    color: #9a3412;
+    font-size: 16px;
+}
+
+.admin-cancellation-summary div {
+    padding: 14px;
+    background: #fffaf5;
+    border-radius: 11px;
+}
+
+.admin-cancellation-summary span {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--muted-text);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.admin-cancellation-summary strong {
+    color: var(--text-color);
+    font-size: 18px;
+}
+
+.admin-cancellation-summary p {
+    margin: 0;
+}
+
+.admin-cancellation-form button {
+    min-height: 48px;
+    padding: 0 18px;
+    color: var(--white);
+    background: #b42318;
+    border: 0;
+    border-radius: 12px;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.admin-cancellation-form button:hover {
+    background: #912018;
+}
+
+.admin-document-actions button:disabled,
+.admin-edit-form button:disabled,
+.admin-traveler-edit-item button:disabled {
+    cursor: not-allowed;
+    color: #94a3a6;
+    background: #edf2f2;
+}
+
+.admin-edit-form {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.admin-edit-form label,
+.admin-traveler-edit-item label {
+    display: grid;
+    gap: 8px;
+    color: var(--muted-text);
+    font-weight: 800;
+}
+
+.admin-edit-form input,
+.admin-traveler-edit-item input,
+.admin-note-form textarea {
+    width: 100%;
+    padding: 15px 16px;
+    color: var(--text-color);
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    font: inherit;
+    font-weight: 700;
+}
+
+.admin-edit-form input:focus,
+.admin-traveler-edit-item input:focus,
+.admin-note-form textarea:focus {
+    outline: 3px solid rgba(0, 107, 116, 0.14);
+    border-color: var(--primary-color);
+}
+
+.admin-edit-form button {
+    align-self: end;
+}
+
+.admin-traveler-edit-list {
+    margin-top: 24px;
+}
+
+.admin-traveler-edit-item {
+    grid-template-columns: minmax(150px, 1fr) 1fr 1fr auto;
+    align-items: end;
+    gap: 15px;
+}
+
+.admin-traveler-edit-item small {
+    display: block;
+}
+
+.admin-note-form {
+    margin-top: 24px;
+    display: grid;
+    gap: 14px;
+}
+
+.admin-note-form textarea {
+    min-height: 130px;
+    resize: vertical;
+}
+
+.admin-note-form button {
+    justify-self: end;
+    width: auto;
+    min-width: 190px;
+}
+
+.admin-history-list {
+    margin-top: 22px;
+    display: grid;
+    gap: 13px;
+}
+
+.admin-history-item {
+    padding: 18px;
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 13px;
+}
+
+.admin-history-item div {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.admin-history-item span {
+    color: var(--muted-text);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-history-item p {
+    margin: 10px 0 0;
+    color: var(--muted-text);
+    line-height: 1.6;
+}
+
 .cancellation-entry {
     margin-top: 28px;
     padding: 25px;
@@ -472,6 +715,31 @@
     margin-top: 28px;
 }
 
+.cancellation-reason-field {
+    margin-bottom: 18px;
+    display: grid;
+    gap: 9px;
+    color: var(--muted-text);
+    font-weight: 800;
+}
+
+.cancellation-reason-field select {
+    width: 100%;
+    min-height: 52px;
+    padding: 0 16px;
+    color: var(--text-color);
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    font: inherit;
+    font-weight: 800;
+}
+
+.cancellation-reason-field select:focus {
+    outline: 3px solid rgba(0, 107, 116, 0.14);
+    border-color: var(--primary-color);
+}
+
 .cancellation-confirmation {
     padding: 19px;
     display: flex;
@@ -492,6 +760,11 @@
 .cancellation-confirmation span {
     font-weight: 700;
     line-height: 1.5;
+}
+
+.cancellation-confirmation.compact {
+    margin: 0;
+    padding: 15px;
 }
 
 .cancellation-error {
@@ -565,7 +838,17 @@
     }
 
     .reference-grid,
-    .details-grid {
+    .details-grid,
+    .admin-edit-form,
+    .admin-traveler-edit-item {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-cancellation-form {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-cancellation-summary {
         grid-template-columns: 1fr;
     }
 
@@ -592,6 +875,14 @@
     .customer-payment-meta {
         display: grid;
         gap: 9px;
+    }
+
+    .admin-note-form button {
+        width: 100%;
+    }
+
+    .admin-history-item div {
+        display: grid;
     }
 }
 /* Payment Section */

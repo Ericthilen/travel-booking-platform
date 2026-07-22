@@ -60,6 +60,27 @@ public class InvoiceService {
         return invoiceRepository.findByBookingId(bookingId);
     }
 
+    @Transactional
+    public Invoice regenerateInvoice(Booking booking) {
+        invoiceRepository
+                .findByBookingId(booking.getId())
+                .ifPresent(invoiceRepository::delete);
+
+        Invoice invoice = new Invoice(
+                generateInvoiceNumber(),
+                booking,
+                LocalDateTime.now(),
+                booking.getTotalPrice(),
+                booking.getDepositAmount(),
+                booking.getDepositDueDate(),
+                booking.getRemainingAmount(),
+                booking.getFinalPaymentDueDate(),
+                generatePaymentReference()
+        );
+
+        return invoiceRepository.save(invoice);
+    }
+
     private String generateInvoiceNumber() {
         String invoiceNumber;
 

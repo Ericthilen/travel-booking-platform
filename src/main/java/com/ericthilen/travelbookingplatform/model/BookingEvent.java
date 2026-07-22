@@ -10,9 +10,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import java.time.LocalDateTime;
+
 @Entity
-@Table(name = "travelers")
-public class Traveler {
+@Table(name = "booking_events")
+public class BookingEvent {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,25 +25,31 @@ public class Traveler {
     private Booking booking;
 
     @Column(nullable = false)
-    private String personalNumber;
+    private String title;
+
+    @Column(nullable = false, length = 1000)
+    private String description;
 
     @Column(nullable = false)
-    private String firstName;
+    private String createdBy;
 
     @Column(nullable = false)
-    private String lastName;
+    private LocalDateTime createdAt;
 
-    public Traveler() {
+    public BookingEvent() {
     }
 
-    public Traveler(
-            String personalNumber,
-            String firstName,
-            String lastName
+    public BookingEvent(
+            Booking booking,
+            String title,
+            String description,
+            String createdBy
     ) {
-        this.personalNumber = personalNumber;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.booking = booking;
+        this.title = title;
+        this.description = description;
+        this.createdBy = createdBy;
+        this.createdAt = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -52,27 +60,19 @@ public class Traveler {
         return booking;
     }
 
-    public String getPersonalNumber() {
-        return personalNumber;
+    public String getTitle() {
+        return title;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getDescription() {
+        return description;
     }
 
-    public String getLastName() {
-        return lastName;
+    public String getCreatedBy() {
+        return createdBy;
     }
 
-    public void setBooking(Booking booking) {
-        this.booking = booking;
-    }
-
-    public void updateName(
-            String firstName,
-            String lastName
-    ) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 }

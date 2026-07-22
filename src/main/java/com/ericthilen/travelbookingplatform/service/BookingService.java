@@ -7,6 +7,7 @@ import com.ericthilen.travelbookingplatform.dto.CancellationSummary;
 import com.ericthilen.travelbookingplatform.dto.TravelerRequest;
 import com.ericthilen.travelbookingplatform.dto.BookingSummary;
 import com.ericthilen.travelbookingplatform.model.Booking;
+import com.ericthilen.travelbookingplatform.model.BookingEvent;
 import com.ericthilen.travelbookingplatform.model.BookingStatus;
 import com.ericthilen.travelbookingplatform.model.Customer;
 import com.ericthilen.travelbookingplatform.model.Departure;
@@ -18,6 +19,7 @@ import com.ericthilen.travelbookingplatform.model.RoomType;
 import com.ericthilen.travelbookingplatform.model.Traveler;
 import com.ericthilen.travelbookingplatform.model.User;
 import com.ericthilen.travelbookingplatform.repository.BookingRepository;
+import com.ericthilen.travelbookingplatform.repository.BookingEventRepository;
 import com.ericthilen.travelbookingplatform.repository.CustomerRepository;
 import com.ericthilen.travelbookingplatform.repository.DepartureRepository;
 import com.ericthilen.travelbookingplatform.repository.RoomTypeRepository;
@@ -39,6 +41,7 @@ import java.util.Random;
 public class BookingService {
 
     private final BookingRepository bookingRepository;
+    private final BookingEventRepository bookingEventRepository;
     private final CustomerRepository customerRepository;
     private final DepartureRepository departureRepository;
     private final RoomTypeRepository roomTypeRepository;
@@ -50,6 +53,7 @@ public class BookingService {
 
     public BookingService(
             BookingRepository bookingRepository,
+            BookingEventRepository bookingEventRepository,
             CustomerRepository customerRepository,
             DepartureRepository departureRepository,
             RoomTypeRepository roomTypeRepository,
@@ -59,6 +63,7 @@ public class BookingService {
             BookingEmailService bookingEmailService
     ) {
         this.bookingRepository = bookingRepository;
+        this.bookingEventRepository = bookingEventRepository;
         this.customerRepository = customerRepository;
         this.departureRepository = departureRepository;
         this.roomTypeRepository = roomTypeRepository;
@@ -133,6 +138,11 @@ public class BookingService {
                 paymentInformation.remainingAmount(),
                 paymentInformation.finalPaymentDueDate()
         );
+        booking.updateRoomDistribution(
+                roomDistributionLabel(
+                        bookingSession.getRoomOccupancies()
+                )
+        );
 
         for (TravelerRequest travelerRequest
                 : bookingSession.getTravelers()) {
@@ -195,6 +205,22 @@ public class BookingService {
                 );
 
         savedBooking.markBookingEmailStatus(emailStatus);
+        logEvent(
+                savedBooking,
+                "Bokning skapad",
+                "Bokningen skapades och fick bokningsnummer "
+                        + savedBooking.getBookingNumber()
+                        + ".",
+                "System"
+        );
+        logEvent(
+                savedBooking,
+                "Bokningsmejl skickat",
+                "Status efter utskick: "
+                        + emailStatus.getDisplayName()
+                        + ".",
+                "System"
+        );
 
         return bookingRepository.saveAndFlush(savedBooking);
     }
@@ -334,6 +360,19 @@ public class BookingService {
             Long bookingId,
             String email
     ) {
+        return cancelBooking(
+                bookingId,
+                email,
+                "Ej angiven"
+        );
+    }
+
+    @Transactional
+    public Booking cancelBooking(
+            Long bookingId,
+            String email,
+            String cancellationReason
+    ) {
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException(
                     "Användaren kunde inte identifieras."
@@ -351,6 +390,41 @@ public class BookingService {
                         )
                 );
 
+        return cancelExistingBooking(
+                booking,
+                "Kund",
+                cancellationReason
+        );
+    }
+
+    @Transactional
+    public Booking cancelBookingForAdmin(
+            Long bookingId,
+            String adminEmail,
+            String cancellationReason
+    ) {
+        Booking booking = bookingRepository
+                .findById(bookingId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Bokningen kunde inte hittas."
+                        )
+                );
+
+        return cancelExistingBooking(
+                booking,
+                adminEmail == null || adminEmail.isBlank()
+                        ? "Admin"
+                        : adminEmail,
+                cancellationReason
+        );
+    }
+
+    private Booking cancelExistingBooking(
+            Booking booking,
+            String actor,
+            String cancellationReason
+    ) {
         CancellationSummary cancellationSummary =
                 calculateCancellation(booking);
 
@@ -364,7 +438,8 @@ public class BookingService {
 
         booking.cancel(
                 cancellationSummary.getCancellationFee(),
-                cancellationSummary.getRefundAmount()
+                cancellationSummary.getRefundAmount(),
+                cleanCancellationReason(cancellationReason)
         );
 
         departureRepository.save(
@@ -387,9 +462,28 @@ public class BookingService {
         cancelledBooking.markCancellationEmailStatus(
                 emailStatus
         );
+        logEvent(
+                cancelledBooking,
+                "Bokning avbokad",
+                "Bokningen avbokades. Avbokningsavgift: "
+                        + cancellationSummary.getCancellationFee()
+                        + " kr. Orsak: "
+                        + cleanCancellationReason(cancellationReason)
+                        + ".",
+                actor
+        );
 
         return bookingRepository
                 .saveAndFlush(cancelledBooking);
+    }
+
+    private String cleanCancellationReason(String cancellationReason) {
+        if (cancellationReason == null
+                || cancellationReason.isBlank()) {
+            return "Ej angiven";
+        }
+
+        return cancellationReason.trim();
     }
 
     private Customer findOrCreateCustomer(
@@ -575,6 +669,47 @@ public class BookingService {
                 );
             }
         }
+    }
+
+    private String roomDistributionLabel(List<Integer> roomOccupancies) {
+        if (roomOccupancies == null || roomOccupancies.isEmpty()) {
+            return "";
+        }
+
+        List<String> rooms = new java.util.ArrayList<>();
+
+        for (int index = 0; index < roomOccupancies.size(); index++) {
+            Integer occupancy = roomOccupancies.get(index);
+
+            if (occupancy == null) {
+                continue;
+            }
+
+            rooms.add("Rum "
+                    + (index + 1)
+                    + ": "
+                    + occupancy
+                    + " gäster");
+        }
+
+        return String.join(
+                ", ",
+                rooms
+        );
+    }
+
+    private void logEvent(
+            Booking booking,
+            String title,
+            String description,
+            String createdBy
+    ) {
+        bookingEventRepository.save(new BookingEvent(
+                booking,
+                title,
+                description,
+                createdBy
+        ));
     }
 
     public BookingSummary calculateBookingSummary(BookingSession session) {
