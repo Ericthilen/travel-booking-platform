@@ -38,4 +38,32 @@ public interface DepartureRepository
     List<Departure> findTop6ByDepartureDateGreaterThanEqualOrderByDepartureDateAsc(
             LocalDate date
     );
+
+    @Query("""
+            select distinct departure.departureAirport
+            from Departure departure
+            where departure.departureAirport is not null
+              and departure.departureAirport <> ''
+              and (
+                    departure.status = com.ericthilen.travelbookingplatform.model.ManagementStatus.ACTIVE
+                    or departure.status is null
+              )
+            order by departure.departureAirport asc
+            """)
+    List<String> findBookableDepartureAirports();
+
+    @Query("""
+            select distinct departure.departureDate
+            from Departure departure
+            where departure.departureDate >= :date
+              and departure.availableSeats > 0
+              and (
+                    departure.status = com.ericthilen.travelbookingplatform.model.ManagementStatus.ACTIVE
+                    or departure.status is null
+              )
+            order by departure.departureDate asc
+            """)
+    List<LocalDate> findBookableDepartureDatesFrom(
+            @Param("date") LocalDate date
+    );
 }
