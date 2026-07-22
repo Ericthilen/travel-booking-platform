@@ -3,16 +3,17 @@ body {
 }
 
 .travel-list-section {
-    width: min(1180px, calc(100% - 56px));
+    width: min(1280px, calc(100% - 56px));
     margin: 0 auto;
     padding: 62px 0 92px;
     display: grid;
-    grid-template-columns: 238px minmax(0, 1fr);
+    grid-template-columns: 300px minmax(0, 1fr);
     gap: 28px;
     align-items: start;
 }
 
 .travel-filter-panel {
+    min-width: 0;
     position: sticky;
     top: 96px;
     padding: 20px;
@@ -47,13 +48,20 @@ body {
 }
 
 .travel-filter-form {
+    min-width: 0;
     display: grid;
     gap: 15px;
+}
+
+.travel-filter-form *,
+.travel-filter-panel * {
+    box-sizing: border-box;
 }
 
 .travel-filter-form label,
 .filter-price label,
 .travel-sort-form label {
+    min-width: 0;
     display: grid;
     gap: 8px;
     color: #536165;
@@ -64,6 +72,8 @@ body {
 .travel-filter-form input,
 .travel-filter-form select,
 .travel-sort-form select {
+    min-width: 0;
+    max-width: 100%;
     width: 100%;
     min-height: 45px;
     padding: 0 12px;
@@ -98,6 +108,161 @@ body {
     color: #6f7b80;
     font-size: 11px;
     font-weight: 800;
+}
+
+.departure-calendar-filter {
+    min-width: 0;
+    max-width: 100%;
+    padding: 16px;
+    display: grid;
+    gap: 14px;
+    background: linear-gradient(180deg, #ffffff 0%, #f7fbfa 100%);
+    border: 1px solid rgba(214, 224, 222, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 14px 30px rgba(22, 39, 42, 0.06);
+}
+
+.departure-calendar-heading {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    color: #536165;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.departure-calendar-heading > div {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.departure-calendar-filter strong {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    color: var(--primary-color);
+    font-size: 14px;
+    line-height: 1.12;
+    text-transform: capitalize;
+}
+
+.travel-filter-form .departure-calendar-heading button {
+    width: 28px;
+    height: 28px;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    color: var(--primary-color);
+    background: #edf8f7;
+    border: 1px solid rgba(0, 121, 128, 0.16);
+    border-radius: 50%;
+    box-shadow: none;
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.travel-filter-form .departure-calendar-heading button:hover {
+    transform: translateY(-1px);
+    color: var(--white);
+    background: var(--primary-color);
+}
+
+.departure-calendar-grid {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 5px;
+}
+
+.departure-calendar-grid > span {
+    color: #8a9698;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.travel-filter-form .departure-calendar-grid button {
+    width: 100%;
+    aspect-ratio: 1;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    color: #697679;
+    background: #ffffff;
+    border: 1px solid #e1e8e6;
+    border-radius: 10px;
+    box-shadow: none;
+    font-size: 11px;
+    font-weight: 900;
+    transition:
+            transform 0.18s ease,
+            border-color 0.18s ease,
+            background 0.18s ease,
+            color 0.18s ease;
+}
+
+.travel-filter-form .departure-calendar-grid button.is-available {
+    color: #075f64;
+    background: #e7f7f5;
+    border-color: rgba(0, 121, 128, 0.24);
+    cursor: pointer;
+}
+
+.travel-filter-form .departure-calendar-grid button.is-available:hover {
+    transform: translateY(-2px);
+    color: #ffffff;
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.travel-filter-form .departure-calendar-grid button.is-unavailable {
+    color: #b4bdbe;
+    background: #f3f5f4;
+    border-color: #edf0ef;
+    text-decoration: line-through;
+    cursor: not-allowed;
+}
+
+.travel-filter-form .departure-calendar-grid button.is-selected {
+    color: var(--white);
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    box-shadow: 0 8px 18px rgba(0, 92, 104, 0.24);
+}
+
+.filter-checks {
+    display: grid;
+    gap: 10px;
+}
+
+.filter-checks label {
+    padding: 10px 11px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--text-color);
+    background: #f8fbfa;
+    border: 1px solid #e3e7e6;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 850;
+}
+
+.filter-checks input {
+    width: 16px;
+    min-height: 16px;
+    accent-color: var(--primary-color);
 }
 
 .travel-filter-form button {
@@ -275,6 +440,13 @@ body {
     line-height: 1.35;
 }
 
+.travel-rating-line {
+    margin: -4px 0 10px;
+    color: #d99a24;
+    font-size: 13px;
+    letter-spacing: 0;
+}
+
 .travel-description {
     min-height: 42px;
     margin: 0;
@@ -376,7 +548,7 @@ body {
 @media (max-width: 1120px) {
     .travel-list-section {
         width: min(980px, calc(100% - 44px));
-        grid-template-columns: 230px minmax(0, 1fr);
+        grid-template-columns: 280px minmax(0, 1fr);
         gap: 22px;
     }
 
@@ -400,6 +572,8 @@ body {
     }
 
     .filter-price,
+    .departure-calendar-filter,
+    .filter-checks,
     .travel-filter-form button {
         grid-column: 1 / -1;
     }
@@ -438,4 +612,5 @@ body {
     .travel-list-footer a {
         width: 100%;
     }
+
 }
