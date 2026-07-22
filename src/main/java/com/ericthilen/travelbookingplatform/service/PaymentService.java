@@ -2,10 +2,12 @@ package com.ericthilen.travelbookingplatform.service;
 
 import com.ericthilen.travelbookingplatform.dto.PaymentRequest;
 import com.ericthilen.travelbookingplatform.model.Booking;
+import com.ericthilen.travelbookingplatform.model.BookingEvent;
 import com.ericthilen.travelbookingplatform.model.BookingStatus;
 import com.ericthilen.travelbookingplatform.model.Payment;
 import com.ericthilen.travelbookingplatform.model.PaymentMethod;
 import com.ericthilen.travelbookingplatform.repository.BookingRepository;
+import com.ericthilen.travelbookingplatform.repository.BookingEventRepository;
 import com.ericthilen.travelbookingplatform.repository.PaymentRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -21,14 +23,17 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final BookingRepository bookingRepository;
+    private final BookingEventRepository bookingEventRepository;
     private final Random random = new Random();
 
     public PaymentService(
             PaymentRepository paymentRepository,
-            BookingRepository bookingRepository
+            BookingRepository bookingRepository,
+            BookingEventRepository bookingEventRepository
     ) {
         this.paymentRepository = paymentRepository;
         this.bookingRepository = bookingRepository;
+        this.bookingEventRepository = bookingEventRepository;
     }
 
     public Optional<Booking> getBooking(Long bookingId) {
@@ -85,7 +90,14 @@ public class PaymentService {
                 LocalDateTime.now()
         );
 
-        return paymentRepository.save(payment);
+        Payment savedPayment = paymentRepository.save(payment);
+        logPaymentEvent(
+                booking,
+                amount,
+                reference
+        );
+
+        return savedPayment;
     }
 
     private String generateReference(PaymentMethod method) {
@@ -160,7 +172,14 @@ public class PaymentService {
 
         bookingRepository.save(booking);
 
-        return paymentRepository.save(payment);
+        Payment savedPayment = paymentRepository.save(payment);
+        logPaymentEvent(
+                booking,
+                paymentRequest.getAmount(),
+                normalizedReference
+        );
+
+        return savedPayment;
     }
 
     private String normalizeReference(String reference) {
@@ -176,5 +195,21 @@ public class PaymentService {
     private String formatMoney(int amount) {
         return String.format("%,d kr", amount)
                 .replace(',', ' ');
+    }
+
+    private void logPaymentEvent(
+            Booking booking,
+            int amount,
+            String reference
+    ) {
+        bookingEventRepository.save(new BookingEvent(
+                booking,
+                "Betalning registrerad",
+                formatMoney(amount)
+                        + " registrerades med referens "
+                        + reference
+                        + ".",
+                "Admin"
+        ));
     }
 }

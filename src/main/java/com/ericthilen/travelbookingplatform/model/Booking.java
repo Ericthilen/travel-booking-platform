@@ -52,6 +52,9 @@ public class Booking {
     @Column(nullable = false)
     private int numberOfRooms;
 
+    @Column(length = 500)
+    private String roomDistribution;
+
     @Column(nullable = false)
     private int totalPrice;
 
@@ -120,6 +123,9 @@ public class Booking {
     private int refundAmount;
 
     private LocalDateTime cancelledAt;
+
+    @Column(length = 120)
+    private String cancellationReason;
 
     @OneToMany(
             mappedBy = "booking",
@@ -240,7 +246,8 @@ public class Booking {
 
     public void cancel(
             int cancellationFee,
-            int refundAmount
+            int refundAmount,
+            String cancellationReason
     ) {
         if (status == BookingStatus.CANCELLED) {
             throw new IllegalStateException(
@@ -253,6 +260,7 @@ public class Booking {
         this.refundAmount = refundAmount;
         this.remainingAmount = 0;
         this.cancelledAt = LocalDateTime.now();
+        this.cancellationReason = cancellationReason;
         this.cancellationEmailStatus = EmailStatus.NOT_SENT;
 
         if (refundAmount > 0) {
@@ -296,6 +304,18 @@ public class Booking {
 
     public int getNumberOfRooms() {
         return numberOfRooms;
+    }
+
+    public String getRoomDistribution() {
+        if (roomDistribution == null || roomDistribution.isBlank()) {
+            return numberOfRooms + " rum";
+        }
+
+        return roomDistribution;
+    }
+
+    public void updateRoomDistribution(String roomDistribution) {
+        this.roomDistribution = roomDistribution;
     }
 
     public int getTotalPrice() {
@@ -364,6 +384,10 @@ public class Booking {
 
     public LocalDateTime getCancelledAt() {
         return cancelledAt;
+    }
+
+    public String getCancellationReason() {
+        return cancellationReason;
     }
 
     public List<Traveler> getTravelers() {
