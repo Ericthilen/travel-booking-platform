@@ -1,5 +1,6 @@
 package com.ericthilen.travelbookingplatform.service;
 
+import com.ericthilen.travelbookingplatform.dto.TravelSearchFilters;
 import com.ericthilen.travelbookingplatform.model.Travel;
 import com.ericthilen.travelbookingplatform.repository.TravelRepository;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,10 @@ public class TravelService {
     public List<Travel> getAllTravels() {
         return travelRepository
                 .findBookableTravels();
+    }
+
+    public List<Travel> searchTravels(TravelSearchFilters filters) {
+        return travelRepository.searchTravels(filters);
     }
 
     public List<Travel> getAllTravelsForAdmin() {
