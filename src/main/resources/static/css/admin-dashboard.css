@@ -258,6 +258,186 @@
     font-weight: 700;
 }
 
+.admin-management-form,
+.admin-note-form {
+    margin-top: 22px;
+    padding-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    border-top: 1px solid var(--border-color);
+}
+
+.admin-management-form label,
+.admin-traveler-row label,
+.admin-note-form label {
+    display: grid;
+    gap: 7px;
+    color: var(--muted-text);
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.admin-management-form input,
+.admin-traveler-row input,
+.admin-note-form textarea {
+    width: 100%;
+    min-height: 46px;
+    padding: 0 13px;
+    color: var(--text-color);
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 11px;
+    outline: none;
+    font: inherit;
+    font-weight: 750;
+}
+
+.admin-note-form textarea {
+    min-height: 112px;
+    padding: 13px;
+    resize: vertical;
+}
+
+.admin-management-form input:focus,
+.admin-traveler-row input:focus,
+.admin-note-form textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 92, 104, 0.10);
+}
+
+.admin-management-form button,
+.admin-traveler-row button,
+.admin-note-form button,
+.admin-action-grid button {
+    min-height: 46px;
+    padding: 0 16px;
+    color: var(--white);
+    background: var(--primary-color);
+    border: 0;
+    border-radius: 11px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.admin-management-form button:hover,
+.admin-traveler-row button:hover,
+.admin-note-form button:hover,
+.admin-action-grid button:hover {
+    background: var(--primary-dark);
+}
+
+.admin-traveler-row button:disabled,
+.admin-traveler-row input:disabled {
+    opacity: 0.58;
+    cursor: not-allowed;
+}
+
+.admin-flight-grid {
+    display: grid;
+    gap: 14px;
+}
+
+.admin-flight-grid div {
+    padding: 16px;
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+}
+
+.admin-flight-grid span {
+    color: var(--muted-text);
+    font-size: 13px;
+    font-weight: 850;
+}
+
+.admin-flight-grid strong {
+    display: block;
+    margin: 6px 0;
+    color: var(--text-color);
+}
+
+.admin-flight-grid p {
+    margin: 0;
+    color: var(--muted-text);
+    line-height: 1.55;
+}
+
+.admin-action-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.admin-action-grid form,
+.admin-action-grid button,
+.admin-note-form textarea,
+.admin-note-form button {
+    width: 100%;
+}
+
+.admin-traveler-list {
+    display: grid;
+    gap: 12px;
+}
+
+.admin-traveler-row {
+    padding: 16px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) repeat(2, minmax(0, 1fr)) auto;
+    gap: 14px;
+    align-items: end;
+    background: var(--background-color);
+    border-radius: 14px;
+}
+
+.admin-traveler-row > div {
+    display: grid;
+    gap: 6px;
+}
+
+.admin-traveler-row span {
+    color: var(--muted-text);
+    font-size: 13px;
+    font-weight: 850;
+}
+
+.admin-note-form {
+    grid-template-columns: 1fr;
+    border-top: 0;
+    padding-top: 0;
+}
+
+.admin-timeline {
+    margin-top: 18px;
+    display: grid;
+    gap: 12px;
+}
+
+.admin-timeline article {
+    padding: 15px;
+    background: var(--background-color);
+    border-left: 4px solid var(--primary-color);
+    border-radius: 13px;
+}
+
+.admin-timeline strong,
+.admin-timeline span {
+    display: block;
+}
+
+.admin-timeline span {
+    margin-top: 4px;
+    color: var(--muted-text);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.admin-timeline p {
+    margin: 10px 0 0;
+    color: var(--text-color);
+    line-height: 1.55;
+}
+
 .admin-back-link {
     display: inline-block;
     margin-bottom: 28px;

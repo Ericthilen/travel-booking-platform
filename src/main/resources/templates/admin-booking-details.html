@@ -2,16 +2,16 @@
 <html
         lang="sv"
         xmlns:th="http://www.thymeleaf.org"
-        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 >
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Admin bokning – EriGo Travel</title>
+    <title>Admin bokning - EriGo Travel</title>
 
     <link rel="stylesheet" href="/css/styles.css">
-    <link rel="stylesheet" href="/css/admin-dashboard.css">
+    <link rel="stylesheet" href="/css/flight-info.css">
+    <link rel="stylesheet" href="/css/booking-details.css">
 </head>
 
 <body>
@@ -20,198 +20,990 @@
         th:replace="~{fragments/site-header :: siteHeader('admin')}"
 ></div>
 
-<main class="admin-dashboard-page">
-    <section class="admin-dashboard-container">
+<main class="booking-details-page admin-booking-page">
+    <section class="booking-details-card admin-booking-card">
         <a
-                class="admin-back-link"
+                class="details-back-link"
                 th:href="@{/admin}"
         >
             ← Tillbaka till admin
         </a>
 
-        <section class="admin-dashboard-heading">
+        <div
+                class="details-message success-message"
+                th:if="${adminBookingMessage != null}"
+                th:text="${adminBookingMessage}"
+        >
+            Sparat.
+        </div>
+
+        <div
+                class="details-message error-message"
+                th:if="${adminBookingError != null}"
+                th:text="${adminBookingError}"
+        >
+            Något gick fel.
+        </div>
+
+        <div
+                class="details-message warning-message"
+                th:unless="${canChangeBooking}"
+        >
+            Bokningen kan inte ändras om den är avbokad eller om det är
+            <span th:text="${changeLockDays}">7</span>
+            dagar eller mindre kvar till avresa.
+        </div>
+
+        <div class="details-heading">
             <div>
                 <p class="eyebrow dark">
-                    Bokningsdetaljer
+                    Adminvy för bokning
                 </p>
 
-                <h1 th:text="${booking.bookingNumber}">
-                    BK-2026-123456
+                <h1
+                        th:text="${booking.departure.travel.destination}"
+                >
+                    Mallorca
                 </h1>
 
                 <p
-                        th:text="${booking.customer.firstName + ' ' + booking.customer.lastName + ' · ' + booking.customer.email}"
+                        th:text="${booking.departure.travel.hotelName}"
                 >
-                    Kund
+                    Sun Bay Resort
                 </p>
             </div>
 
-            <div class="admin-row-actions">
-                <a th:href="@{/admin/bokningar/{id}/betalningar(id=${booking.id})}">
+            <span
+                    class="details-status"
+                    th:classappend="${booking.status.name() == 'CANCELLED'} ? ' cancelled'"
+                    th:text="${booking.status.displayName}"
+            >
+                Bekräftad
+            </span>
+        </div>
+
+        <div class="reference-grid">
+            <div>
+                <span>Kundnummer</span>
+                <strong th:text="${booking.customer.customerNumber}">
+                    ERG-123456
+                </strong>
+            </div>
+
+            <div>
+                <span>Bokningsnummer</span>
+                <strong th:text="${booking.bookingNumber}">
+                    E1234567
+                </strong>
+            </div>
+        </div>
+
+        <section class="details-section admin-actions-section">
+            <div class="payment-history-title-row">
+                <div>
+                    <h2>Adminåtgärder</h2>
+                    <p>Skicka om dokument och hantera bokningen från samma vy.</p>
+                </div>
+            </div>
+
+            <div class="admin-document-actions">
+                <a
+                        th:href="@{/admin/bokningar/{id}/faktura(id=${booking.id})}"
+                >
+                    Ladda ner faktura
+                </a>
+
+                <form
+                        th:action="@{/admin/bokningar/{id}/skicka-bekraftelse(id=${booking.id})}"
+                        method="post"
+                >
+                    <button type="submit">
+                        Skicka bekräftelse igen
+                    </button>
+                </form>
+
+                <form
+                        th:action="@{/admin/bokningar/{id}/generera-faktura(id=${booking.id})}"
+                        method="post"
+                >
+                    <button type="submit">
+                        Generera faktura igen
+                    </button>
+                </form>
+
+                <form
+                        th:action="@{/admin/bokningar/{id}/skicka-avbokningsintyg(id=${booking.id})}"
+                        method="post"
+                >
+                    <button
+                            type="submit"
+                            th:disabled="${booking.status.name() != 'CANCELLED'}"
+                    >
+                        Skicka avbokningsintyg
+                    </button>
+                </form>
+
+                <a
+                        th:href="@{/admin/bokningar/{id}/betalningar(id=${booking.id})}"
+                >
                     Betalningar
                 </a>
             </div>
+
+            <form
+                    class="admin-cancellation-form"
+                    th:if="${booking.status.name() == 'CONFIRMED'}"
+                    th:action="@{/admin/bokningar/{id}/avboka(id=${booking.id})}"
+                    th:object="${cancellationRequest}"
+                    method="post"
+            >
+                <div>
+                    <h3>Avboka kundens bokning</h3>
+                    <p>
+                        Avbokningen släpper platser och rum, räknar avbokningskostnad
+                        och skickar avbokningsbekräftelse till kunden.
+                    </p>
+                </div>
+
+                <div class="admin-cancellation-summary">
+                    <h4>Betalningsvillkor vid avbokning</h4>
+
+                    <div>
+                        <span>Dagar kvar till avresa</span>
+                        <strong th:text="${cancellationSummary.daysUntilDeparture}">
+                            25
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Inbetalt belopp</span>
+                        <strong>
+                            <span th:text="${#numbers.formatInteger(cancellationSummary.paidAmount, 1, 'WHITESPACE')}">
+                                0
+                            </span>
+                            kr
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Avbokningsavgift</span>
+                        <strong>
+                            <span th:text="${#numbers.formatInteger(cancellationSummary.cancellationFee, 1, 'WHITESPACE')}">
+                                0
+                            </span>
+                            kr
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Återbetalas till kund</span>
+                        <strong>
+                            <span th:text="${#numbers.formatInteger(cancellationSummary.refundAmount, 1, 'WHITESPACE')}">
+                                0
+                            </span>
+                            kr
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Kvar att betala efter avbokning</span>
+                        <strong>
+                            <span th:text="${#numbers.formatInteger(cancellationSummary.remainingAmountAfterCancellation, 1, 'WHITESPACE')}">
+                                0
+                            </span>
+                            kr
+                        </strong>
+                    </div>
+
+                    <p
+                            th:if="${cancellationSummary.daysUntilDeparture >= 15}"
+                    >
+                        Minst 15 dagar kvar: normal avbokningskostnad är
+                        50 % av totalpriset, men kunden förlorar aldrig mer
+                        än det som redan är betalt.
+                    </p>
+
+                    <p
+                            th:unless="${cancellationSummary.daysUntilDeparture >= 15}"
+                    >
+                        14 dagar eller mindre kvar: inget av redan inbetalt
+                        belopp återbetalas.
+                    </p>
+
+                    <p th:if="${cancellationSummary.depositLocked}">
+                        Anmälningsavgiften är inte återbetalningsbar eftersom
+                        den är betald och förfallodatumet har passerat.
+                    </p>
+                </div>
+
+                <label class="cancellation-reason-field">
+                    <span>Avbokningsorsak</span>
+
+                    <select th:field="*{cancellationReason}">
+                        <option value="">Välj anledning</option>
+                        <option
+                                th:each="reason : ${cancellationReasons}"
+                                th:value="${reason}"
+                                th:text="${reason}"
+                        >
+                            Personligt
+                        </option>
+                    </select>
+                </label>
+
+                <label class="cancellation-confirmation compact">
+                    <input
+                            type="checkbox"
+                            th:field="*{cancellationConfirmed}"
+                    >
+
+                    <span>
+                        Jag vill avboka bokningen åt kunden.
+                    </span>
+                </label>
+
+                <button type="submit">
+                    Avboka bokning
+                </button>
+            </form>
         </section>
 
-        <section class="admin-detail-grid">
-            <article class="admin-panel">
-                <h2>
-                    Kund
-                </h2>
+        <section class="details-section">
+            <div class="email-status-heading">
+                <h2>E-poststatus</h2>
 
-                <div class="admin-fact-grid">
-                    <div>
-                        <span>Kundnummer</span>
-                        <strong th:text="${booking.customer.customerNumber}">ERG-123456</strong>
-                    </div>
+                <span
+                        class="email-status-badge sent"
+                        th:if="${booking.bookingEmailStatus.name() == 'SENT'}"
+                >
+                    Bokningsmejl skickat
+                </span>
 
-                    <div>
-                        <span>Namn</span>
-                        <strong th:text="${booking.customer.firstName + ' ' + booking.customer.lastName}">Namn</strong>
-                    </div>
+                <span
+                        class="email-status-badge not-sent"
+                        th:if="${booking.bookingEmailStatus.name() == 'NOT_SENT'}"
+                >
+                    Bokningsmejl inte skickat
+                </span>
 
-                    <div>
-                        <span>E-post</span>
-                        <strong th:text="${booking.customer.email}">kund@exempel.se</strong>
-                    </div>
+                <span
+                        class="email-status-badge failed"
+                        th:if="${booking.bookingEmailStatus.name() == 'FAILED'}"
+                >
+                    Bokningsmejl misslyckades
+                </span>
+            </div>
 
-                    <div>
-                        <span>Telefon</span>
-                        <strong th:text="${booking.customer.phone}">070</strong>
-                    </div>
+            <p class="email-status-description">
+                Bokningsbekräftelse och faktura skickas till
+                <strong th:text="${booking.customer.email}">
+                    namn@exempel.se
+                </strong>.
+            </p>
+
+            <div
+                    class="cancellation-email-status"
+                    th:if="${booking.status.name() == 'CANCELLED'}"
+            >
+                <span>Avbokningsmejl</span>
+
+                <strong
+                        th:text="${booking.cancellationEmailStatus.displayName}"
+                >
+                    Skickat
+                </strong>
+            </div>
+        </section>
+
+        <section class="details-section">
+            <h2>Preliminära flygtider</h2>
+
+            <div class="flight-times-card">
+                <div class="flight-times-grid">
+                    <section class="flight-times-leg">
+                        <h3 class="flight-times-leg-title">Utresa</h3>
+
+                        <div class="flight-route-line">
+                            <div class="flight-time-place">
+                                <strong th:text="${#temporals.format(booking.departure.outboundDepartureTime, 'HH:mm')}">
+                                    07:10
+                                </strong>
+
+                                <span>
+                                    <span th:text="${booking.departure.departureAirport}">
+                                        Göteborg Landvetter
+                                    </span>
+
+                                    <span
+                                            th:if="${!booking.departure.departureAirportCode.isBlank()}"
+                                            th:text="${'(' + booking.departure.departureAirportCode + ')'}"
+                                    >
+                                        (GOT)
+                                    </span>
+                                </span>
+
+                                <small th:text="${#temporals.format(booking.departure.departureDate, 'yyyy-MM-dd')}">
+                                    2026-09-08
+                                </small>
+                            </div>
+
+                            <div class="flight-track">
+                                <span th:text="${'Direktflyg · ' + booking.departure.outboundDurationLabel}">
+                                    Direktflyg · 3h 35m
+                                </span>
+
+                                <div class="flight-track-line"></div>
+                            </div>
+
+                            <div class="flight-time-place end">
+                                <strong th:text="${#temporals.format(booking.departure.outboundArrivalTime, 'HH:mm')}">
+                                    10:45
+                                </strong>
+
+                                <span>
+                                    <span th:text="${booking.departure.arrivalAirport}">
+                                        Palma de Mallorca
+                                    </span>
+
+                                    <span
+                                            th:if="${!booking.departure.arrivalAirportCode.isBlank()}"
+                                            th:text="${'(' + booking.departure.arrivalAirportCode + ')'}"
+                                    >
+                                        (PMI)
+                                    </span>
+                                </span>
+
+                                <small th:text="${#temporals.format(booking.departure.departureDate, 'yyyy-MM-dd')}">
+                                    2026-09-08
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="flight-meta-row">
+                            <span class="flight-logo">EriGo</span>
+                            <span class="flight-number-pill" th:text="${booking.departure.outboundFlightNumber}">
+                                ER101
+                            </span>
+                            <span class="flight-bag-icon"></span>
+                            <span>Incheckat bagage ingår</span>
+                        </div>
+
+                        <p class="flight-handbag-row">
+                            <strong>Handbagage</strong>
+                            Liten väska 30x40x20, ska få plats under sätet framför dig
+                        </p>
+                    </section>
+
+                    <section class="flight-times-leg">
+                        <h3 class="flight-times-leg-title">Hemresa</h3>
+
+                        <div class="flight-route-line">
+                            <div class="flight-time-place">
+                                <strong th:text="${#temporals.format(booking.departure.returnDepartureTime, 'HH:mm')}">
+                                    18:25
+                                </strong>
+
+                                <span>
+                                    <span th:text="${booking.departure.arrivalAirport}">
+                                        Palma de Mallorca
+                                    </span>
+
+                                    <span
+                                            th:if="${!booking.departure.arrivalAirportCode.isBlank()}"
+                                            th:text="${'(' + booking.departure.arrivalAirportCode + ')'}"
+                                    >
+                                        (PMI)
+                                    </span>
+                                </span>
+
+                                <small th:text="${#temporals.format(booking.departure.returnDate, 'yyyy-MM-dd')}">
+                                    2026-09-15
+                                </small>
+                            </div>
+
+                            <div class="flight-track">
+                                <span th:text="${'Direktflyg · ' + booking.departure.returnDurationLabel}">
+                                    Direktflyg · 3h 35m
+                                </span>
+
+                                <div class="flight-track-line"></div>
+                            </div>
+
+                            <div class="flight-time-place end">
+                                <strong th:text="${#temporals.format(booking.departure.returnArrivalTime, 'HH:mm')}">
+                                    22:00
+                                </strong>
+
+                                <span>
+                                    <span th:text="${booking.departure.departureAirport}">
+                                        Göteborg Landvetter
+                                    </span>
+
+                                    <span
+                                            th:if="${!booking.departure.departureAirportCode.isBlank()}"
+                                            th:text="${'(' + booking.departure.departureAirportCode + ')'}"
+                                    >
+                                        (GOT)
+                                    </span>
+                                </span>
+
+                                <small th:text="${#temporals.format(booking.departure.returnDate, 'yyyy-MM-dd')}">
+                                    2026-09-15
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="flight-meta-row">
+                            <span class="flight-logo">EriGo</span>
+                            <span class="flight-number-pill" th:text="${booking.departure.returnFlightNumber}">
+                                ER102
+                            </span>
+                            <span class="flight-bag-icon"></span>
+                            <span>Incheckat bagage ingår</span>
+                        </div>
+
+                        <p class="flight-handbag-row">
+                            <strong>Handbagage</strong>
+                            Liten väska 30x40x20, ska få plats under sätet framför dig
+                        </p>
+                    </section>
                 </div>
-            </article>
+            </div>
+        </section>
 
-            <article class="admin-panel">
-                <h2>
-                    Resa
-                </h2>
+        <section class="details-section">
+            <h2>Bokningsuppgifter</h2>
 
-                <div class="admin-fact-grid">
-                    <div>
-                        <span>Resmål</span>
-                        <strong th:text="${booking.departure.travel.destination}">Mallorca</strong>
-                    </div>
-
-                    <div>
-                        <span>Hotell</span>
-                        <strong th:text="${booking.departure.travel.hotelName}">Hotell</strong>
-                    </div>
-
-                    <div>
-                        <span>Avresa</span>
-                        <strong th:text="${#temporals.format(booking.departure.departureDate, 'dd MMM yyyy')}">
-                            12 aug 2026
-                        </strong>
-                    </div>
-
-                    <div>
-                        <span>Resenärer</span>
-                        <strong th:text="${booking.numberOfTravelers}">2</strong>
-                    </div>
+            <div class="details-grid">
+                <div>
+                    <span>Bokningsansvarig</span>
+                    <strong th:text="${booking.customer.firstName + ' ' + booking.customer.lastName}">
+                        Eric Thilen
+                    </strong>
                 </div>
-            </article>
 
-            <article class="admin-panel">
-                <h2>
-                    Betalning
-                </h2>
-
-                <div class="admin-fact-grid">
-                    <div>
-                        <span>Totalpris</span>
-                        <strong>
-                            <span th:text="${#numbers.formatInteger(booking.totalPrice, 1, 'WHITESPACE')}">0</span>
-                            kr
-                        </strong>
-                    </div>
-
-                    <div>
-                        <span>Inbetalt</span>
-                        <strong>
-                            <span th:text="${#numbers.formatInteger(booking.paidAmount, 1, 'WHITESPACE')}">0</span>
-                            kr
-                        </strong>
-                    </div>
-
-                    <div>
-                        <span>Bokningsstatus</span>
-                        <strong th:text="${booking.status.displayName}">Bekräftad</strong>
-                    </div>
-
-                    <div>
-                        <span>Betalningsstatus</span>
-                        <strong th:text="${booking.paymentStatus.displayName}">Inte betald</strong>
-                    </div>
+                <div>
+                    <span>E-postadress</span>
+                    <strong th:text="${booking.customer.email}">
+                        namn@exempel.se
+                    </strong>
                 </div>
-            </article>
 
-            <article class="admin-panel">
-                <h2>
+                <div>
+                    <span>Telefonnummer</span>
+                    <strong th:text="${booking.customer.phone}">
+                        070-123 45 67
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Bokningsdatum</span>
+                    <strong th:text="${#temporals.format(booking.bookedAt, 'dd MMMM yyyy HH:mm')}">
+                        13 juli 2026 18:30
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Antal resenärer</span>
+                    <strong th:text="${booking.numberOfTravelers}">2</strong>
+                </div>
+
+                <div>
+                    <span>Rumsfördelning</span>
+                    <strong th:text="${booking.roomDistribution}">
+                        Rum 1: 2 gäster
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Rumstyp</span>
+                    <strong th:text="${booking.roomType.name}">
+                        Standardrum
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Totalpris</span>
+                    <strong>
+                        <span th:text="${#numbers.formatInteger(booking.totalPrice, 1, 'WHITESPACE')}">
+                            14 990
+                        </span>
+                        kr
+                    </strong>
+                </div>
+
+                <div th:if="${booking.status.name() == 'CANCELLED'}">
+                    <span>Avbokningsorsak</span>
+                    <strong th:text="${booking.cancellationReason}">
+                        Personligt
+                    </strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="details-section">
+            <div class="payment-history-title-row">
+                <div>
+                    <h2>Redigera bokningsansvarig</h2>
+                    <p>Namn och kontaktuppgifter kan ändras fram till låsdatumet.</p>
+                </div>
+            </div>
+
+            <form
+                    class="admin-edit-form"
+                    th:action="@{/admin/bokningar/{id}/kontakt(id=${booking.id})}"
+                    th:object="${contactRequest}"
+                    method="post"
+            >
+                <label>
+                    Förnamn
+                    <input
+                            type="text"
+                            th:field="*{firstName}"
+                            th:disabled="${!canChangeBooking}"
+                            required
+                    >
+                </label>
+
+                <label>
+                    Efternamn
+                    <input
+                            type="text"
+                            th:field="*{lastName}"
+                            th:disabled="${!canChangeBooking}"
+                            required
+                    >
+                </label>
+
+                <label>
+                    Telefon
+                    <input
+                            type="text"
+                            th:field="*{phone}"
+                            th:disabled="${!canChangeBooking}"
+                            required
+                    >
+                </label>
+
+                <label>
                     E-post
-                </h2>
+                    <input
+                            type="email"
+                            th:field="*{email}"
+                            th:disabled="${!canChangeBooking}"
+                            required
+                    >
+                </label>
 
-                <div class="admin-fact-grid">
-                    <div>
-                        <span>Bokningsmejl</span>
-                        <strong th:text="${booking.bookingEmailStatus.displayName}">Skickat</strong>
-                    </div>
-
-                    <div>
-                        <span>Avbokningsmejl</span>
-                        <strong th:text="${booking.cancellationEmailStatus.displayName}">Inte skickat</strong>
-                    </div>
-                </div>
-            </article>
+                <button
+                        type="submit"
+                        th:disabled="${!canChangeBooking}"
+                >
+                    Spara bokningsansvarig
+                </button>
+            </form>
         </section>
 
-        <section class="admin-panel">
-            <div class="admin-section-title">
-                <h2>
-                    Betalningshistorik
-                </h2>
+        <section class="details-section">
+            <div class="payment-history-title-row">
+                <div>
+                    <h2>Resenärer</h2>
+                    <p>Resenärsnamn kan rättas före avresa. Personnummer visas men ändras inte här.</p>
+                </div>
+            </div>
+
+            <div class="traveler-list admin-traveler-edit-list">
+                <form
+                        class="traveler-item admin-traveler-edit-item"
+                        th:each="traveler, status : ${booking.travelers}"
+                        th:action="@{/admin/bokningar/{bookingId}/resenarer/{travelerId}(
+                                bookingId=${booking.id},
+                                travelerId=${traveler.id}
+                        )}"
+                        method="post"
+                >
+                    <div>
+                        <span>
+                            Resenär
+                            <span th:text="${status.index + 1}">1</span>
+                        </span>
+
+                        <small th:text="${traveler.personalNumber}">
+                            20030101-1234
+                        </small>
+                    </div>
+
+                    <label>
+                        Förnamn
+                        <input
+                                name="firstName"
+                                type="text"
+                                th:value="${traveler.firstName}"
+                                th:disabled="${!canChangeBooking}"
+                                required
+                        >
+                    </label>
+
+                    <label>
+                        Efternamn
+                        <input
+                                name="lastName"
+                                type="text"
+                                th:value="${traveler.lastName}"
+                                th:disabled="${!canChangeBooking}"
+                                required
+                        >
+                    </label>
+
+                    <button
+                            type="submit"
+                            th:disabled="${!canChangeBooking}"
+                    >
+                        Spara
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <section class="details-section payment-details">
+            <div class="payment-heading-row">
+                <h2>Betalningsinformation</h2>
+
+                <span
+                        class="payment-status-badge"
+                        th:classappend="${booking.paymentStatus.name() == 'PAID'} ? ' paid' :
+                        (${booking.paymentStatus.name() == 'REFUNDED'} ? ' refunded' : '')"
+                        th:text="${booking.paymentStatus.displayName}"
+                >
+                    Inte betald
+                </span>
             </div>
 
             <div
-                    class="empty-admin-list"
+                    class="cancelled-payment-summary"
+                    th:if="${booking.status.name() == 'CANCELLED'}"
+            >
+                <p>
+                    <span>Inbetalt belopp</span>
+                    <strong>
+                        <span th:text="${#numbers.formatInteger(booking.paidAmount, 1, 'WHITESPACE')}">0</span>
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>Avbokningskostnad</span>
+                    <strong>
+                        <span th:text="${#numbers.formatInteger(booking.cancellationFee, 1, 'WHITESPACE')}">0</span>
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>Återbetalning</span>
+                    <strong>
+                        <span th:text="${#numbers.formatInteger(booking.refundAmount, 1, 'WHITESPACE')}">0</span>
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>Kvar att betala</span>
+                    <strong>0 kr</strong>
+                </p>
+            </div>
+
+            <div
+                    th:if="${booking.status.name() == 'CONFIRMED'
+                    and booking.paymentPlan.name() == 'STANDARD_DEPOSIT'}"
+            >
+                <p>
+                    <span>Handpenning</span>
+                    <strong>
+                        <span th:text="${#numbers.formatInteger(booking.depositAmount, 1, 'WHITESPACE')}">2 250</span>
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>Handpenning senast</span>
+                    <strong th:text="${#temporals.format(booking.depositDueDate, 'dd MMMM yyyy')}">
+                        20 juli 2026
+                    </strong>
+                </p>
+
+                <p>
+                    <span>Inbetalt belopp</span>
+                    <strong>
+                        <span th:text="${#numbers.formatInteger(booking.paidAmount, 1, 'WHITESPACE')}">0</span>
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>Återstående belopp</span>
+                    <strong>
+                        <span th:text="${#numbers.formatInteger(booking.remainingAmount, 1, 'WHITESPACE')}">12 740</span>
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>Slutbetalning senast</span>
+                    <strong th:text="${#temporals.format(booking.finalPaymentDueDate, 'dd MMMM yyyy')}">
+                        12 augusti 2026
+                    </strong>
+                </p>
+            </div>
+
+            <div
+                    th:if="${booking.status.name() == 'CONFIRMED'
+                    and booking.paymentPlan.name() == 'IMMEDIATE_DEPOSIT'}"
+            >
+                <p>
+                    <span>Handpenning som betalas direkt</span>
+                    <strong>
+                        <span th:text="${#numbers.formatInteger(booking.depositAmount, 1, 'WHITESPACE')}">2 250</span>
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>Inbetalt belopp</span>
+                    <strong>
+                        <span th:text="${#numbers.formatInteger(booking.paidAmount, 1, 'WHITESPACE')}">0</span>
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>Återstående belopp</span>
+                    <strong>
+                        <span th:text="${#numbers.formatInteger(booking.remainingAmount, 1, 'WHITESPACE')}">12 740</span>
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>Slutbetalning senast</span>
+                    <strong th:text="${#temporals.format(booking.finalPaymentDueDate, 'dd MMMM yyyy')}">
+                        20 juli 2026
+                    </strong>
+                </p>
+            </div>
+
+            <div
+                    th:if="${booking.status.name() == 'CONFIRMED'
+                    and booking.paymentPlan.name() == 'FULL_PAYMENT'}"
+            >
+                <p>
+                    <span>Hela beloppet</span>
+                    <strong>
+                        <span th:text="${#numbers.formatInteger(booking.totalPrice, 1, 'WHITESPACE')}">14 990</span>
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>Inbetalt belopp</span>
+                    <strong>
+                        <span th:text="${#numbers.formatInteger(booking.paidAmount, 1, 'WHITESPACE')}">0</span>
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>Återstående belopp</span>
+                    <strong>
+                        <span th:text="${#numbers.formatInteger(booking.remainingAmount, 1, 'WHITESPACE')}">14 990</span>
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>Förfallodatum</span>
+                    <strong th:text="${#temporals.format(booking.finalPaymentDueDate, 'dd MMMM yyyy')}">
+                        13 juli 2026
+                    </strong>
+                </p>
+            </div>
+        </section>
+
+        <section class="details-section payment-history-section">
+            <div class="payment-history-title-row">
+                <div>
+                    <h2>Betalningshistorik</h2>
+                    <p>Alla betalningar som har registrerats på bokningen.</p>
+                </div>
+
+                <span class="payment-history-count">
+                    <span th:text="${payments.size()}">0</span>
+                    betalningar
+                </span>
+            </div>
+
+            <div
+                    class="empty-customer-payment-history"
                     th:if="${payments.isEmpty()}"
             >
-                Inga betalningar finns registrerade.
+                Inga betalningar har registrerats ännu.
             </div>
 
             <div
-                    class="admin-booking-list"
+                    class="customer-payment-history"
                     th:unless="${payments.isEmpty()}"
             >
                 <article
-                        class="admin-booking-row"
+                        class="customer-payment-item"
                         th:each="payment : ${payments}"
                 >
+                    <div class="customer-payment-icon">✓</div>
+
+                    <div class="customer-payment-content">
+                        <div class="customer-payment-heading">
+                            <div>
+                                <h3>Betalning registrerad</h3>
+
+                                <p th:text="${#temporals.format(payment.paymentDate, 'dd MMMM yyyy')}">
+                                    14 juli 2026
+                                </p>
+                            </div>
+
+                            <strong>
+                                <span th:text="${#numbers.formatInteger(payment.amount, 1, 'WHITESPACE')}">2 250</span>
+                                kr
+                            </strong>
+                        </div>
+
+                        <div class="customer-payment-meta">
+                            <span>
+                                Betalningssätt:
+                                <strong th:text="${payment.paymentMethod.displayName}">Swish</strong>
+                            </span>
+
+                            <span>
+                                Referens:
+                                <strong th:text="${payment.reference}">SWISH-TEST-001</strong>
+                            </span>
+
+                            <span>
+                                Registrerad:
+                                <strong th:text="${#temporals.format(payment.registeredAt, 'dd MMMM yyyy HH:mm')}">
+                                    14 juli 2026 12:30
+                                </strong>
+                            </span>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="details-section">
+            <div class="payment-history-title-row">
+                <div>
+                    <h2>Journalanteckningar</h2>
+                    <p>Interna agentanteckningar. Kunden kan inte se dem.</p>
+                </div>
+            </div>
+
+            <form
+                    class="admin-note-form"
+                    th:action="@{/admin/bokningar/{id}/anteckningar(id=${booking.id})}"
+                    th:object="${noteRequest}"
+                    method="post"
+            >
+                <textarea
+                        rows="4"
+                        th:field="*{note}"
+                        placeholder="Skriv en intern anteckning..."
+                        required
+                ></textarea>
+
+                <button type="submit">
+                    Spara anteckning
+                </button>
+            </form>
+
+            <div
+                    class="empty-customer-payment-history"
+                    th:if="${notes.isEmpty()}"
+            >
+                Inga journalanteckningar finns ännu.
+            </div>
+
+            <div
+                    class="admin-history-list"
+                    th:unless="${notes.isEmpty()}"
+            >
+                <article
+                        class="admin-history-item"
+                        th:each="note : ${notes}"
+                >
                     <div>
-                        <strong>
-                            <span th:text="${#numbers.formatInteger(payment.amount, 1, 'WHITESPACE')}">0</span>
-                            kr
-                        </strong>
-
-                        <span th:text="${payment.reference}">
-                            REF
+                        <strong th:text="${note.createdBy}">Admin</strong>
+                        <span th:text="${#temporals.format(note.createdAt, 'yyyy-MM-dd HH:mm')}">
+                            2026-07-22
                         </span>
                     </div>
 
-                    <div class="admin-row-meta">
-                        <span th:text="${payment.paymentMethod.displayName}">
-                            Bank
-                        </span>
+                    <p th:text="${note.note}">
+                        Anteckning
+                    </p>
+                </article>
+            </div>
+        </section>
 
-                        <span th:text="${#temporals.format(payment.paymentDate, 'dd MMM yyyy')}">
-                            14 jul 2026
+        <section class="details-section">
+            <div class="payment-history-title-row">
+                <div>
+                    <h2>Händelsehistorik</h2>
+                    <p>Systemhändelser och adminåtgärder på bokningen.</p>
+                </div>
+            </div>
+
+            <div
+                    class="empty-customer-payment-history"
+                    th:if="${events.isEmpty()}"
+            >
+                Inga händelser har loggats ännu.
+            </div>
+
+            <div
+                    class="admin-history-list"
+                    th:unless="${events.isEmpty()}"
+            >
+                <article
+                        class="admin-history-item"
+                        th:each="event : ${events}"
+                >
+                    <div>
+                        <strong th:text="${event.title}">Bokning skapad</strong>
+                        <span>
+                            <span th:text="${#temporals.format(event.createdAt, 'yyyy-MM-dd HH:mm')}">
+                                2026-07-22
+                            </span>
+                            ·
+                            <span th:text="${event.createdBy}">Admin</span>
                         </span>
                     </div>
+
+                    <p th:text="${event.description}">
+                        Beskrivning
+                    </p>
                 </article>
             </div>
         </section>
     </section>
 </main>
+
+<footer class="site-footer">
+    <div>
+        <strong>EriGo Travel</strong>
+        <p>Resor att längta efter.</p>
+    </div>
+
+    <p>© 2026 EriGo Travel</p>
+</footer>
 
 <script src="/js/home.js" defer></script>
 

@@ -24,6 +24,16 @@ import java.util.Optional;
 @Controller
 public class BookingController {
 
+    private static final List<String> CANCELLATION_REASONS = List.of(
+            "Personligt",
+            "Sjukdom",
+            "Vill inte resa",
+            "Arbete eller studier",
+            "Familjeskäl",
+            "Ekonomiska skäl",
+            "Annat"
+    );
+
     private final BookingService bookingService;
     private final PaymentService paymentService;
 
@@ -127,6 +137,10 @@ public class BookingController {
                 "cancellationRequest",
                 new CancellationRequest()
         );
+        model.addAttribute(
+                "cancellationReasons",
+                CANCELLATION_REASONS
+        );
 
         return "booking-cancellation";
     }
@@ -172,13 +186,18 @@ public class BookingController {
                     "cancellationSummary",
                     cancellationSummary
             );
+            model.addAttribute(
+                    "cancellationReasons",
+                    CANCELLATION_REASONS
+            );
 
             return "booking-cancellation";
         }
 
         bookingService.cancelBooking(
                 bookingId,
-                authentication.getName()
+                authentication.getName(),
+                cancellationRequest.getCancellationReason()
         );
 
         return "redirect:/mina-bokningar/"

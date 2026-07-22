@@ -209,6 +209,29 @@
             th:object="${cancellationRequest}"
             method="post"
     >
+      <label class="cancellation-reason-field">
+        <span>Varför vill du avboka?</span>
+
+        <select th:field="*{cancellationReason}">
+          <option value="">Välj anledning</option>
+          <option
+                  th:each="reason : ${cancellationReasons}"
+                  th:value="${reason}"
+                  th:text="${reason}"
+          >
+            Personligt
+          </option>
+        </select>
+      </label>
+
+      <p
+              class="cancellation-error"
+              th:if="${#fields.hasErrors('cancellationReason')}"
+              th:errors="*{cancellationReason}"
+      >
+        Välj en anledning.
+      </p>
+
       <label class="cancellation-confirmation">
         <input
                 type="checkbox"
