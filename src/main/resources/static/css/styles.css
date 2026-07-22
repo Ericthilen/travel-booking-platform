@@ -206,6 +206,16 @@ select {
 .luxury-search {
     position: relative;
     transform: translateY(24px);
+    overflow: visible;
+    transition: margin-bottom 0.22s ease;
+}
+
+.luxury-search.has-visible-suggestions {
+    margin-bottom: 214px;
+}
+
+.home-search-field {
+    position: relative;
 }
 
 .search-field label {
@@ -231,6 +241,98 @@ select {
 .search-field input:focus,
 .search-field select:focus {
     border-color: var(--primary-color);
+}
+
+.home-search-popover {
+    width: min(560px, calc(100vw - 44px));
+    max-height: 210px;
+    position: absolute;
+    top: calc(100% + 12px);
+    left: 0;
+    z-index: 120;
+    overflow: auto;
+    background: var(--white);
+    border: 1px solid rgba(183, 193, 205, 0.9);
+    border-radius: 18px;
+    box-shadow: 0 28px 70px rgba(7, 28, 36, 0.24);
+}
+
+.home-search-popover[hidden] {
+    display: none;
+}
+
+.home-search-suggestion {
+    padding: 15px 18px;
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    gap: 14px;
+    align-items: center;
+    color: var(--text-color);
+    text-decoration: none;
+    border-bottom: 1px solid #edf0ef;
+}
+
+.home-search-suggestion:last-child {
+    border-bottom: 0;
+}
+
+.home-search-suggestion:hover,
+.home-search-suggestion:focus-visible {
+    background: #f3faf9;
+    outline: none;
+}
+
+.home-search-suggestion.is-hidden {
+    display: none;
+}
+
+.home-suggestion-icon {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    color: var(--primary-color);
+    background: #e8f6f7;
+    border-radius: 50%;
+    font-size: 24px;
+}
+
+.home-search-suggestion strong,
+.home-search-suggestion small,
+.home-search-suggestion em {
+    display: block;
+}
+
+.home-search-suggestion strong {
+    margin-bottom: 4px;
+    color: #102126;
+    font-size: 16px;
+    line-height: 1.2;
+}
+
+.home-search-suggestion small {
+    color: #4f5c61;
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 13px;
+    font-weight: 750;
+    line-height: 1.35;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.home-search-suggestion em {
+    margin-top: 6px;
+    color: #102126;
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 850;
+}
+
+.home-search-suggestion b {
+    color: #102126;
+    font-size: 15px;
+    white-space: nowrap;
 }
 
 .search-button {
@@ -726,6 +828,10 @@ select {
         transform: none;
     }
 
+    .home-search-popover {
+        width: 100%;
+    }
+
     .benefits {
         width: 90%;
         grid-template-columns: 1fr;
@@ -767,6 +873,14 @@ select {
 
     .benefits {
         margin-top: -60px;
+    }
+
+    .home-search-suggestion {
+        grid-template-columns: 36px minmax(0, 1fr);
+    }
+
+    .home-search-suggestion b {
+        grid-column: 2;
     }
 
     .destinations-section {

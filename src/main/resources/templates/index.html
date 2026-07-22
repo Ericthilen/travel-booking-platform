@@ -31,16 +31,64 @@
                 skapade för dig som vill resa enkelt, snyggt och säkert.
             </p>
 
-            <form class="search-form luxury-search">
-                <div class="search-field">
+            <form class="search-form luxury-search" th:action="@{/resor}" method="get">
+                <div class="search-field home-search-field">
                     <label for="destination">Resmål</label>
 
                     <input
                             id="destination"
                             name="destination"
                             type="text"
+                            autocomplete="off"
                             placeholder="Mallorca, Kreta, Antalya"
                     >
+
+                    <div class="home-search-popover" data-home-suggestions hidden>
+                        <a
+                                class="home-search-suggestion"
+                                th:each="suggestionTravel : ${allTravels}"
+                                th:href="@{/resor/{id}(id=${suggestionTravel.id})}"
+                                th:data-search="${(
+                                        suggestionTravel.destination + ' '
+                                        + suggestionTravel.hotelName
+                                ).toLowerCase()}"
+                        >
+                            <span class="home-suggestion-icon">✈</span>
+
+                            <span>
+                                <strong th:text="${suggestionTravel.destination + ' ' + suggestionTravel.hotelName}">
+                                    Mallorca Mat & Vin
+                                </strong>
+
+                                <small th:text="${suggestionTravel.description}">
+                                    Smakfyllda upplevelser
+                                </small>
+
+                                <em>
+                                    <span
+                                            th:text="${departureCounts.get(suggestionTravel.id) != null ? departureCounts.get(suggestionTravel.id) : 0}"
+                                    >
+                                        8
+                                    </span>
+                                    avgångar
+                                    <span th:text="${suggestionTravel.nights + 1}">
+                                        8
+                                    </span>
+                                    dagar
+                                </em>
+                            </span>
+
+                            <b>
+                                fr.
+                                <span
+                                        th:text="${#numbers.formatInteger(suggestionTravel.price, 1, 'WHITESPACE')}"
+                                >
+                                    12 475
+                                </span>
+                                :-
+                            </b>
+                        </a>
+                    </div>
                 </div>
 
                 <div class="search-field">
@@ -48,7 +96,7 @@
 
                     <input
                             id="departureDate"
-                            name="departureDate"
+                            name="earliestDepartureDate"
                             type="date"
                     >
                 </div>
