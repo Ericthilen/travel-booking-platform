@@ -32,39 +32,129 @@
             </div>
 
             <form class="travel-filter-form" th:action="@{/resor}" method="get">
+                <input
+                        type="hidden"
+                        name="calendarMonth"
+                        th:value="${calendarMonthValue}"
+                        data-calendar-month-input
+                >
+
                 <label>
                     Resmål
-                    <select
+                    <input
                             name="destination"
+                            type="search"
+                            placeholder="Sök destination"
+                            th:value="${destination}"
                     >
-                        <option value="">Alla resmål</option>
+                </label>
+
+                <label>
+                    Land
+                    <select name="country">
+                        <option value="">Alla länder</option>
                         <option
-                                th:each="destinationOption : ${destinations}"
-                                th:value="${destinationOption}"
-                                th:selected="${destinationOption == destination}"
-                                th:text="${destinationOption}"
+                                th:each="countryOption : ${countries}"
+                                th:value="${countryOption}"
+                                th:selected="${countryOption == country}"
+                                th:text="${countryOption}"
                         >
-                            Antalya
+                            Spanien
                         </option>
                     </select>
                 </label>
 
                 <label>
-                    Avresa
+                    Avreseflygplats
+                    <select name="departureAirport">
+                        <option value="">Alla flygplatser</option>
+                        <option
+                                th:each="airportOption : ${departureAirports}"
+                                th:value="${airportOption}"
+                                th:selected="${airportOption == departureAirport}"
+                                th:text="${airportOption}"
+                        >
+                            Stockholm Arlanda
+                        </option>
+                    </select>
+                </label>
+
+                <label>
+                    Tidigaste avresa
                     <input
                             type="date"
-                            name="departureDate"
-                            th:value="${departureDate}"
+                            name="earliestDepartureDate"
+                            th:value="${earliestDepartureDate}"
                     >
                 </label>
 
                 <label>
+                    Senaste avresa
+                    <input
+                            type="date"
+                            name="latestDepartureDate"
+                            th:value="${latestDepartureDate}"
+                    >
+                </label>
+
+                <div class="departure-calendar-filter">
+                    <div class="departure-calendar-heading">
+                        <span>Avgångar</span>
+
+                        <div>
+                            <button
+                                    type="button"
+                                    aria-label="Föregående månad"
+                                    th:attr="data-calendar-month=${calendarPreviousMonth}"
+                            >
+                                ‹
+                            </button>
+
+                            <strong>
+                                <span th:text="${calendarMonth}">juli</span>
+                                <span th:text="${calendarYear}">2026</span>
+                            </strong>
+
+                            <button
+                                    type="button"
+                                    aria-label="Nästa månad"
+                                    th:attr="data-calendar-month=${calendarNextMonth}"
+                            >
+                                ›
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="departure-calendar-grid">
+                        <span>Mån</span>
+                        <span>Tis</span>
+                        <span>Ons</span>
+                        <span>Tor</span>
+                        <span>Fre</span>
+                        <span>Lör</span>
+                        <span>Sön</span>
+
+                        <button
+                                type="button"
+                                th:each="calendarDay : ${calendarDays}"
+                                th:classappend="${(calendarDay.available ? ' is-available' : ' is-unavailable') + (calendarDay.selected ? ' is-selected' : '')}"
+                                th:attr="data-date=${calendarDay.date}"
+                                th:disabled="${!calendarDay.available}"
+                        >
+                            <span th:text="${calendarDay.dayOfMonth}">12</span>
+                        </button>
+                    </div>
+                </div>
+
+                <label>
                     Resenärer
                     <select name="travelers">
-                        <option>2 vuxna</option>
-                        <option>1 vuxen</option>
-                        <option>2 vuxna, 1 barn</option>
-                        <option>2 vuxna, 2 barn</option>
+                        <option value="">Alla sällskap</option>
+                        <option value="1" th:selected="${travelers == 1}">1 resenär</option>
+                        <option value="2" th:selected="${travelers == 2}">2 resenärer</option>
+                        <option value="3" th:selected="${travelers == 3}">3 resenärer</option>
+                        <option value="4" th:selected="${travelers == 4}">4 resenärer</option>
+                        <option value="5" th:selected="${travelers == 5}">5 resenärer</option>
                     </select>
                 </label>
 
@@ -80,6 +170,31 @@
                         >
                             7 nätter
                         </option>
+                    </select>
+                </label>
+
+                <label>
+                    Måltidstyp
+                    <select name="mealType">
+                        <option value="">Alla måltider</option>
+                        <option
+                                th:each="mealOption : ${mealTypes}"
+                                th:value="${mealOption}"
+                                th:selected="${mealOption == mealType}"
+                                th:text="${mealOption}"
+                        >
+                            Frukost
+                        </option>
+                    </select>
+                </label>
+
+                <label>
+                    Hotellstjärnor
+                    <select name="hotelStars">
+                        <option value="">Alla standarder</option>
+                        <option value="3" th:selected="${hotelStars == 3}">Minst 3 stjärnor</option>
+                        <option value="4" th:selected="${hotelStars == 4}">Minst 4 stjärnor</option>
+                        <option value="5" th:selected="${hotelStars == 5}">5 stjärnor</option>
                     </select>
                 </label>
 
@@ -104,6 +219,48 @@
                             20 000+ kr
                         </span>
                     </div>
+                </div>
+
+                <div class="filter-checks">
+                    <label>
+                        <input
+                                type="checkbox"
+                                name="onlyAvailable"
+                                value="true"
+                                th:checked="${onlyAvailable}"
+                        >
+                        Endast resor med lediga platser
+                    </label>
+
+                    <label>
+                        <input
+                                type="checkbox"
+                                name="pool"
+                                value="true"
+                                th:checked="${pool}"
+                        >
+                        Pool
+                    </label>
+
+                    <label>
+                        <input
+                                type="checkbox"
+                                name="beach"
+                                value="true"
+                                th:checked="${beach}"
+                        >
+                        Strand
+                    </label>
+
+                    <label>
+                        <input
+                                type="checkbox"
+                                name="family"
+                                value="true"
+                                th:checked="${family}"
+                        >
+                        Familjevänligt
+                    </label>
                 </div>
 
                 <button type="submit">
@@ -132,7 +289,13 @@
                     <input type="hidden" name="nights" th:value="${nights}">
                     <input type="hidden" name="mealType" th:value="${mealType}">
                     <input type="hidden" name="departureAirport" th:value="${departureAirport}">
-                    <input type="hidden" name="departureDate" th:value="${departureDate}">
+                    <input type="hidden" name="earliestDepartureDate" th:value="${earliestDepartureDate}">
+                    <input type="hidden" name="latestDepartureDate" th:value="${latestDepartureDate}">
+                    <input type="hidden" name="travelers" th:value="${travelers}">
+                    <input type="hidden" name="onlyAvailable" th:if="${onlyAvailable}" value="true">
+                    <input type="hidden" name="pool" th:if="${pool}" value="true">
+                    <input type="hidden" name="beach" th:if="${beach}" value="true">
+                    <input type="hidden" name="family" th:if="${family}" value="true">
 
                     <label>
                         Sortera efter
@@ -146,8 +309,11 @@
                             <option value="price-high" th:selected="${sort == 'price-high'}">
                                 Högst pris
                             </option>
-                            <option value="hotel" th:selected="${sort == 'hotel'}">
-                                Hotellnamn
+                            <option value="earliest-departure" th:selected="${sort == 'earliest-departure'}">
+                                Tidigaste avgång
+                            </option>
+                            <option value="hotel-rating" th:selected="${sort == 'hotel-rating'}">
+                                Hotellbetyg
                             </option>
                         </select>
                     </label>
@@ -169,6 +335,34 @@
 
                 <span th:if="${departureAirport != null and !departureAirport.isBlank()}">
                     Flygplats: <strong th:text="${departureAirport}">Göteborg</strong>
+                </span>
+
+                <span th:if="${earliestDepartureDate != null}">
+                    Från: <strong th:text="${earliestDepartureDate}">2026-06-01</strong>
+                </span>
+
+                <span th:if="${latestDepartureDate != null}">
+                    Till: <strong th:text="${latestDepartureDate}">2026-08-01</strong>
+                </span>
+
+                <span th:if="${travelers != null}">
+                    Resenärer: <strong th:text="${travelers}">2</strong>
+                </span>
+
+                <span th:if="${nights != null}">
+                    Nätter: <strong th:text="${nights}">7</strong>
+                </span>
+
+                <span th:if="${hotelStars != null}">
+                    Hotell: <strong th:text="${hotelStars + '+ stjärnor'}">4+ stjärnor</strong>
+                </span>
+
+                <span th:if="${maxPrice != null}">
+                    Maxpris: <strong th:text="${#numbers.formatInteger(maxPrice, 1, 'WHITESPACE') + ' kr'}">10 000 kr</strong>
+                </span>
+
+                <span th:if="${onlyAvailable}">
+                    Lediga platser
                 </span>
             </div>
 
@@ -209,6 +403,10 @@
                             Hotellnamn
                         </h3>
 
+                        <div class="travel-rating-line">
+                            <span th:each="star : ${#numbers.sequence(1, travel.hotelStars)}">★</span>
+                        </div>
+
                         <p
                                 class="travel-description"
                                 th:text="${travel.description}"
@@ -229,6 +427,13 @@
                                 ✓
                                 <span th:text="${travel.mealType}">
                                     Frukost
+                                </span>
+                            </span>
+
+                            <span>
+                                ✓
+                                <span th:text="${travel.departureAirport}">
+                                    Stockholm Arlanda
                                 </span>
                             </span>
                         </div>

@@ -4,6 +4,7 @@ import com.ericthilen.travelbookingplatform.model.Departure;
 import com.ericthilen.travelbookingplatform.repository.DepartureRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,5 +34,13 @@ public class DepartureService {
 
     public Optional<Departure> getDepartureById(Long id) {
         return departureRepository.findById(id);
+    }
+
+    public List<String> getBookableDepartureAirports() {
+        return departureRepository.findBookableDepartureAirports();
+    }
+
+    public List<LocalDate> getBookableDepartureDatesFrom(LocalDate date) {
+        return departureRepository.findBookableDepartureDatesFrom(date);
     }
 }

@@ -7,7 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface TravelRepository extends JpaRepository<Travel, Long> {
+public interface TravelRepository
+        extends JpaRepository<Travel, Long>, TravelSearchRepository {
 
     List<Travel> findAllByStatusOrderByDestinationAsc(
             ManagementStatus status
