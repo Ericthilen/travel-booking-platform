@@ -522,13 +522,51 @@
                     </strong>
                 </div>
 
+                <div th:if="${booking.discountAmount > 0}">
+                    <span>Ordinarie pris</span>
+                    <strong>
+                        <span th:text="${#numbers.formatInteger(booking.originalTotalPrice, 1, 'WHITESPACE')}">
+                            14 990
+                        </span>
+                        kr
+                    </strong>
+                </div>
+
+                <div th:if="${booking.discountAmount > 0}">
+                    <span>Rabatt</span>
+                    <strong>
+                        <span th:text="${booking.discountName}">
+                            ERGO500
+                        </span>
+                        -
+                        <span th:text="${#numbers.formatInteger(booking.discountAmount, 1, 'WHITESPACE')}">
+                            500
+                        </span>
+                        kr
+                    </strong>
+                </div>
+
                 <div>
                     <span>Totalpris</span>
                     <strong>
                         <span th:text="${#numbers.formatInteger(booking.totalPrice, 1, 'WHITESPACE')}">
-                            14 990
+                            14 490
                         </span>
                         kr
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Villkorsversion</span>
+                    <strong th:text="${booking.termsVersion != null ? booking.termsVersion : 'Saknas'}">
+                        2026-07-22
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Villkor godkända</span>
+                    <strong th:text="${booking.termsAcceptedAt != null ? #temporals.format(booking.termsAcceptedAt, 'dd MMMM yyyy HH:mm') : 'Saknas'}">
+                        22 juli 2026 12:30
                     </strong>
                 </div>
 
@@ -711,6 +749,92 @@
                     <span>Kvar att betala</span>
                     <strong>0 kr</strong>
                 </p>
+            </div>
+
+            <div
+                    class="payment-discount-summary"
+                    th:if="${booking.discountAmount > 0}"
+            >
+                <p>
+                    <span>Ordinarie pris</span>
+                    <strong>
+                        <span th:text="${#numbers.formatInteger(booking.originalTotalPrice, 1, 'WHITESPACE')}">
+                            9 385
+                        </span>
+                        kr
+                    </strong>
+                </p>
+
+                <p class="discount-line">
+                    <span>
+                        Rabatt
+                        <span th:text="${booking.discountName}">ERGO500</span>
+                    </span>
+                    <strong>
+                        -
+                        <span th:text="${#numbers.formatInteger(booking.discountAmount, 1, 'WHITESPACE')}">
+                            500
+                        </span>
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>Pris efter rabatt</span>
+                    <strong>
+                        <span th:text="${#numbers.formatInteger(booking.totalPrice, 1, 'WHITESPACE')}">
+                            8 885
+                        </span>
+                        kr
+                    </strong>
+                </p>
+            </div>
+
+            <div
+                    class="payment-discount-entry"
+                    id="admin-rabattkod"
+            >
+                <h3>Lägg till rabattkod</h3>
+
+                <p class="email-status-description">
+                    Admin kan lägga till rabattkod på kundens bokning från betalningsinformationen.
+                </p>
+
+                <form
+                        class="discount-code-form admin-discount-form"
+                        th:action="@{/admin/bokningar/{id}/rabattkod(id=${booking.id})}"
+                        method="post"
+                >
+                    <label>
+                        Rabattkod
+                        <input
+                                type="text"
+                                name="code"
+                                placeholder="Till exempel ergo500"
+                                required
+                        >
+                    </label>
+
+                    <button type="submit">
+                        Lägg till rabattkod
+                    </button>
+                </form>
+
+                <div
+                        class="details-message success-message inline-section-message"
+                        th:if="${adminDiscountMessage != null}"
+                        th:text="${adminDiscountMessage}"
+                >
+                    Rabattkoden har lagts till.
+                </div>
+
+                <div
+                        class="details-message error-message inline-section-message"
+                        th:if="${adminDiscountError != null}"
+                        th:text="${adminDiscountError}"
+                >
+                    Rabattkoden kunde inte användas.
+                </div>
             </div>
 
             <div
@@ -898,7 +1022,10 @@
             </div>
         </section>
 
-        <section class="details-section">
+        <section
+                class="details-section"
+                id="journalanteckningar"
+        >
             <div class="payment-history-title-row">
                 <div>
                     <h2>Journalanteckningar</h2>
@@ -923,6 +1050,22 @@
                     Spara anteckning
                 </button>
             </form>
+
+            <div
+                    class="details-message success-message inline-section-message"
+                    th:if="${adminNoteMessage != null}"
+                    th:text="${adminNoteMessage}"
+            >
+                Anteckningen har sparats.
+            </div>
+
+            <div
+                    class="details-message error-message inline-section-message"
+                    th:if="${adminNoteError != null}"
+                    th:text="${adminNoteError}"
+            >
+                Anteckningen kunde inte sparas.
+            </div>
 
             <div
                     class="empty-customer-payment-history"
