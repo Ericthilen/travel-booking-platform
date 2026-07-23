@@ -58,6 +58,15 @@ public class Booking {
     @Column(nullable = false)
     private int totalPrice;
 
+    @Column(nullable = false, columnDefinition = "int default 0")
+    private int originalTotalPrice;
+
+    @Column(nullable = false, columnDefinition = "int default 0")
+    private int discountAmount = 0;
+
+    @Column(length = 120)
+    private String discountName;
+
     @Column(nullable = false)
     private LocalDateTime bookedAt;
 
@@ -67,6 +76,11 @@ public class Booking {
 
     @Column(nullable = false)
     private boolean termsAccepted;
+
+    @Column(length = 40)
+    private String termsVersion;
+
+    private LocalDateTime termsAcceptedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -155,6 +169,8 @@ public class Booking {
             int totalPrice,
             LocalDateTime bookedAt,
             DiscoverySource discoverySource,
+            String termsVersion,
+            LocalDateTime termsAcceptedAt,
             PaymentPlan paymentPlan,
             int depositAmount,
             LocalDate depositDueDate,
@@ -169,9 +185,13 @@ public class Booking {
         this.numberOfTravelers = numberOfTravelers;
         this.numberOfRooms = numberOfRooms;
         this.totalPrice = totalPrice;
+        this.originalTotalPrice = totalPrice;
+        this.discountAmount = 0;
         this.bookedAt = bookedAt;
         this.discoverySource = discoverySource;
         this.termsAccepted = true;
+        this.termsVersion = termsVersion;
+        this.termsAcceptedAt = termsAcceptedAt;
         this.paymentPlan = paymentPlan;
         this.depositAmount = depositAmount;
         this.depositDueDate = depositDueDate;
@@ -322,6 +342,68 @@ public class Booking {
         return totalPrice;
     }
 
+    public int getOriginalTotalPrice() {
+        if (originalTotalPrice <= 0) {
+            return totalPrice + discountAmount;
+        }
+
+        return originalTotalPrice;
+    }
+
+    public int getDiscountAmount() {
+        return discountAmount;
+    }
+
+    public String getDiscountName() {
+        return discountName;
+    }
+
+    public boolean hasDiscount() {
+        return discountAmount > 0;
+    }
+
+    public void applyDiscount(
+            String discountName,
+            int discountAmount,
+            int originalTotalPrice,
+            int newTotalPrice,
+            int newDepositAmount,
+            LocalDate newDepositDueDate,
+            int newRemainingAmount,
+            LocalDate newFinalPaymentDueDate
+    ) {
+        if (status == BookingStatus.CANCELLED) {
+            throw new IllegalStateException(
+                    "Det går inte att lägga rabatt på en avbokad bokning."
+            );
+        }
+
+        this.discountName = discountName;
+        this.discountAmount = Math.max(0, discountAmount);
+        this.originalTotalPrice = originalTotalPrice;
+        this.totalPrice = newTotalPrice;
+        this.depositAmount = newDepositAmount;
+        this.depositDueDate = newDepositDueDate;
+        if (paidAmount > 0) {
+            this.remainingAmount = newTotalPrice - paidAmount;
+        } else {
+            this.remainingAmount = newRemainingAmount;
+        }
+        this.finalPaymentDueDate = newFinalPaymentDueDate;
+
+        if (this.remainingAmount < 0) {
+            this.remainingAmount = 0;
+        }
+
+        if (paidAmount >= totalPrice) {
+            paymentStatus = PaymentStatus.PAID;
+        } else if (paidAmount > 0) {
+            paymentStatus = PaymentStatus.PARTIALLY_PAID;
+        } else {
+            paymentStatus = PaymentStatus.UNPAID;
+        }
+    }
+
     public LocalDateTime getBookedAt() {
         return bookedAt;
     }
@@ -332,6 +414,14 @@ public class Booking {
 
     public boolean isTermsAccepted() {
         return termsAccepted;
+    }
+
+    public String getTermsVersion() {
+        return termsVersion;
+    }
+
+    public LocalDateTime getTermsAcceptedAt() {
+        return termsAcceptedAt;
     }
 
     public PaymentPlan getPaymentPlan() {

@@ -119,6 +119,11 @@
     font-size: 15px;
 }
 
+.price-row.discount {
+    color: #166534;
+    font-weight: 800;
+}
+
 .price-row.total {
     margin-top: 5px;
     font-size: 18px;
@@ -526,6 +531,87 @@
     font-size: 13px;
 }
 
+.terms-link-grid {
+    margin: 18px 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+}
+
+.terms-link-grid a {
+    padding: 12px 13px;
+    color: var(--primary-color);
+    background: rgba(0, 107, 116, 0.08);
+    border-radius: 11px;
+    text-decoration: none;
+    font-weight: 800;
+}
+
+.terms-link-grid a:hover {
+    color: var(--white);
+    background: var(--primary-color);
+}
+
+.terms-version-text {
+    color: var(--muted-text);
+    font-size: 14px;
+}
+
+.discount-code-box {
+    margin-bottom: 24px;
+}
+
+.discount-code-form {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+}
+
+.discount-code-form input {
+    min-height: 48px;
+    padding: 0 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    font: inherit;
+    font-weight: 800;
+}
+
+.discount-code-form input:focus {
+    outline: 3px solid rgba(0, 107, 116, 0.14);
+    border-color: var(--primary-color);
+}
+
+.discount-code-form button {
+    min-height: 48px;
+    padding: 0 18px;
+    color: var(--white);
+    background: var(--primary-color);
+    border: 0;
+    border-radius: 12px;
+    font: inherit;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.discount-code-form button:hover {
+    background: var(--primary-dark);
+}
+
+.discount-message,
+.discount-error {
+    margin: 12px 0 0;
+    font-weight: 800;
+}
+
+.discount-message {
+    color: #166534;
+}
+
+.discount-error {
+    color: #991b1b;
+}
+
 @media (max-width: 900px) {
     .booking-layout {
         grid-template-columns: 1fr;
@@ -571,8 +657,10 @@
 
     .room-type-heading,
     .room-type-details,
-    .booking-navigation {
+    .booking-navigation,
+    .discount-code-form {
         align-items: flex-start;
         flex-direction: column;
+        grid-template-columns: 1fr;
     }
 }
