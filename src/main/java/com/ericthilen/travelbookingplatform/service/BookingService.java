@@ -6,6 +6,7 @@ import com.ericthilen.travelbookingplatform.dto.BookingSession;
 import com.ericthilen.travelbookingplatform.dto.CancellationSummary;
 import com.ericthilen.travelbookingplatform.dto.TravelerRequest;
 import com.ericthilen.travelbookingplatform.dto.BookingSummary;
+import com.ericthilen.travelbookingplatform.legal.LegalDocumentVersions;
 import com.ericthilen.travelbookingplatform.model.Booking;
 import com.ericthilen.travelbookingplatform.model.BookingEvent;
 import com.ericthilen.travelbookingplatform.model.BookingStatus;
@@ -39,6 +40,9 @@ import java.util.Random;
 @Service
 @Transactional
 public class BookingService {
+
+    private static final String ERGO500_CODE = "ERGO500";
+    private static final int ERGO500_AMOUNT = 500;
 
     private final BookingRepository bookingRepository;
     private final BookingEventRepository bookingEventRepository;
@@ -109,11 +113,16 @@ public class BookingService {
                 user
         );
 
-        int totalPrice = calculateTotalPrice(
+        int originalTotalPrice = calculateTotalPrice(
                 departure,
                 roomType,
                 bookingSession
         );
+        int discountAmount = validSessionDiscountAmount(
+                bookingSession,
+                originalTotalPrice
+        );
+        int totalPrice = originalTotalPrice - discountAmount;
 
         PaymentInformation paymentInformation =
                 calculatePaymentInformation(
@@ -132,12 +141,26 @@ public class BookingService {
                 totalPrice,
                 LocalDateTime.now(),
                 confirmationRequest.getDiscoverySource(),
+                LegalDocumentVersions.CURRENT_TERMS_VERSION,
+                LocalDateTime.now(),
                 paymentInformation.paymentPlan(),
                 paymentInformation.depositAmount(),
                 paymentInformation.depositDueDate(),
                 paymentInformation.remainingAmount(),
                 paymentInformation.finalPaymentDueDate()
         );
+        if (discountAmount > 0) {
+            booking.applyDiscount(
+                    bookingSession.getDiscountName(),
+                    discountAmount,
+                    originalTotalPrice,
+                    totalPrice,
+                    paymentInformation.depositAmount(),
+                    paymentInformation.depositDueDate(),
+                    paymentInformation.remainingAmount(),
+                    paymentInformation.finalPaymentDueDate()
+            );
+        }
         booking.updateRoomDistribution(
                 roomDistributionLabel(
                         bookingSession.getRoomOccupancies()
@@ -726,7 +749,10 @@ public class BookingService {
 
         int travelPrice = departure.getPricePerPerson() * session.getNumberOfTravelers();
         int roomSupplement = roomType.getPriceSupplementPerRoom() * session.getNumberOfRooms();
-        int totalPrice = travelPrice + roomSupplement;
+        int originalTotalPrice = travelPrice + roomSupplement;
+        int discountAmount =
+                validSessionDiscountAmount(session, originalTotalPrice);
+        int totalPrice = originalTotalPrice - discountAmount;
 
         PaymentInformation paymentInfo = calculatePaymentInformation(totalPrice, departure.getDepartureDate());
 
@@ -740,6 +766,8 @@ public class BookingService {
                 session.getNumberOfRooms(),
                 travelPrice,
                 roomSupplement,
+                session.getDiscountName(),
+                discountAmount,
                 totalPrice,
                 paymentInfo.depositAmount(),
                 immediatePaymentRequired
@@ -812,6 +840,168 @@ public class BookingService {
         );
     }
 
+    public void applyDiscountToSession(
+            BookingSession bookingSession,
+            String discountCode
+    ) {
+        Discount discount = getDiscount(discountCode);
+        int originalTotalPrice = previewTotalPrice(bookingSession);
+
+        bookingSession.applyDiscount(
+                discount.code(),
+                discount.name(),
+                Math.min(discount.amount(), originalTotalPrice)
+        );
+    }
+
+    @Transactional
+    public void applyCustomerDiscountToBooking(
+            Long bookingId,
+            String email,
+            String discountCode
+    ) {
+        Booking booking = getBookingForUser(bookingId, email)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Bokningen kunde inte hittas."
+                        )
+                );
+
+        if (booking.getPaidAmount() > 0) {
+            throw new IllegalStateException(
+                    "Rabattkod kan bara läggas till innan något har betalats."
+            );
+        }
+
+        applyDiscountToBooking(
+                booking,
+                discountCode,
+                "Kund"
+        );
+    }
+
+    @Transactional
+    public void applyAdminDiscountToBooking(
+            Long bookingId,
+            String discountCode
+    ) {
+        Booking booking = bookingRepository
+                .findById(bookingId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Bokningen kunde inte hittas."
+                        )
+                );
+
+        applyDiscountToBooking(
+                booking,
+                discountCode,
+                "Admin"
+        );
+    }
+
+    private void applyDiscountToBooking(
+            Booking booking,
+            String discountCode,
+            String createdBy
+    ) {
+        Discount discount = getDiscount(discountCode);
+        int originalTotalPrice = booking.getOriginalTotalPrice();
+        int discountAmount =
+                Math.min(discount.amount(), originalTotalPrice);
+        int newTotalPrice =
+                originalTotalPrice - discountAmount;
+        PaymentInformation paymentInformation =
+                calculatePaymentInformation(
+                        newTotalPrice,
+                        booking.getDeparture().getDepartureDate()
+                );
+
+        booking.applyDiscount(
+                discount.name(),
+                discountAmount,
+                originalTotalPrice,
+                newTotalPrice,
+                paymentInformation.depositAmount(),
+                paymentInformation.depositDueDate(),
+                paymentInformation.remainingAmount(),
+                paymentInformation.finalPaymentDueDate()
+        );
+
+        Booking savedBooking = bookingRepository.save(booking);
+        logEvent(
+                savedBooking,
+                "Rabattkod tillagd",
+                createdBy
+                        + " lade till rabattkod "
+                        + discount.name()
+                        + " som gav "
+                        + discountAmount
+                        + " kr rabatt.",
+                createdBy
+        );
+    }
+
+    private int previewTotalPrice(BookingSession bookingSession) {
+        Departure departure = departureRepository
+                .findById(bookingSession.getDepartureId())
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Avgången kunde inte hittas."
+                        )
+                );
+        RoomType roomType = roomTypeRepository
+                .findById(bookingSession.getRoomTypeId())
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Rumstypen kunde inte hittas."
+                        )
+                );
+
+        return calculateTotalPrice(
+                departure,
+                roomType,
+                bookingSession
+        );
+    }
+
+    private int validSessionDiscountAmount(
+            BookingSession bookingSession,
+            int originalTotalPrice
+    ) {
+        if (bookingSession.getDiscountAmount() <= 0
+                || bookingSession.getDiscountCode() == null
+                || bookingSession.getDiscountCode().isBlank()) {
+            return 0;
+        }
+
+        Discount discount = getDiscount(bookingSession.getDiscountCode());
+
+        return Math.min(
+                discount.amount(),
+                originalTotalPrice
+        );
+    }
+
+    private Discount getDiscount(String discountCode) {
+        String cleanedCode =
+                discountCode == null
+                        ? ""
+                        : discountCode.trim().toUpperCase();
+
+        if (!ERGO500_CODE.equals(cleanedCode)) {
+            throw new IllegalArgumentException(
+                    "Rabattkoden kunde inte hittas."
+            );
+        }
+
+        return new Discount(
+                ERGO500_CODE,
+                "ERGO500",
+                ERGO500_AMOUNT
+        );
+    }
+
     private String generateCustomerNumber() {
         String customerNumber;
 
@@ -862,6 +1052,13 @@ public class BookingService {
             LocalDate depositDueDate,
             int remainingAmount,
             LocalDate finalPaymentDueDate
+    ) {
+    }
+
+    private record Discount(
+            String code,
+            String name,
+            int amount
     ) {
     }
 }

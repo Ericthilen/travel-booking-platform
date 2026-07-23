@@ -138,6 +138,50 @@
                     </h2>
 
                     <div class="payment-summary-grid">
+                        <div th:if="${booking.discountAmount > 0}">
+                            <span>
+                                Ordinarie pris
+                            </span>
+
+                            <strong>
+                                <span
+                                        th:text="${#numbers.formatInteger(
+                                        booking.originalTotalPrice,
+                                        1,
+                                        'WHITESPACE'
+                                        )}"
+                                >
+                                    14 990
+                                </span>
+
+                                kr
+                            </strong>
+                        </div>
+
+                        <div th:if="${booking.discountAmount > 0}">
+                            <span>
+                                Rabatt
+                            </span>
+
+                            <strong>
+                                <span th:text="${booking.discountName}">
+                                    ERGO500
+                                </span>
+                                -
+                                <span
+                                        th:text="${#numbers.formatInteger(
+                                        booking.discountAmount,
+                                        1,
+                                        'WHITESPACE'
+                                        )}"
+                                >
+                                    500
+                                </span>
+
+                                kr
+                            </strong>
+                        </div>
+
                         <div>
                             <span>
                                 Totalpris

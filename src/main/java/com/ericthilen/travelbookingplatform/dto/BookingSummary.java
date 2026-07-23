@@ -10,6 +10,8 @@ public record BookingSummary(
         int numberOfRooms,
         int travelPrice,
         int roomSupplement,
+        String discountName,
+        int discountAmount,
         int totalPrice,
         int depositAmount,
         boolean immediatePaymentRequired

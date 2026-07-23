@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title th:text="${title + ' - EriGo Travel'}">
+        Juridisk sida - EriGo Travel
+    </title>
+
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/legal.css">
+</head>
+
+<body>
+
+<div
+        th:replace="~{fragments/site-header :: siteHeader('legal')}"
+></div>
+
+<main class="legal-page">
+    <section class="legal-hero">
+        <a
+                class="legal-back-link"
+                th:href="@{/}"
+        >
+            ← Till startsidan
+        </a>
+
+        <p class="eyebrow dark">
+            Juridisk information
+        </p>
+
+        <h1 th:text="${title}">
+            Resevillkor
+        </h1>
+
+        <p th:text="${introduction}">
+            Information om villkor.
+        </p>
+
+        <div class="legal-version-card">
+            <div>
+                <span>Version</span>
+                <strong th:text="${termsVersion}">
+                    2026-07-22
+                </strong>
+            </div>
+
+            <div>
+                <span>Senast uppdaterad</span>
+                <strong th:text="${termsDate}">
+                    2026-07-22
+                </strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="legal-layout">
+        <aside class="legal-navigation">
+            <h2>Villkor</h2>
+
+            <nav aria-label="Juridiska sidor">
+                <a th:href="@{/resevillkor}">Resevillkor</a>
+                <a th:href="@{/avbokningsvillkor}">Avbokningsvillkor</a>
+                <a th:href="@{/integritetspolicy}">Integritetspolicy</a>
+                <a th:href="@{/cookies}">Cookieinformation</a>
+                <a th:href="@{/betalningsvillkor}">Betalningsvillkor</a>
+                <a th:href="@{/kontakt}">Kontaktuppgifter</a>
+                <a th:href="@{/paketresor}">Paketresor</a>
+                <a th:href="@{/resegaranti}">Resegaranti</a>
+            </nav>
+        </aside>
+
+        <article class="legal-content-card">
+            <div class="legal-review-notice">
+                <strong>Observera</strong>
+                <p>
+                    Detta är exempeltexter för projektet. Texterna ska
+                    granskas juridiskt innan webbplatsen används vid en
+                    verklig lansering.
+                </p>
+            </div>
+
+            <section
+                    class="legal-section"
+                    th:each="section : ${sections}"
+            >
+                <h2 th:text="${section.heading()}">
+                    Rubrik
+                </h2>
+
+                <p th:text="${section.body()}">
+                    Text
+                </p>
+            </section>
+        </article>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <div>
+        <strong>EriGo Travel</strong>
+        <p>Resor att längta efter.</p>
+    </div>
+
+    <nav aria-label="Footer">
+        <a th:href="@{/resevillkor}">Resevillkor</a>
+        <a th:href="@{/betalningsvillkor}">Betalningsvillkor</a>
+        <a th:href="@{/integritetspolicy}">Integritetspolicy</a>
+        <a th:href="@{/kontakt}">Kontakt</a>
+    </nav>
+
+    <p>© 2026 EriGo Travel</p>
+</footer>
+
+<script src="/js/home.js" defer></script>
+
+</body>
+</html>

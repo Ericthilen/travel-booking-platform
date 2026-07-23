@@ -33,6 +33,10 @@
     line-height: 1.6;
 }
 
+.inline-section-message {
+    margin: 14px 0 0;
+}
+
 .success-message {
     color: #166534;
     background: #dcfce7;
@@ -116,6 +120,59 @@
 
 .details-section h2 {
     margin: 0 0 23px;
+}
+
+.discount-code-form {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+}
+
+.discount-code-form input {
+    min-height: 48px;
+    padding: 0 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--text-color);
+    background: var(--white);
+    font: inherit;
+    font-weight: 800;
+}
+
+.discount-code-form input:focus {
+    outline: 3px solid rgba(0, 107, 116, 0.14);
+    border-color: var(--primary-color);
+}
+
+.discount-code-form button {
+    min-height: 48px;
+    padding: 0 18px;
+    color: var(--white);
+    background: var(--primary-color);
+    border: 0;
+    border-radius: 12px;
+    font: inherit;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.discount-code-form button:hover {
+    background: var(--primary-dark);
+}
+
+.discount-message,
+.discount-error {
+    margin: 0 0 18px;
+    font-weight: 800;
+}
+
+.discount-message {
+    color: #166534;
+}
+
+.discount-error {
+    color: #991b1b;
 }
 
 .email-status-heading {
@@ -234,6 +291,44 @@
 
 .payment-details p span {
     color: var(--muted-text);
+}
+
+.payment-discount-summary {
+    margin: 20px 0 24px;
+    padding: 18px;
+    background: #f8fbf8;
+    border: 1px solid #d9eadc;
+    border-radius: 14px;
+}
+
+.payment-discount-summary p {
+    margin: 0;
+}
+
+.payment-discount-summary p + p {
+    margin-top: 10px;
+}
+
+.payment-discount-summary .discount-line span,
+.payment-discount-summary .discount-line strong {
+    color: #166534;
+}
+
+.payment-discount-entry {
+    margin: 22px 0 26px;
+    padding: 20px;
+    background: #fbfaf7;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+}
+
+.payment-discount-entry h3 {
+    margin: 0 0 8px;
+    font-size: 22px;
+}
+
+.payment-discount-entry .email-status-description {
+    margin-bottom: 0;
 }
 
 .invoice-download-row {
@@ -398,11 +493,24 @@
     gap: 13px;
 }
 
+.admin-discount-form {
+    margin-top: 16px;
+}
+
+.admin-discount-form label {
+    display: grid;
+    gap: 8px;
+    color: var(--muted-text);
+    font-size: 14px;
+    font-weight: 800;
+}
+
 .admin-document-actions a,
 .admin-document-actions button,
 .admin-edit-form button,
 .admin-traveler-edit-item button,
-.admin-note-form button {
+.admin-note-form button,
+.admin-discount-form button {
     min-height: 48px;
     width: 100%;
     padding: 0 16px;
@@ -422,7 +530,8 @@
 .admin-document-actions button:hover,
 .admin-edit-form button:hover,
 .admin-traveler-edit-item button:hover,
-.admin-note-form button:hover {
+.admin-note-form button:hover,
+.admin-discount-form button:hover {
     background: var(--primary-dark);
 }
 
@@ -839,6 +948,7 @@
 
     .reference-grid,
     .details-grid,
+    .discount-code-form,
     .admin-edit-form,
     .admin-traveler-edit-item {
         grid-template-columns: 1fr;

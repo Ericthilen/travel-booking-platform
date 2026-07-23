@@ -5,7 +5,9 @@ import com.ericthilen.travelbookingplatform.dto.BookingDetailsRequest;
 import com.ericthilen.travelbookingplatform.dto.BookingSelectionRequest;
 import com.ericthilen.travelbookingplatform.dto.BookingSession;
 import com.ericthilen.travelbookingplatform.dto.BookingSummary;
+import com.ericthilen.travelbookingplatform.dto.DiscountCodeRequest;
 import com.ericthilen.travelbookingplatform.dto.TravelerRequest;
+import com.ericthilen.travelbookingplatform.legal.LegalDocumentVersions;
 import com.ericthilen.travelbookingplatform.model.Booking;
 import com.ericthilen.travelbookingplatform.model.Departure;
 import com.ericthilen.travelbookingplatform.model.DiscoverySource;
@@ -339,6 +341,59 @@ public class BookingFlowController {
         );
     }
 
+    @PostMapping("/bokning/rabattkod")
+    public String applyDiscountCode(
+            @Valid DiscountCodeRequest discountCodeRequest,
+            BindingResult bindingResult,
+            HttpSession httpSession,
+            Model model
+    ) {
+        BookingSession bookingSession =
+                getCompleteBookingSession(httpSession);
+
+        if (bookingSession == null) {
+            return "redirect:/resor";
+        }
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute(
+                    "discountError",
+                    "Ange en rabattkod."
+            );
+            return loadReviewPage(
+                    bookingSession,
+                    new BookingConfirmationRequest(),
+                    model
+            );
+        }
+
+        try {
+            bookingService.applyDiscountToSession(
+                    bookingSession,
+                    discountCodeRequest.getCode()
+            );
+            httpSession.setAttribute(
+                    BOOKING_SESSION_KEY,
+                    bookingSession
+            );
+            model.addAttribute(
+                    "discountMessage",
+                    "Rabattkoden har lagts till."
+            );
+        } catch (IllegalArgumentException exception) {
+            model.addAttribute(
+                    "discountError",
+                    exception.getMessage()
+            );
+        }
+
+        return loadReviewPage(
+                bookingSession,
+                new BookingConfirmationRequest(),
+                model
+        );
+    }
+
     @PostMapping("/bokning/bekrafta")
     public String confirmBooking(
             @Valid BookingConfirmationRequest confirmationRequest,
@@ -416,6 +471,20 @@ public class BookingFlowController {
         model.addAttribute(
                 "bookingConfirmationRequest",
                 confirmationRequest
+        );
+        if (!model.containsAttribute("discountCodeRequest")) {
+            model.addAttribute(
+                    "discountCodeRequest",
+                    new DiscountCodeRequest()
+            );
+        }
+        model.addAttribute(
+                "termsVersion",
+                LegalDocumentVersions.CURRENT_TERMS_VERSION
+        );
+        model.addAttribute(
+                "termsDate",
+                LegalDocumentVersions.CURRENT_TERMS_DATE
         );
 
         return "booking-review";

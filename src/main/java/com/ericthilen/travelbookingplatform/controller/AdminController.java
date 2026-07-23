@@ -4,6 +4,7 @@ import com.ericthilen.travelbookingplatform.dto.AdminBookingContactRequest;
 import com.ericthilen.travelbookingplatform.dto.AdminNoteRequest;
 import com.ericthilen.travelbookingplatform.dto.AdminTravelerNameRequest;
 import com.ericthilen.travelbookingplatform.dto.CancellationRequest;
+import com.ericthilen.travelbookingplatform.dto.DiscountCodeRequest;
 import com.ericthilen.travelbookingplatform.model.Booking;
 import com.ericthilen.travelbookingplatform.service.AdminBookingManagementService;
 import com.ericthilen.travelbookingplatform.service.AdminDashboardService;
@@ -236,6 +237,46 @@ public class AdminController {
         return redirectToBooking(bookingId);
     }
 
+    @PostMapping("/admin/bokningar/{bookingId}/rabattkod")
+    public String applyDiscountCodeAsAdmin(
+            @PathVariable Long bookingId,
+            @Valid DiscountCodeRequest discountCodeRequest,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute(
+                    "adminDiscountError",
+                    "Ange en rabattkod."
+            );
+            return redirectToBookingSection(
+                    bookingId,
+                    "admin-rabattkod"
+            );
+        }
+
+        try {
+            bookingService.applyAdminDiscountToBooking(
+                    bookingId,
+                    discountCodeRequest.getCode()
+            );
+            redirectAttributes.addFlashAttribute(
+                    "adminDiscountMessage",
+                    "Rabattkoden har lagts till."
+            );
+        } catch (IllegalArgumentException | IllegalStateException exception) {
+            redirectAttributes.addFlashAttribute(
+                    "adminDiscountError",
+                    exception.getMessage()
+            );
+        }
+
+        return redirectToBookingSection(
+                bookingId,
+                "admin-rabattkod"
+        );
+    }
+
     @PostMapping("/admin/bokningar/{bookingId}/resenarer/{travelerId}")
     public String updateTravelerName(
             @PathVariable Long bookingId,
@@ -287,10 +328,13 @@ public class AdminController {
     ) {
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute(
-                    "adminBookingError",
+                    "adminNoteError",
                     "Anteckningen får inte vara tom."
             );
-            return redirectToBooking(bookingId);
+            return redirectToBookingSection(
+                    bookingId,
+                    "journalanteckningar"
+            );
         }
 
         adminBookingManagementService.addNote(
@@ -299,11 +343,14 @@ public class AdminController {
                 adminEmail(authentication)
         );
         redirectAttributes.addFlashAttribute(
-                "adminBookingMessage",
+                "adminNoteMessage",
                 "Anteckningen har sparats."
         );
 
-        return redirectToBooking(bookingId);
+        return redirectToBookingSection(
+                bookingId,
+                "journalanteckningar"
+        );
     }
 
     @PostMapping("/admin/bokningar/{bookingId}/skicka-bekraftelse")
@@ -382,6 +429,13 @@ public class AdminController {
 
     private String redirectToBooking(Long bookingId) {
         return "redirect:/admin/bokningar/" + bookingId;
+    }
+
+    private String redirectToBookingSection(
+            Long bookingId,
+            String sectionId
+    ) {
+        return redirectToBooking(bookingId) + "#" + sectionId;
     }
 
     private String adminEmail(Authentication authentication) {

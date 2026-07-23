@@ -25,6 +25,20 @@
   <nav class="navigation">
     <a href="/">Hem</a>
     <a href="/resor">Resor</a>
+    <div class="nav-dropdown">
+      <button
+              class="nav-dropdown-toggle"
+              type="button"
+              aria-haspopup="true"
+      >
+        Inför resan
+      </button>
+
+      <div class="nav-dropdown-menu">
+        <a href="/hitta-bokning">Din resa</a>
+        <a href="/resevillkor">Resevillkor</a>
+      </div>
+    </div>
     <a href="/mina-bokningar" sec:authorize="isAuthenticated()">
       Mina bokningar
     </a>

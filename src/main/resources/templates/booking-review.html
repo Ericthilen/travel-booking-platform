@@ -227,6 +227,67 @@
                     kr
                 </span>
             </p>
+
+            <p th:if="${bookingSummary.discountAmount > 0}">
+                <strong>Rabatt:</strong>
+
+                <span>
+                    <span th:text="${bookingSummary.discountName}">
+                        ERGO500
+                    </span>
+                    -
+                    <span
+                            th:text="${#numbers.formatInteger(bookingSummary.discountAmount, 1, 'WHITESPACE')}"
+                    >
+                        500
+                    </span>
+                    kr
+                </span>
+            </p>
+        </div>
+
+        <div
+                class="temporary-selection-summary discount-code-box"
+                id="rabattkod"
+        >
+            <h2>Rabattkod</h2>
+
+            <p>
+                Har du en rabattkod kan du lösa in den innan du bokar.
+            </p>
+
+            <form
+                    class="discount-code-form"
+                    th:action="@{/bokning/rabattkod} + '#rabattkod'"
+                    th:object="${discountCodeRequest}"
+                    method="post"
+            >
+                <input
+                        type="text"
+                        th:field="*{code}"
+                        placeholder="Till exempel ergo500"
+                >
+
+                <button type="submit">
+                    Lös in rabattkod
+                </button>
+            </form>
+
+            <p
+                    class="discount-message"
+                    th:if="${discountMessage != null}"
+                    th:text="${discountMessage}"
+            >
+                Rabatt tillagd.
+            </p>
+
+            <p
+                    class="discount-error"
+                    th:if="${discountError != null}"
+                    th:text="${discountError}"
+            >
+                Rabattkoden kunde inte användas.
+            </p>
         </div>
 
         <form
@@ -281,13 +342,41 @@
                 <h2>Resevillkor</h2>
 
                 <p>
-                    När du bokar resan godkänner du våra resevillkor.
+                    När du bokar resan godkänner du våra resevillkor,
+                    betalningsvillkor och avbokningsvillkor.
                 </p>
 
-                <p>
-                    <a href="#" target="_blank">
-                        Läs våra resevillkor för paketresor
+                <div class="terms-link-grid">
+                    <a th:href="@{/resevillkor}" target="_blank">
+                        Resevillkor
                     </a>
+
+                    <a th:href="@{/avbokningsvillkor}" target="_blank">
+                        Avbokningsvillkor
+                    </a>
+
+                    <a th:href="@{/betalningsvillkor}" target="_blank">
+                        Betalningsvillkor
+                    </a>
+
+                    <a th:href="@{/paketresor}" target="_blank">
+                        Paketresor
+                    </a>
+
+                    <a th:href="@{/resegaranti}" target="_blank">
+                        Resegaranti
+                    </a>
+
+                    <a th:href="@{/integritetspolicy}" target="_blank">
+                        Integritetspolicy
+                    </a>
+                </div>
+
+                <p class="terms-version-text">
+                    Villkorsversion:
+                    <strong th:text="${termsVersion}">2026-07-22</strong>
+                    · Senast uppdaterad:
+                    <strong th:text="${termsDate}">2026-07-22</strong>
                 </p>
 
                 <p>
@@ -313,7 +402,8 @@
                     >
 
                     <span>
-                        Jag har läst och godkänner resevillkoren.
+                        Jag har läst och godkänner resevillkor,
+                        avbokningsvillkor och betalningsvillkor.
                     </span>
                 </label>
 

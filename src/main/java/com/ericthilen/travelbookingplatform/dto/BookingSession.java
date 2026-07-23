@@ -28,6 +28,12 @@ public class BookingSession implements Serializable {
 
     private List<TravelerRequest> travelers = new ArrayList<>();
 
+    private String discountCode;
+
+    private String discountName;
+
+    private int discountAmount;
+
     public Long getDepartureId() {
         return departureId;
     }
@@ -70,6 +76,18 @@ public class BookingSession implements Serializable {
 
     public List<TravelerRequest> getTravelers() {
         return travelers;
+    }
+
+    public String getDiscountCode() {
+        return discountCode;
+    }
+
+    public String getDiscountName() {
+        return discountName;
+    }
+
+    public int getDiscountAmount() {
+        return discountAmount;
     }
 
     public void setDepartureId(Long departureId) {
@@ -122,5 +140,21 @@ public class BookingSession implements Serializable {
 
     public void setTravelers(List<TravelerRequest> travelers) {
         this.travelers = new ArrayList<>(travelers);
+    }
+
+    public void applyDiscount(
+            String discountCode,
+            String discountName,
+            int discountAmount
+    ) {
+        this.discountCode = discountCode;
+        this.discountName = discountName;
+        this.discountAmount = Math.max(0, discountAmount);
+    }
+
+    public void clearDiscount() {
+        this.discountCode = null;
+        this.discountName = null;
+        this.discountAmount = 0;
     }
 }

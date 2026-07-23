@@ -448,11 +448,49 @@
                     </strong>
                 </div>
 
+                <div th:if="${booking.discountAmount > 0}">
+                    <span>Ordinarie pris</span>
+                    <strong>
+                        <span th:text="${#numbers.formatInteger(booking.originalTotalPrice, 1, 'WHITESPACE')}">
+                            14 990
+                        </span>
+                        kr
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Villkorsversion</span>
+                    <strong th:text="${booking.termsVersion != null ? booking.termsVersion : 'Saknas'}">
+                        2026-07-22
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Villkor godkända</span>
+                    <strong th:text="${booking.termsAcceptedAt != null ? #temporals.format(booking.termsAcceptedAt, 'dd MMMM yyyy HH:mm') : 'Saknas'}">
+                        22 juli 2026 12:30
+                    </strong>
+                </div>
+
+                <div th:if="${booking.discountAmount > 0}">
+                    <span>Rabatt</span>
+                    <strong>
+                        <span th:text="${booking.discountName}">
+                            ERGO500
+                        </span>
+                        -
+                        <span th:text="${#numbers.formatInteger(booking.discountAmount, 1, 'WHITESPACE')}">
+                            500
+                        </span>
+                        kr
+                    </strong>
+                </div>
+
                 <div>
                     <span>Totalpris</span>
                     <strong>
                         <span th:text="${#numbers.formatInteger(booking.totalPrice, 1, 'WHITESPACE')}">
-                            14 990
+                            14 490
                         </span>
                         kr
                     </strong>
@@ -537,6 +575,95 @@
                         13 juli 2026 18:45
                     </strong>
                 </p>
+            </div>
+
+            <div
+                    class="payment-discount-summary"
+                    th:if="${booking.discountAmount > 0}"
+            >
+                <p>
+                    <span>Ordinarie pris</span>
+                    <strong>
+                        <span th:text="${#numbers.formatInteger(booking.originalTotalPrice, 1, 'WHITESPACE')}">
+                            9 385
+                        </span>
+                        kr
+                    </strong>
+                </p>
+
+                <p class="discount-line">
+                    <span>
+                        Rabatt
+                        <span th:text="${booking.discountName}">ERGO500</span>
+                    </span>
+                    <strong>
+                        -
+                        <span th:text="${#numbers.formatInteger(booking.discountAmount, 1, 'WHITESPACE')}">
+                            500
+                        </span>
+                        kr
+                    </strong>
+                </p>
+
+                <p>
+                    <span>Pris efter rabatt</span>
+                    <strong>
+                        <span th:text="${#numbers.formatInteger(booking.totalPrice, 1, 'WHITESPACE')}">
+                            8 885
+                        </span>
+                        kr
+                    </strong>
+                </p>
+            </div>
+
+            <div
+                    class="payment-discount-entry"
+                    id="rabattkod"
+                    th:if="${booking.status.name() == 'CONFIRMED'
+                    and booking.paidAmount == 0
+                    and (booking.discountAmount == 0
+                    or discountMessage != null
+                    or discountError != null)}"
+            >
+                <h3>Lös in rabattkod</h3>
+
+                <p class="email-status-description">
+                    Du kan lägga till rabattkod så länge inget har betalats på resan.
+                </p>
+
+                <form
+                        class="discount-code-form"
+                        th:if="${booking.discountAmount == 0}"
+                        th:action="@{/mina-bokningar/{id}/rabattkod(id=${booking.id})}"
+                        method="post"
+                >
+                    <input
+                            type="text"
+                            name="code"
+                            placeholder="Till exempel ergo500"
+                            required
+                    >
+
+                    <button type="submit">
+                        Lös in rabattkod
+                    </button>
+                </form>
+
+                <div
+                        class="details-message success-message inline-section-message"
+                        th:if="${discountMessage != null}"
+                        th:text="${discountMessage}"
+                >
+                    Rabattkoden har lagts till.
+                </div>
+
+                <div
+                        class="details-message error-message inline-section-message"
+                        th:if="${discountError != null}"
+                        th:text="${discountError}"
+                >
+                    Rabattkoden kunde inte användas.
+                </div>
             </div>
 
             <div

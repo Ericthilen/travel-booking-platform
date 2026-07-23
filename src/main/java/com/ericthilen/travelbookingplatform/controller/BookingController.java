@@ -3,6 +3,7 @@ package com.ericthilen.travelbookingplatform.controller;
 import com.ericthilen.travelbookingplatform.dto.CancellationRequest;
 import com.ericthilen.travelbookingplatform.dto.CancellationSummary;
 import com.ericthilen.travelbookingplatform.dto.CustomerPaymentRequest;
+import com.ericthilen.travelbookingplatform.dto.DiscountCodeRequest;
 import com.ericthilen.travelbookingplatform.model.Booking;
 import com.ericthilen.travelbookingplatform.model.BookingStatus;
 import com.ericthilen.travelbookingplatform.service.BookingService;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -143,6 +145,42 @@ public class BookingController {
         );
 
         return "booking-cancellation";
+    }
+
+    @PostMapping("/mina-bokningar/{bookingId}/rabattkod")
+    public String applyDiscountCode(
+            @PathVariable Long bookingId,
+            @Valid DiscountCodeRequest discountCodeRequest,
+            BindingResult bindingResult,
+            Authentication authentication,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute(
+                    "discountError",
+                    "Ange en rabattkod."
+            );
+            return "redirect:/mina-bokningar/" + bookingId + "#rabattkod";
+        }
+
+        try {
+            bookingService.applyCustomerDiscountToBooking(
+                    bookingId,
+                    authentication.getName(),
+                    discountCodeRequest.getCode()
+            );
+            redirectAttributes.addFlashAttribute(
+                    "discountMessage",
+                    "Rabattkoden har lagts till."
+            );
+        } catch (IllegalArgumentException | IllegalStateException exception) {
+            redirectAttributes.addFlashAttribute(
+                    "discountError",
+                    exception.getMessage()
+            );
+        }
+
+        return "redirect:/mina-bokningar/" + bookingId + "#rabattkod";
     }
 
     @PostMapping("/mina-bokningar/{bookingId}/avboka")
