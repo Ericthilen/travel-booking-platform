@@ -36,6 +36,15 @@
                     <span th:text="${#numbers.formatInteger(summary.roomSupplement, 1, 'WHITESPACE')}">0</span> kr
                 </span>
             </div>
+            <div class="price-row discount" th:if="${summary.discountAmount > 0}">
+                <span>
+                    Rabatt
+                    <span th:text="${summary.discountName}">ERGO500</span>:
+                </span>
+                <span>
+                    -<span th:text="${#numbers.formatInteger(summary.discountAmount, 1, 'WHITESPACE')}">500</span> kr
+                </span>
+            </div>
             <div class="price-row total">
                 <span>Totalpris:</span>
                 <span>

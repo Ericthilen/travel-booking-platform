@@ -30,12 +30,34 @@
             Resor
         </a>
 
-        <a
-                th:href="@{/hitta-bokning}"
-                th:classappend="${activePage == 'lookup'} ? 'active-link'"
+        <div
+                class="nav-dropdown"
+                th:classappend="${activePage == 'lookup' or activePage == 'legal'} ? ' active-dropdown'"
         >
-            Hitta bokning
-        </a>
+            <button
+                    class="nav-dropdown-toggle"
+                    type="button"
+                    aria-haspopup="true"
+            >
+                Inför resan
+            </button>
+
+            <div class="nav-dropdown-menu">
+                <a
+                        th:href="@{/hitta-bokning}"
+                        th:classappend="${activePage == 'lookup'} ? 'active-link'"
+                >
+                    Din resa
+                </a>
+
+                <a
+                        th:href="@{/resevillkor}"
+                        th:classappend="${activePage == 'legal'} ? 'active-link'"
+                >
+                    Resevillkor
+                </a>
+            </div>
+        </div>
 
         <a
                 th:href="@{/admin}"
