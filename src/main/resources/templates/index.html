@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 
-<body>
+<body class="has-home-sidebar">
 
 <div th:replace="~{fragments/site-header :: siteHeader('home')}"></div>
 
@@ -155,6 +155,350 @@
                 </p>
             </div>
         </article>
+    </section>
+
+    <section
+            class="travel-finder-section"
+            id="reseplanerare"
+            data-home-finder
+    >
+        <aside class="home-travel-sidebar" aria-label="Resefilter">
+            <div class="home-sidebar-primary">
+                <button
+                        class="home-sidebar-action is-active"
+                        type="button"
+                        data-finder-view="calendar"
+                >
+                    <span>▣</span>
+                    Kalender
+                </button>
+
+                <button
+                        class="home-sidebar-action"
+                        type="button"
+                        data-finder-view="map"
+                >
+                    <span>⌖</span>
+                    Världskarta
+                </button>
+
+                <button
+                        class="home-sidebar-action"
+                        type="button"
+                        data-finder-view="last-minute"
+                >
+                    <span>%</span>
+                    Sista minuten
+                </button>
+            </div>
+
+            <div class="home-sidebar-group">
+                <h3>Säsong</h3>
+
+                <button type="button" data-season-filter="var">
+                    Vår
+                </button>
+
+                <button type="button" data-season-filter="sommar">
+                    Sommar
+                </button>
+
+                <button type="button" data-season-filter="host">
+                    Höst
+                </button>
+
+                <button type="button" data-season-filter="vinter">
+                    Vinter
+                </button>
+            </div>
+
+            <div class="home-sidebar-group home-country-group">
+                <h3>Länder</h3>
+
+                <div
+                        class="home-country-item"
+                        th:each="countryGroup : ${homeCountryGroups}"
+                >
+                    <button
+                            type="button"
+                            th:data-country-filter="${countryGroup.country}"
+                            th:text="${countryGroup.country}"
+                    >
+                        Spanien
+                    </button>
+
+                    <div
+                            class="home-country-flyout"
+                            th:data-country-flyout="${countryGroup.country}"
+                            hidden
+                    >
+                        <a
+                                class="home-country-flyout-heading"
+                                th:href="@{/resor(country=${countryGroup.country})}"
+                        >
+                            <span>Se alla resor</span>
+                            <strong>→</strong>
+                        </a>
+
+                        <div class="home-country-flyout-list">
+                            <a
+                                    class="home-country-travel-link"
+                                    th:each="travel : ${countryGroup.travels}"
+                                    th:href="@{/resor/{id}(id=${travel.id})}"
+                            >
+                                <img
+                                        th:src="${travel.imageUrl}"
+                                        th:alt="${travel.destination}"
+                                >
+
+                                <span>
+                                    <b th:text="${travel.destination}">
+                                        Mallorca
+                                    </b>
+
+                                    <small th:text="${travel.hotelName}">
+                                        Hotell
+                                    </small>
+                                </span>
+
+                                <em th:text="|fr. ${#numbers.formatInteger(travel.price, 0, 'WHITESPACE')} kr|">
+                                    fr. 8 995 kr
+                                </em>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="home-travel-panel">
+            <div class="home-travel-panel-heading">
+                <div>
+                    <p class="eyebrow dark">Planera resan</p>
+
+                    <h2 data-finder-title>Kalender</h2>
+
+                    <p data-finder-description>
+                        Se kommande flygavgångar och klicka dig vidare till resan.
+                    </p>
+                </div>
+
+                <button
+                        class="home-filter-reset"
+                        type="button"
+                        data-finder-reset
+                >
+                    Visa allt
+                </button>
+            </div>
+
+            <div
+                    class="home-finder-view is-active"
+                    data-finder-panel="calendar"
+            >
+                <div class="home-calendar-filters">
+                    <label>
+                        <span>Välj avresedatum</span>
+                        <input
+                                type="date"
+                                data-date-filter
+                        >
+                    </label>
+
+                    <label>
+                        <span>Välj flygplats</span>
+                        <select data-airport-filter>
+                            <option value="">Alla flygplatser</option>
+
+                            <option
+                                    th:each="departure : ${homeDepartures}"
+                                    th:value="${departure.departureAirport}"
+                                    th:text="${departure.departureAirport}"
+                            >
+                                Göteborg Landvetter
+                            </option>
+                        </select>
+                    </label>
+
+                    <label>
+                        <span>Välj reslängd</span>
+                        <select data-nights-filter>
+                            <option value="">Alla längder</option>
+
+                            <option
+                                    th:each="departure : ${homeDepartures}"
+                                    th:value="${departure.nights}"
+                                    th:text="${departure.nights + ' nätter'}"
+                            >
+                                7 nätter
+                            </option>
+                        </select>
+                    </label>
+                </div>
+
+                <div class="home-calendar-table">
+                    <div class="home-calendar-header">
+                        <span>Avresa</span>
+                        <span>Resmål</span>
+                        <span>Flygplats</span>
+                        <span>Pris från</span>
+                        <span>Platser kvar</span>
+                        <span></span>
+                    </div>
+
+                    <a
+                            class="home-calendar-row"
+                            th:each="departure : ${homeDepartures}"
+                            th:href="@{/resor/{id}(id=${departure.travelId})}"
+                            th:data-season="${departure.season}"
+                            th:data-country="${departure.country}"
+                            th:data-airport="${departure.departureAirport}"
+                            th:data-nights="${departure.nights}"
+                            th:data-date="${departure.departureDate}"
+                    >
+                        <span>
+                            ✈
+                            <strong th:text="${#temporals.format(departure.departureDate, 'yyyy-MM-dd')}">
+                                2026-08-11
+                            </strong>
+                        </span>
+
+                        <span>
+                            <strong th:text="${departure.destination}">
+                                Antalya
+                            </strong>
+                            <small th:text="${departure.hotelName}">
+                                Golden Beach Resort
+                            </small>
+                        </span>
+
+                        <span th:text="${departure.departureAirport}">
+                            Göteborg Landvetter
+                        </span>
+
+                        <span>
+                            <strong>
+                                <span th:text="${#numbers.formatInteger(departure.price, 1, 'WHITESPACE')}">
+                                    6 995
+                                </span>
+                                kr
+                            </strong>
+                        </span>
+
+                        <span th:text="${departure.availableSeats}">
+                            28
+                        </span>
+
+                        <span class="home-row-button">
+                            Läs mer →
+                        </span>
+                    </a>
+                </div>
+            </div>
+
+            <div
+                    class="home-finder-view"
+                    data-finder-panel="map"
+            >
+                <div class="home-map-shell" data-map-shell>
+                    <div class="home-map-toolbar">
+                        <button type="button" data-map-zoom-in>+</button>
+                        <button type="button" data-map-zoom-out>−</button>
+                    </div>
+
+                    <div class="home-world-map" data-map-layer>
+                        <button
+                                class="home-map-marker"
+                                type="button"
+                                th:each="mapTravel : ${homeMapTravels}"
+                                th:style="'left:' + ${mapTravel.x} + '%; top:' + ${mapTravel.y} + '%'"
+                                th:data-season="${mapTravel.seasons}"
+                                th:data-country="${mapTravel.country}"
+                                th:data-map-url="@{/resor/{id}(id=${mapTravel.travelId})}"
+                                th:data-map-title="${mapTravel.destination}"
+                                th:data-map-hotel="${mapTravel.hotelName}"
+                                th:data-map-country="${mapTravel.country}"
+                                th:data-map-price="${mapTravel.price}"
+                                th:data-map-image="${mapTravel.imageUrl}"
+                        >
+                            <span class="home-map-marker-dot"></span>
+                            <span class="sr-only" th:text="${mapTravel.destination}">
+                                Mallorca
+                            </span>
+                        </button>
+                    </div>
+
+                    <article class="home-map-popup" data-map-popup hidden>
+                        <img src="" alt="" data-map-popup-image>
+
+                        <div>
+                            <span data-map-popup-country>Spanien</span>
+                            <h3 data-map-popup-title>Mallorca</h3>
+                            <p data-map-popup-hotel>Sun Bay Resort</p>
+                            <strong data-map-popup-price>fr. 8 995 kr</strong>
+                        </div>
+
+                        <a href="#" data-map-popup-link>
+                            Visa resa →
+                        </a>
+
+                        <button type="button" data-map-popup-close>
+                            ×
+                        </button>
+                    </article>
+                </div>
+            </div>
+
+            <div
+                    class="home-finder-view"
+                    data-finder-panel="last-minute"
+            >
+                <div class="home-last-minute-grid">
+                    <a
+                            class="home-last-minute-card"
+                            th:each="departure : ${homeDepartures}"
+                            th:href="@{/resor/{id}(id=${departure.travelId})}"
+                            th:data-season="${departure.season}"
+                            th:data-country="${departure.country}"
+                            th:data-date="${departure.departureDate}"
+                    >
+                        <img
+                                th:src="${departure.imageUrl}"
+                                th:alt="${departure.destination}"
+                        >
+
+                        <span>
+                            <strong th:text="${departure.destination}">
+                                Mallorca
+                            </strong>
+
+                            <small>
+                                Avresa
+                                <span th:text="${#temporals.format(departure.departureDate, 'dd MMMM yyyy')}">
+                                    11 augusti 2026
+                                </span>
+                            </small>
+                        </span>
+
+                        <b>
+                            fr.
+                            <span th:text="${#numbers.formatInteger(departure.price, 1, 'WHITESPACE')}">
+                                7 495
+                            </span>
+                            kr
+                        </b>
+                    </a>
+                </div>
+            </div>
+
+            <div
+                    class="home-finder-empty"
+                    data-finder-empty
+                    hidden
+            >
+                Tyvärr har vi inga avgångar för det filtret just nu.
+            </div>
+        </div>
     </section>
 
     <section class="editorial-section">

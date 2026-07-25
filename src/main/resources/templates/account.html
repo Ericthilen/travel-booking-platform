@@ -89,11 +89,9 @@
                 </a>
 
                 <a
-                        href="#account-payments"
-                        data-account-target="payments"
-                        th:classappend="${activeAccountPage == 'payments'} ? ' active-account-link'"
+                        th:href="@{/hitta-bokning}"
                 >
-                    <span>▤</span>Mina betalningar
+                    <span>▤</span>Hitta bokning
                 </a>
 
                 <a
@@ -118,6 +116,10 @@
                         th:classappend="${activeAccountPage == 'password'} ? ' active-account-link'"
                 >
                     <span>♧</span>Lösenord
+                </a>
+
+                <a th:href="@{/kontakt}">
+                    <span>▧</span>Support
                 </a>
             </aside>
 
@@ -152,9 +154,9 @@
                         data-account-section="profile"
                 >
                     <div class="preview-heading">
-                        <p class="eyebrow dark">Min profil</p>
+                        <p>Välkommen tillbaka,</p>
 
-                        <a href="#account-settings" data-account-target="settings">Redigera</a>
+                        <a href="#account-settings" data-account-target="settings">Redigera profil</a>
                     </div>
 
                     <h2 th:text="${user.fullName}">
@@ -193,7 +195,7 @@
                     </div>
 
                     <div class="preview-shortcuts">
-                        <p class="eyebrow dark">Snabblänkar</p>
+                        <p>Snabblänkar</p>
 
                         <div>
                             <a href="#account-bookings" data-account-target="bookings">
@@ -212,6 +214,17 @@
                                 <span>♙</span>
                                 <strong>Hitta bokning</strong>
                                 <small>Ange bokningsuppgifter</small>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="account-inspiration-card">
+                        <div>
+                            <h3>Reseinspiration?</h3>
+                            <p>Upptäck våra populäraste resmål just nu.</p>
+                            <a th:href="@{/resor}">
+                                Utforska resor
+                                <span>→</span>
                             </a>
                         </div>
                     </div>
