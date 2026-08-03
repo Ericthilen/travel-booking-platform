@@ -6,6 +6,10 @@
             var(--background-color);
 }
 
+.legal-page.is-loading .legal-content-card {
+    opacity: 0.58;
+}
+
 .legal-hero,
 .legal-layout {
     max-width: 1180px;
@@ -105,15 +109,20 @@
     border-radius: 12px;
     text-decoration: none;
     font-weight: 800;
+    transition:
+            background 0.18s ease,
+            color 0.18s ease;
 }
 
-.legal-navigation a:hover {
+.legal-navigation a:hover,
+.legal-navigation a.is-active {
     color: var(--primary-color);
     background: rgba(0, 107, 116, 0.10);
 }
 
 .legal-content-card {
     padding: 34px;
+    transition: opacity 0.16s ease;
 }
 
 .legal-review-notice {
