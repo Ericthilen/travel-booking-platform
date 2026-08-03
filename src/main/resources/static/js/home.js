@@ -114,6 +114,9 @@ if (homeFinder) {
     const emptyMessage = homeFinder.querySelector("[data-finder-empty]");
     const seasonButtons =
         [...homeFinder.querySelectorAll("[data-season-filter]")];
+    const seasonFlyouts =
+        [...homeFinder.querySelectorAll("[data-season-flyout]")];
+    const seasonGroup = homeFinder.querySelector(".home-season-group");
     const countryButtons =
         [...homeFinder.querySelectorAll("[data-country-filter]")];
     const countryFlyouts =
@@ -131,6 +134,7 @@ if (homeFinder) {
 
     let activeView = "calendar";
     let activeSeason = "";
+    let openSeason = "";
     let openCountry = "";
 
     const viewCopy = {
@@ -244,6 +248,106 @@ if (homeFinder) {
         emptyMessage.hidden = false;
     };
 
+    const createSeasonLink = (row) => {
+        const link = document.createElement("a");
+        const destination =
+            row.dataset.destination
+            || row.querySelector("span:nth-child(2) strong")?.textContent?.trim()
+            || "Resa";
+        const hotel =
+            row.dataset.hotel
+            || row.querySelector("span:nth-child(2) small")?.textContent?.trim()
+            || "Hotell";
+        const date =
+            row.dataset.date
+            || row.querySelector("span:first-child strong")?.textContent?.trim()
+            || "";
+        const price =
+            row.dataset.price
+            || row.querySelector("span:nth-child(4) strong")?.textContent?.trim()
+            || "";
+
+        link.className = "home-season-travel-link";
+        link.href = row.href;
+
+        if (row.dataset.image) {
+            const image = document.createElement("img");
+            image.src = row.dataset.image;
+            image.alt = destination;
+            link.appendChild(image);
+        } else {
+            const icon = document.createElement("span");
+            icon.className = "home-season-travel-icon";
+            icon.textContent = "✈";
+            link.appendChild(icon);
+        }
+
+        const text = document.createElement("span");
+        const titleText = document.createElement("b");
+        const hotelText = document.createElement("small");
+        const dateText = document.createElement("small");
+        const priceText = document.createElement("em");
+
+        titleText.textContent = destination;
+        hotelText.textContent = hotel;
+        dateText.textContent = date;
+        priceText.textContent = price.toString().includes("kr")
+            ? price
+            : "fr. " + Number(price).toLocaleString("sv-SE") + " kr";
+
+        text.append(titleText, hotelText, dateText);
+        link.append(text, priceText);
+
+        return link;
+    };
+
+    const renderSeasonFlyout = (flyout, season, seasonName) => {
+        const seenTravels = new Set();
+        const matchingRows = calendarRows.filter((row) => {
+            const matchesSeason =
+                (row.dataset.season || "").split(/\s+/).includes(season);
+            const travelUrl = row.getAttribute("href") || row.href;
+
+            if (!matchesSeason || seenTravels.has(travelUrl)) {
+                return false;
+            }
+
+            seenTravels.add(travelUrl);
+            return true;
+        });
+
+        flyout.replaceChildren();
+
+        const heading = document.createElement("div");
+        const headingText = document.createElement("span");
+        const headingArrow = document.createElement("strong");
+
+        heading.className = "home-season-flyout-heading";
+        headingText.textContent = "Resor i " + seasonName;
+        headingArrow.textContent = "→";
+        heading.append(headingText, headingArrow);
+        flyout.appendChild(heading);
+
+        if (matchingRows.length === 0) {
+            const empty = document.createElement("div");
+            const name = document.createElement("span");
+
+            empty.className = "home-season-empty";
+            empty.append("Tyvärr har vi inga resor just nu under ");
+            name.textContent = seasonName;
+            empty.append(name, ".");
+            flyout.appendChild(empty);
+            return;
+        }
+
+        const list = document.createElement("div");
+        list.className = "home-season-flyout-list";
+        matchingRows.forEach((row) => {
+            list.appendChild(createSeasonLink(row));
+        });
+        flyout.appendChild(list);
+    };
+
     const applyFilters = () => {
         calendarRows.forEach((row) => {
             row.classList.toggle(
@@ -283,6 +387,14 @@ if (homeFinder) {
         updateEmptyMessage();
     };
 
+    const closeSeasonFlyouts = () => {
+        openSeason = "";
+
+        seasonFlyouts.forEach((flyout) => {
+            flyout.hidden = true;
+        });
+    };
+
     const closeCountryFlyouts = () => {
         openCountry = "";
 
@@ -295,8 +407,8 @@ if (homeFinder) {
         });
     };
 
-    const positionCountryFlyout = (button, flyout) => {
-        if (!countryGroup || !button || !flyout) {
+    const positionSidebarFlyout = (button, flyout) => {
+        if (!button || !flyout) {
             return;
         }
 
@@ -319,6 +431,39 @@ if (homeFinder) {
         flyout.style.top = Math.max(14, top) + "px";
     };
 
+    const openSeasonFlyout = (button) => {
+        const selectedSeason = button.dataset.seasonFilter;
+        const seasonName =
+            button.dataset.seasonName
+            || seasonNames[selectedSeason]
+            || selectedSeason;
+
+        if (openSeason === selectedSeason) {
+            activeSeason = "";
+            closeSeasonFlyouts();
+            applyFilters();
+            return;
+        }
+
+        activeSeason = selectedSeason;
+        openSeason = selectedSeason;
+        closeCountryFlyouts();
+
+        seasonFlyouts.forEach((flyout) => {
+            const isSelected =
+                flyout.dataset.seasonFlyout === selectedSeason;
+
+            flyout.hidden = !isSelected;
+
+            if (isSelected) {
+                renderSeasonFlyout(flyout, selectedSeason, seasonName);
+                positionSidebarFlyout(button, flyout);
+            }
+        });
+
+        applyFilters();
+    };
+
     const openCountryFlyout = (button) => {
         const selectedCountry = button.dataset.countryFilter;
 
@@ -328,6 +473,7 @@ if (homeFinder) {
         }
 
         openCountry = selectedCountry;
+        closeSeasonFlyouts();
 
         countryFlyouts.forEach((flyout) => {
             const isSelected =
@@ -336,7 +482,7 @@ if (homeFinder) {
             flyout.hidden = !isSelected;
 
             if (isSelected) {
-                positionCountryFlyout(button, flyout);
+                positionSidebarFlyout(button, flyout);
             }
         });
 
@@ -391,14 +537,9 @@ if (homeFinder) {
     });
 
     seasonButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-            const selectedSeason = button.dataset.seasonFilter;
-
-            activeSeason = activeSeason === selectedSeason
-                ? ""
-                : selectedSeason;
-
-            applyFilters();
+        button.addEventListener("click", (event) => {
+            event.stopPropagation();
+            openSeasonFlyout(button);
         });
     });
 
@@ -411,6 +552,14 @@ if (homeFinder) {
 
     document.addEventListener("click", (event) => {
         if (
+            seasonGroup
+            && openSeason
+            && !seasonGroup.contains(event.target)
+        ) {
+            closeSeasonFlyouts();
+        }
+
+        if (
             !countryGroup
             || !openCountry
             || countryGroup.contains(event.target)
@@ -421,7 +570,10 @@ if (homeFinder) {
         closeCountryFlyouts();
     });
 
-    window.addEventListener("resize", closeCountryFlyouts);
+    window.addEventListener("resize", () => {
+        closeSeasonFlyouts();
+        closeCountryFlyouts();
+    });
 
     [dateFilter, airportFilter, nightsFilter].forEach((filter) => {
         if (!filter) {
@@ -435,6 +587,7 @@ if (homeFinder) {
     if (resetButton) {
         resetButton.addEventListener("click", () => {
             activeSeason = "";
+            closeSeasonFlyouts();
             closeCountryFlyouts();
 
             if (dateFilter) {

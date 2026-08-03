@@ -95,12 +95,6 @@ select {
     cursor: pointer;
 }
 
-.nav-dropdown-toggle::after {
-    content: "⌄";
-    margin-left: 7px;
-    font-size: 13px;
-}
-
 .nav-dropdown:hover .nav-dropdown-toggle,
 .nav-dropdown:focus-within .nav-dropdown-toggle,
 .active-dropdown .nav-dropdown-toggle {
@@ -487,80 +481,102 @@ select {
     top: 92px;
     left: 16px;
     z-index: 80;
-    background: #f4f7fb;
-    border: 1px solid #d9e5ee;
-    border-radius: 16px;
-    box-shadow: 0 18px 45px rgba(16, 36, 39, 0.12);
+    background: #f8faf7;
+    border: 1px solid rgba(226, 222, 213, 0.92);
+    border-radius: 18px;
+    box-shadow: 0 22px 58px rgba(16, 36, 39, 0.14);
 }
 
 .home-sidebar-primary {
     display: grid;
-    background: #0f568b;
+    overflow: hidden;
+    background:
+            linear-gradient(180deg, #07384a 0%, #06475a 100%);
+    border-radius: 17px 17px 0 0;
 }
 
 .home-sidebar-action {
-    min-height: 62px;
-    padding: 0 18px;
+    min-height: 58px;
+    padding: 0 16px;
     display: flex;
     align-items: center;
-    gap: 13px;
+    gap: 12px;
     color: var(--white);
     background: transparent;
     border: 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.13);
     font: inherit;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 900;
     text-align: left;
     cursor: pointer;
+    transition:
+            background 0.2s ease,
+            color 0.2s ease;
 }
 
 .home-sidebar-action span {
-    width: 27px;
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
     text-align: center;
-    font-size: 22px;
+    color: #d9be73;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    font-size: 18px;
 }
 
 .home-sidebar-action:hover,
 .home-sidebar-action.is-active {
-    background: #0a4775;
+    background: rgba(255, 255, 255, 0.10);
 }
 
 .home-sidebar-group h3 {
     margin: 0;
-    padding: 14px 18px;
+    padding: 16px 18px 14px;
     color: var(--white);
-    background: #0f568b;
-    font-size: 21px;
+    background: #07384a;
+    font-size: 20px;
+    letter-spacing: 0.01em;
 }
 
 .home-sidebar-group button {
     width: 100%;
-    padding: 10px 18px 10px 38px;
+    padding: 11px 18px 11px 36px;
     display: block;
-    color: #0f568b;
-    background: #f4f7fb;
+    color: #06475a;
+    background: #f8faf7;
     border: 0;
     font: inherit;
-    font-size: 18px;
+    font-size: 17px;
+    font-weight: 700;
     text-align: left;
     cursor: pointer;
+    transition:
+            background 0.2s ease,
+            color 0.2s ease,
+            padding-left 0.2s ease;
 }
 
 .home-sidebar-group button:hover,
 .home-sidebar-group button.is-active {
     color: var(--white);
-    background: #0f568b;
+    background: #1f7378;
+    padding-left: 42px;
 }
 
+.home-season-group,
 .home-country-group {
     position: relative;
 }
 
+.home-season-item,
 .home-country-item {
     position: relative;
 }
 
+.home-season-flyout,
 .home-country-flyout {
     position: fixed;
     z-index: 130;
@@ -572,6 +588,13 @@ select {
     box-shadow: 0 18px 34px rgba(15, 46, 76, 0.24);
 }
 
+.home-season-flyout {
+    color: #07384a;
+    background: #f5faf9;
+    border-color: #1f7378;
+}
+
+.home-season-flyout::before,
 .home-country-flyout::before {
     content: "";
     position: absolute;
@@ -584,6 +607,11 @@ select {
     border-right: 14px solid #dce8fb;
 }
 
+.home-season-flyout::before {
+    border-right-color: #f5faf9;
+}
+
+.home-season-flyout-heading,
 .home-country-flyout-heading {
     padding: 16px 24px;
     display: flex;
@@ -597,15 +625,23 @@ select {
     text-decoration: none;
 }
 
+.home-season-flyout-heading {
+    color: var(--white);
+    background: #07384a;
+}
+
+.home-season-flyout-heading strong,
 .home-country-flyout-heading strong {
     font-size: 32px;
     line-height: 1;
 }
 
+.home-season-flyout-list,
 .home-country-flyout-list {
     padding: 12px 0;
 }
 
+.home-season-travel-link,
 .home-country-travel-link {
     padding: 10px 18px 10px 24px;
     display: grid;
@@ -619,11 +655,13 @@ select {
             transform 0.2s ease;
 }
 
+.home-season-travel-link:hover,
 .home-country-travel-link:hover {
     background: rgba(255, 255, 255, 0.46);
     transform: translateX(4px);
 }
 
+.home-season-travel-link img,
 .home-country-travel-link img {
     width: 52px;
     height: 42px;
@@ -631,12 +669,27 @@ select {
     object-fit: cover;
 }
 
+.home-season-travel-link .home-season-travel-icon {
+    width: 52px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    color: #07384a;
+    background: #e6f4f2;
+    border-radius: 8px;
+    font-size: 22px;
+}
+
+.home-season-travel-link span,
 .home-country-travel-link span {
     min-width: 0;
     display: grid;
     gap: 2px;
 }
 
+.home-season-travel-link b,
+.home-season-travel-link small,
+.home-season-travel-link em,
 .home-country-travel-link b,
 .home-country-travel-link small,
 .home-country-travel-link em {
@@ -645,22 +698,37 @@ select {
     white-space: nowrap;
 }
 
+.home-season-travel-link b,
 .home-country-travel-link b {
     color: #0f568b;
     font-size: 18px;
 }
 
+.home-season-travel-link small,
 .home-country-travel-link small {
     color: #45616d;
     font-size: 14px;
 }
 
+.home-season-travel-link em,
 .home-country-travel-link em {
     grid-column: 2;
     color: #102427;
     font-style: normal;
     font-weight: 900;
     font-size: 14px;
+}
+
+.home-season-empty {
+    padding: 22px 24px;
+    color: #45616d;
+    font-size: 16px;
+    line-height: 1.45;
+}
+
+.home-season-empty span {
+    color: #07384a;
+    font-weight: 900;
 }
 
 @media (min-width: 901px) {
@@ -1559,6 +1627,7 @@ select {
         overflow: visible;
     }
 
+    .home-season-flyout,
     .home-country-flyout {
         position: static !important;
         width: auto !important;
@@ -1566,6 +1635,7 @@ select {
         border-radius: 12px;
     }
 
+    .home-season-flyout::before,
     .home-country-flyout::before {
         display: none;
     }

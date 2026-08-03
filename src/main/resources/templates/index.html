@@ -192,24 +192,40 @@
                 </button>
             </div>
 
-            <div class="home-sidebar-group">
+            <div class="home-sidebar-group home-season-group">
                 <h3>Säsong</h3>
 
-                <button type="button" data-season-filter="var">
-                    Vår
-                </button>
+                <div class="home-season-item">
+                    <button type="button" data-season-filter="var" data-season-name="vår">
+                        Vår
+                    </button>
 
-                <button type="button" data-season-filter="sommar">
-                    Sommar
-                </button>
+                    <div class="home-season-flyout" data-season-flyout="var" hidden></div>
+                </div>
 
-                <button type="button" data-season-filter="host">
-                    Höst
-                </button>
+                <div class="home-season-item">
+                    <button type="button" data-season-filter="sommar" data-season-name="sommar">
+                        Sommar
+                    </button>
 
-                <button type="button" data-season-filter="vinter">
-                    Vinter
-                </button>
+                    <div class="home-season-flyout" data-season-flyout="sommar" hidden></div>
+                </div>
+
+                <div class="home-season-item">
+                    <button type="button" data-season-filter="host" data-season-name="höst">
+                        Höst
+                    </button>
+
+                    <div class="home-season-flyout" data-season-flyout="host" hidden></div>
+                </div>
+
+                <div class="home-season-item">
+                    <button type="button" data-season-filter="vinter" data-season-name="vinter">
+                        Vinter
+                    </button>
+
+                    <div class="home-season-flyout" data-season-flyout="vinter" hidden></div>
+                </div>
             </div>
 
             <div class="home-sidebar-group home-country-group">
@@ -355,6 +371,10 @@
                             th:data-airport="${departure.departureAirport}"
                             th:data-nights="${departure.nights}"
                             th:data-date="${departure.departureDate}"
+                            th:data-destination="${departure.destination}"
+                            th:data-hotel="${departure.hotelName}"
+                            th:data-price="${departure.price}"
+                            th:data-image="${departure.imageUrl}"
                     >
                         <span>
                             ✈
