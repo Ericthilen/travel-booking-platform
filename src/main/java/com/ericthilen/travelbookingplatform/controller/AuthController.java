@@ -23,6 +23,11 @@ public class AuthController {
         return "login";
     }
 
+    @GetMapping("/kundtjanst/login")
+    public String showAgentLoginPage() {
+        return "agent-login";
+    }
+
     @GetMapping("/register")
     public String showRegistrationPage(Model model) {
         model.addAttribute(
