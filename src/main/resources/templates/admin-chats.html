@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Kundtjänst – EriGo Travel</title>
+
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/admin-chat.css">
+</head>
+
+<body>
+
+<div th:replace="~{fragments/site-header :: siteHeader('admin')}"></div>
+
+<main class="admin-chat-page">
+    <section class="admin-chat-hero">
+        <p class="eyebrow dark">Kundtjänst</p>
+        <h1>Inkomna chattar</h1>
+        <p>Här hanterar agenter konversationer som AI har startat eller eskalerat.</p>
+    </section>
+
+    <section class="admin-chat-filters">
+        <a
+                th:href="@{/admin/chattar(status='ALL')}"
+                th:classappend="${selectedStatus == 'ALL'} ? 'is-active'"
+        >
+            Alla
+        </a>
+
+        <a
+                th:each="status : ${statuses}"
+                th:href="@{/admin/chattar(status=${status.name()})}"
+                th:classappend="${selectedStatus == status.name()} ? 'is-active'"
+                th:text="${status.displayName}"
+        >
+            Pågår
+        </a>
+    </section>
+
+    <section class="admin-chat-list">
+        <div
+                class="admin-chat-empty"
+                th:if="${conversations.isEmpty()}"
+        >
+            Inga chattar matchar filtret just nu.
+        </div>
+
+        <article
+                class="admin-chat-card"
+                th:each="conversation : ${conversations}"
+        >
+            <div>
+                <span
+                        class="admin-chat-status"
+                        th:classappend="${conversation.status.name().toLowerCase()}"
+                        th:text="${conversation.status.displayName}"
+                >
+                    Väntar
+                </span>
+
+                <h2 th:text="${conversation.subject}">
+                    Fråga om bokning
+                </h2>
+
+                <p>
+                    <span th:text="${conversation.customerName ?: 'Gäst'}">
+                        Kund
+                    </span>
+                    <span th:if="${conversation.customerEmail != null}">
+                        ·
+                        <span th:text="${conversation.customerEmail}">
+                            kund@email.se
+                        </span>
+                    </span>
+                </p>
+            </div>
+
+            <div class="admin-chat-card-meta">
+                <span>
+                    Uppdaterad
+                    <strong th:text="${#temporals.format(conversation.updatedAt, 'yyyy-MM-dd HH:mm')}">
+                        2026-08-03 12:30
+                    </strong>
+                </span>
+
+                <span>
+                    Meddelanden
+                    <strong th:text="${conversation.messages.size()}">
+                        3
+                    </strong>
+                </span>
+            </div>
+
+            <a
+                    class="admin-chat-open"
+                    th:href="@{/admin/chattar/{id}(id=${conversation.id})}"
+            >
+                Öppna
+            </a>
+        </article>
+    </section>
+</main>
+
+</body>
+</html>

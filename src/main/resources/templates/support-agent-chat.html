@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Kundchatt – EriGo Travel</title>
+
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/agent-portal.css">
+</head>
+
+<body class="agent-conversation-body">
+<main class="agent-conversation-page">
+    <section
+            class="agent-chat-shell agent-conversation-shell"
+            th:data-conversation-id="${conversation.id}"
+            th:data-csrf-token="${_csrf != null ? _csrf.token : ''}"
+            th:data-csrf-header="${_csrf != null ? _csrf.headerName : ''}"
+            data-agent-conversation
+    >
+        <aside class="agent-chat-sidebar agent-conversation-sidebar">
+            <span
+                    class="agent-status agent-conversation-status"
+                    th:classappend="${conversation.status.name().toLowerCase()}"
+                    th:text="${conversation.status.displayName}"
+            >
+                Pågår
+            </span>
+
+            <h1 th:text="${conversation.subject}">
+                Kundchatt
+            </h1>
+
+            <p class="agent-conversation-number" th:text="'#C-' + ${conversation.id}">
+                #C-10234
+            </p>
+
+            <dl>
+                <div>
+                    <dt>Kund</dt>
+                    <dd>
+                        <span class="agent-sidebar-icon">♙</span>
+                        <span th:text="${conversation.customerName ?: 'Gäst'}">Gäst</span>
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>E-post</dt>
+                    <dd>
+                        <span class="agent-sidebar-icon">@</span>
+                        <span th:text="${conversation.customerEmail ?: 'Ej inloggad'}">
+                            Ej inloggad
+                        </span>
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>Agent</dt>
+                    <dd>
+                        <span class="agent-sidebar-icon">☏</span>
+                        <span th:text="${conversation.assignedAgentName ?: 'Ej ansluten'}">
+                            Ej ansluten
+                        </span>
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>Senast aktiv</dt>
+                    <dd>
+                        <span class="agent-sidebar-icon">◷</span>
+                        <span th:text="${#temporals.format(conversation.updatedAt, 'yyyy-MM-dd HH:mm')}">
+                            2026-08-03
+                        </span>
+                    </dd>
+                </div>
+            </dl>
+
+            <form
+                    th:if="${conversation.status.name() != 'CLOSED' and !conversation.hasAgentJoined()}"
+                    th:action="@{/kundtjanst/chattar/{id}/anslut(id=${conversation.id})}"
+                    method="post"
+            >
+                <button type="submit">
+                    Chatta med kund
+                </button>
+            </form>
+        </aside>
+
+        <section class="agent-thread agent-conversation-main">
+            <header class="agent-conversation-topbar">
+                <div class="agent-conversation-title">
+                    <span class="agent-topbar-icon">▣</span>
+                    <strong>Konversation</strong>
+                    <span class="agent-secure-badge">Säker anslutning</span>
+                </div>
+
+                <div class="agent-conversation-actions">
+                    <a class="agent-tool-button" th:href="@{/kundtjanst}">Tillbaka</a>
+                    <a class="agent-tool-button" th:href="@{/kundtjanst/rapporter}">Rapporter</a>
+
+                    <form
+                            th:if="${conversation.status.name() != 'CLOSED'}"
+                            th:action="@{/kundtjanst/chattar/{id}/eskalera(id=${conversation.id})}"
+                            method="post"
+                    >
+                        <button class="agent-tool-button agent-warning-button" type="submit">
+                            Eskalera
+                        </button>
+                    </form>
+
+                    <form
+                            th:if="${conversation.status.name() != 'CLOSED'}"
+                            th:action="@{/kundtjanst/chattar/{id}/avsluta(id=${conversation.id})}"
+                            method="post"
+                    >
+                        <button class="agent-tool-button" type="submit">
+                            Avsluta
+                        </button>
+                    </form>
+
+                    <form th:action="@{/logout}" method="post">
+                        <button class="agent-icon-button" type="submit" aria-label="Logga ut">
+                            ⇱
+                        </button>
+                    </form>
+                </div>
+            </header>
+
+            <div
+                    class="agent-alert success"
+                    th:if="${chatMessage}"
+                    th:text="${chatMessage}"
+            >
+                Sparat.
+            </div>
+
+            <div
+                    class="agent-alert error"
+                    th:if="${chatError}"
+                    th:text="${chatError}"
+            >
+                Fel.
+            </div>
+
+            <div
+                    class="agent-join-hint"
+                    th:if="${conversation.status.name() != 'CLOSED' and !conversation.hasAgentJoined()}"
+            >
+                Klicka på <strong>Chatta med kund</strong> innan du svarar. Först då ser kunden att du har anslutit.
+            </div>
+
+            <div class="agent-messages" data-agent-messages>
+                <article
+                        class="agent-message-row"
+                        th:each="message : ${conversation.messages}"
+                        th:classappend="${message.sender.name().toLowerCase()}"
+                >
+                    <span class="agent-message-avatar" aria-hidden="true"></span>
+
+                    <div
+                            class="agent-message"
+                            th:classappend="${message.sender.name().toLowerCase()}"
+                            th:data-message-id="${message.id}"
+                    >
+                        <span>
+                            <strong th:text="${message.authorName}">EriGo Assist</strong>
+                            ·
+                            <time th:text="${#temporals.format(message.createdAt, 'yyyy-MM-dd HH:mm')}">
+                                2026-08-03
+                            </time>
+                            <em th:if="${message.edited}">
+                                redigerat
+                            </em>
+                        </span>
+
+                        <p data-message-text th:text="${message.message}">
+                            Meddelande
+                        </p>
+
+                        <button
+                                class="agent-message-edit"
+                                type="button"
+                                th:if="${message.sender.name() == 'AGENT' and message.authorName == currentAgentName}"
+                                th:data-edit-message-id="${message.id}"
+                        >
+                            Redigera
+                        </button>
+                    </div>
+                </article>
+            </div>
+
+            <form
+                    class="agent-reply-form"
+                    th:if="${conversation.status.name() != 'CLOSED'}"
+                    th:action="@{/kundtjanst/chattar/{id}/svara(id=${conversation.id})}"
+                    th:object="${replyRequest}"
+                    method="post"
+            >
+                <label for="agentReply">Svara kunden</label>
+
+                <div class="agent-composer-tabs" role="toolbar" aria-label="Chattverktyg">
+                    <button class="is-active" type="button" data-reply-tab>
+                        Svar
+                    </button>
+
+                    <button type="button">
+                        Redigera
+                    </button>
+
+                    <button type="button" data-note-toggle>
+                        Anteckning
+                    </button>
+
+                    <button type="button" data-shortcuts-toggle>
+                        Genvägar
+                    </button>
+
+                    <button type="button">
+                        Kunskapsbas
+                    </button>
+                </div>
+
+                <div
+                        class="agent-reply-shortcuts"
+                        aria-label="Svarsmallar"
+                        hidden
+                        data-shortcuts-menu
+                >
+                    <button type="button" data-reply-template="Hej! Jag kikar på det direkt och återkommer strax.">
+                        Kikar på det
+                    </button>
+                    <button type="button" data-reply-template="Kan du skicka ditt bokningsnummer så hjälper jag dig vidare?">
+                        Be om bokningsnr
+                    </button>
+                    <button type="button" data-reply-template="Jag förstår. Jag ska hjälpa dig att kontrollera vad som gäller för din bokning.">
+                        Bekräfta hjälp
+                    </button>
+                </div>
+
+                <div class="agent-reply-row">
+                    <textarea
+                            id="agentReply"
+                            th:field="*{message}"
+                            rows="2"
+                            th:disabled="${!conversation.hasAgentJoined()}"
+                            placeholder="Skicka ditt meddelande till kunden..."
+                    ></textarea>
+
+                    <button
+                            type="submit"
+                            th:disabled="${!conversation.hasAgentJoined()}"
+                            aria-label="Skicka"
+                    >
+                        <span aria-hidden="true">➤</span>
+                    </button>
+                </div>
+
+                <p>Tryck på Enter för att skicka. Shift + Enter för ny rad.</p>
+            </form>
+
+            <form
+                    class="agent-note-form"
+                    th:if="${conversation.status.name() != 'CLOSED'}"
+                    th:action="@{/kundtjanst/chattar/{id}/anteckning(id=${conversation.id})}"
+                    method="post"
+                    hidden
+                    data-agent-note-form
+            >
+                <label for="agentNote">
+                    Privat anteckning
+                    <span>Syns bara för agenter.</span>
+                </label>
+
+                <textarea
+                        id="agentNote"
+                        name="note"
+                        rows="3"
+                        placeholder="Skriv intern anteckning om ärendet..."
+                ></textarea>
+
+                <div class="agent-note-actions">
+                    <button type="submit">Spara anteckning</button>
+                    <button type="button" data-note-close>Avbryt</button>
+                </div>
+            </form>
+        </section>
+
+        <aside class="agent-conversation-details">
+            <h2>Konversationsdetaljer</h2>
+
+            <dl>
+                <div>
+                    <dt>Skapad</dt>
+                    <dd th:text="${#temporals.format(conversation.createdAt, 'yyyy-MM-dd HH:mm')}">
+                        2026-08-04 09:26
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>Kanal</dt>
+                    <dd>Chatt</dd>
+                </div>
+
+                <div>
+                    <dt>Prioritet</dt>
+                    <dd><span class="agent-priority">Normal</span></dd>
+                </div>
+            </dl>
+
+            <section class="agent-detail-block">
+                <h3>Tags</h3>
+                <button class="agent-tag-button" type="button">+ Lägg till tagg</button>
+            </section>
+
+            <section class="agent-detail-block">
+                <h3>Historik</h3>
+
+                <ol class="agent-history">
+                    <li>
+                        <span class="agent-history-dot"></span>
+                        <strong>Automatiskt meddelande</strong>
+                        <time th:text="${#temporals.format(conversation.createdAt, 'yyyy-MM-dd HH:mm')}">
+                            2026-08-04 09:26
+                        </time>
+                        <p>EriGo Assist hälsade kunden välkommen</p>
+                    </li>
+
+                    <li th:if="${conversation.escalatedAt != null}">
+                        <span class="agent-history-dot warning"></span>
+                        <strong>Vidarekopplat</strong>
+                        <time th:text="${#temporals.format(conversation.escalatedAt, 'yyyy-MM-dd HH:mm')}">
+                            2026-08-04 09:27
+                        </time>
+                        <p>Vidarekopplat till kundtjänst</p>
+                    </li>
+
+                    <li th:if="${conversation.agentJoinedAt != null}">
+                        <span class="agent-history-dot"></span>
+                        <strong>Agent ansluten</strong>
+                        <time th:text="${#temporals.format(conversation.agentJoinedAt, 'yyyy-MM-dd HH:mm')}">
+                            2026-08-04 09:28
+                        </time>
+                        <p th:text="${conversation.assignedAgentName + ' tog över chatten'}">
+                            Agent tog över chatten
+                        </p>
+                    </li>
+
+                    <li th:if="${conversation.closedAt != null}">
+                        <span class="agent-history-dot done"></span>
+                        <strong>Konversation avslutad</strong>
+                        <time th:text="${#temporals.format(conversation.closedAt, 'yyyy-MM-dd HH:mm')}">
+                            2026-08-04 09:30
+                        </time>
+                        <p>Ärendet är avslutat</p>
+                    </li>
+                </ol>
+            </section>
+        </aside>
+    </section>
+</main>
+
+<script defer th:src="@{/js/agent-chat.js}"></script>
+
+</body>
+</html>

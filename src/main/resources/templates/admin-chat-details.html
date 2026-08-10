@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Chatt – EriGo Travel</title>
+
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/admin-chat.css">
+</head>
+
+<body>
+
+<div th:replace="~{fragments/site-header :: siteHeader('admin')}"></div>
+
+<main class="admin-chat-page">
+    <a class="admin-chat-back" th:href="@{/admin/chattar}">
+        ← Tillbaka till alla chattar
+    </a>
+
+    <section class="admin-chat-detail-shell">
+        <aside class="admin-chat-customer">
+            <span
+                    class="admin-chat-status"
+                    th:classappend="${conversation.status.name().toLowerCase()}"
+                    th:text="${conversation.status.displayName}"
+            >
+                Pågår
+            </span>
+
+            <h1 th:text="${conversation.subject}">
+                Kundchatt
+            </h1>
+
+            <dl>
+                <div>
+                    <dt>Kund</dt>
+                    <dd th:text="${conversation.customerName ?: 'Gäst'}">Gäst</dd>
+                </div>
+
+                <div>
+                    <dt>E-post</dt>
+                    <dd th:text="${conversation.customerEmail ?: 'Ej inloggad'}">
+                        Ej inloggad
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>Skapad</dt>
+                    <dd th:text="${#temporals.format(conversation.createdAt, 'yyyy-MM-dd HH:mm')}">
+                        2026-08-03
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>Senast uppdaterad</dt>
+                    <dd th:text="${#temporals.format(conversation.updatedAt, 'yyyy-MM-dd HH:mm')}">
+                        2026-08-03
+                    </dd>
+                </div>
+            </dl>
+
+            <form
+                    th:if="${conversation.status.name() != 'CLOSED' and !conversation.hasAgentJoined()}"
+                    th:action="@{/admin/chattar/{id}/anslut(id=${conversation.id})}"
+                    method="post"
+            >
+                <button type="submit">
+                    Chatta med kund
+                </button>
+            </form>
+
+            <form
+                    th:if="${conversation.status.name() != 'CLOSED'}"
+                    th:action="@{/admin/chattar/{id}/avsluta(id=${conversation.id})}"
+                    method="post"
+            >
+                <button type="submit">
+                    Avsluta chatten
+                </button>
+            </form>
+        </aside>
+
+        <section class="admin-chat-thread">
+            <div
+                    class="admin-chat-alert success"
+                    th:if="${chatMessage}"
+                    th:text="${chatMessage}"
+            >
+                Sparat.
+            </div>
+
+            <div
+                    class="admin-chat-alert error"
+                    th:if="${chatError}"
+                    th:text="${chatError}"
+            >
+                Fel.
+            </div>
+
+            <div class="admin-chat-messages">
+                <article
+                        class="admin-chat-message"
+                        th:each="message : ${conversation.messages}"
+                        th:classappend="${message.sender.name().toLowerCase()}"
+                >
+                    <span>
+                        <strong th:text="${message.authorName}">EriGo Assist</strong>
+                        ·
+                        <time th:text="${#temporals.format(message.createdAt, 'yyyy-MM-dd HH:mm')}">
+                            2026-08-03
+                        </time>
+                    </span>
+
+                    <p th:text="${message.message}">
+                        Meddelande
+                    </p>
+                </article>
+            </div>
+
+            <div
+                    class="admin-chat-alert error"
+                    th:if="${conversation.status.name() != 'CLOSED' and !conversation.hasAgentJoined()}"
+            >
+                Klicka på Chatta med kund innan du svarar. Då får kunden se att du har anslutit.
+            </div>
+
+            <form
+                    class="admin-chat-reply"
+                    th:if="${conversation.status.name() != 'CLOSED'}"
+                    th:action="@{/admin/chattar/{id}/svara(id=${conversation.id})}"
+                    th:object="${replyRequest}"
+                    method="post"
+            >
+                <label for="agentReply">Svara kunden</label>
+                <textarea
+                        id="agentReply"
+                        th:field="*{message}"
+                        rows="4"
+                        th:disabled="${!conversation.hasAgentJoined()}"
+                        placeholder="Skriv ett tydligt och hjälpsamt svar..."
+                ></textarea>
+
+                <button
+                        type="submit"
+                        th:disabled="${!conversation.hasAgentJoined()}"
+                >
+                    Skicka svar
+                </button>
+            </form>
+        </section>
+    </section>
+</main>
+
+</body>
+</html>
