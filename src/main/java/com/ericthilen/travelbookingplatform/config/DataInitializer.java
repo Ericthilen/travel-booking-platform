@@ -7,6 +7,7 @@ import com.ericthilen.travelbookingplatform.model.User;
 import com.ericthilen.travelbookingplatform.repository.DepartureRepository;
 import com.ericthilen.travelbookingplatform.repository.TravelRepository;
 import com.ericthilen.travelbookingplatform.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,7 +29,8 @@ public class DataInitializer {
             DepartureRepository departureRepository,
             UserRepository userRepository,
             JdbcTemplate jdbcTemplate,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            @Value("${SUPPORT_AGENT_PASSWORD:}") String supportAgentPassword
     ) {
         return args -> {
             if (travelRepository.count() == 0) {
@@ -45,7 +47,8 @@ public class DataInitializer {
             createSupportAgent(
                     userRepository,
                     jdbcTemplate,
-                    passwordEncoder
+                    passwordEncoder,
+                    supportAgentPassword
             );
             updateCeoAccount(userRepository);
         };
@@ -63,28 +66,37 @@ public class DataInitializer {
     private void createSupportAgent(
             UserRepository userRepository,
             JdbcTemplate jdbcTemplate,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            String supportAgentPassword
     ) {
         makeRoleColumnReadyForSupportAgents(jdbcTemplate);
 
         String email = "eric@customerservice.com";
-        String encodedPassword = passwordEncoder.encode("banan123");
+        String encodedPassword = supportAgentPassword.isBlank()
+                ? null
+                : passwordEncoder.encode(supportAgentPassword);
 
         userRepository
                 .findByEmailIgnoreCase(email)
                 .ifPresentOrElse(
                         user -> {
                             user.setFullName("Eric Kundtjänst");
-                            user.setPassword(encodedPassword);
+                            if (encodedPassword != null) {
+                                user.setPassword(encodedPassword);
+                            }
                             user.setRole(Role.ROLE_AGENT);
                             userRepository.save(user);
                         },
-                        () -> userRepository.save(new User(
-                                "Eric Kundtjänst",
-                                email,
-                                encodedPassword,
-                                Role.ROLE_AGENT
-                        ))
+                        () -> {
+                            if (encodedPassword != null) {
+                                userRepository.save(new User(
+                                        "Eric Kundtjänst",
+                                        email,
+                                        encodedPassword,
+                                        Role.ROLE_AGENT
+                                ));
+                            }
+                        }
                 );
     }
 
