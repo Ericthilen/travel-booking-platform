@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kundnöjdhet – EriGo Kundtjänst</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/agent-portal.css">
+</head>
+<body class="agent-crm-body" data-realtime-refresh="true">
+<aside class="crm-sidebar">
+    <a class="crm-sidebar-logo" th:href="@{/}">
+        <span>E</span>
+        <strong>EriGo Kundtjänst</strong>
+    </a>
+
+    <nav class="crm-sidebar-nav" aria-label="Kundtjänstmeny">
+        <a th:href="@{/kundtjanst}"><span>⌂</span> Översikt</a>
+        <a th:href="@{/kundtjanst/mejl}"><span>✉</span> E-post</a>
+        <a class="is-active" th:href="@{/kundtjanst/kundnojdhet}">
+            <span>★</span>
+            Kundnöjdhet
+        </a>
+        <a th:href="@{/kundtjanst/rapporter}"><span>?</span> Rapporter</a>
+    </nav>
+</aside>
+
+<div class="crm-shell">
+    <header class="crm-topbar">
+        <a class="agent-open-chat" th:href="@{/kundtjanst}">
+            Till dashboard
+        </a>
+        <form th:action="@{/logout}" method="post">
+            <button class="crm-logout" type="submit">Logga ut</button>
+        </form>
+    </header>
+
+    <main class="crm-main satisfaction-main">
+        <section class="crm-content">
+            <div class="crm-page-heading">
+                <div>
+                    <p>Kundservice</p>
+                    <h1>Kundnöjdhet</h1>
+                    <span>Här ser du vilka kunder som har svarat på enkäten och vilket betyg ärendet fick.</span>
+                </div>
+            </div>
+
+            <section class="crm-stat-grid satisfaction-stats">
+                <article class="crm-stat-card chat">
+                    <div class="crm-stat-icon">★</div>
+                    <div>
+                        <span>Snittbetyg</span>
+                        <strong th:text="${averageRating > 0 ? #numbers.formatDecimal(averageRating, 1, 1) : '0.0'}">
+                            0.0
+                        </strong>
+                        <p>av 5</p>
+                    </div>
+                </article>
+
+                <article class="crm-stat-card mail">
+                    <div class="crm-stat-icon">✉</div>
+                    <div>
+                        <span>Besvarade enkäter</span>
+                        <strong th:text="${reviewCount}">0</strong>
+                        <p>totalt</p>
+                    </div>
+                </article>
+            </section>
+
+            <section class="crm-panel">
+                <div class="crm-panel-header">
+                    <h2>Senaste omdömen</h2>
+                </div>
+
+                <div class="crm-table-shell satisfaction-table">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Kund</th>
+                            <th>Ärende</th>
+                            <th>Typ</th>
+                            <th>Agent</th>
+                            <th>Betyg</th>
+                            <th>Svarat</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="review : ${reviews}">
+                            <td>
+                                <strong th:text="${review.customerName ?: review.customerEmail}">
+                                    Kund
+                                </strong>
+                                <small th:text="${review.customerEmail}">kund@example.se</small>
+                            </td>
+                            <td>
+                                <strong th:text="${review.caseNumber}">EMAIL-1234567</strong>
+                                <small th:text="${review.subject}">Ämne</small>
+                            </td>
+                            <td th:text="${review.caseType.name() == 'EMAIL' ? 'Mejl' : 'Chatt'}">
+                                Mejl
+                            </td>
+                            <td th:text="${review.agentName ?: 'Ej tilldelad'}">Agent</td>
+                            <td>
+                                <span
+                                        class="satisfaction-rating"
+                                        th:classappend="${review.rating == null} ? 'waiting'"
+                                        th:text="${review.rating == null ? 'Väntar' : review.rating + ' / 5'}"
+                                >
+                                    5 / 5
+                                </span>
+                            </td>
+                            <td th:text="${review.ratedAt == null ? 'Inte svarat än' : #temporals.format(review.ratedAt, 'yyyy-MM-dd HH:mm')}">
+                                2026-08-07
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="agent-empty" th:if="${reviews.isEmpty()}">
+                        Det finns inga kundomdömen ännu.
+                    </div>
+                </div>
+            </section>
+        </section>
+    </main>
+</div>
+<script defer th:src="@{/js/realtime-page-refresh.js}"></script>
+</body>
+</html>

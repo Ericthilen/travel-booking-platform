@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Rapporter – EriGo Kundtjänst</title>
+
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/agent-portal.css">
+</head>
+
+<body>
+
+<header class="agent-header">
+    <a class="logo" th:href="@{/}">
+        <span class="logo-mark">E</span>
+        <span>EriGo Kundtjänst</span>
+    </a>
+
+    <nav>
+        <a th:href="@{/kundtjanst}">Dashboard</a>
+        <a th:href="@{/kundtjanst/rapporter}">Rapporter</a>
+
+        <form th:action="@{/logout}" method="post">
+            <button type="submit">Logga ut</button>
+        </form>
+    </nav>
+</header>
+
+<main class="agent-page">
+    <a class="agent-back" th:href="@{/kundtjanst}">
+        ← Tillbaka till kundtjänst
+    </a>
+
+    <section class="agent-hero">
+        <p>Eskalerade ärenden</p>
+        <h1>Rapporter</h1>
+        <span>Här samlas chattar som behöver följas upp efter kundkontakt.</span>
+    </section>
+
+    <section class="support-report-list">
+        <div class="agent-empty" th:if="${tickets.isEmpty()}">
+            Det finns inga eskalerade rapporter just nu.
+        </div>
+
+        <article
+                class="support-report-card"
+                th:each="ticket : ${tickets}"
+        >
+            <div class="support-report-main">
+                <span class="agent-status escalated">Eskalerad</span>
+
+                <h2 th:text="${ticket.title}">
+                    Kundärende
+                </h2>
+
+                <p th:text="${ticket.summary}">
+                    AI-sammanfattning av ärendet.
+                </p>
+            </div>
+
+            <dl>
+                <div>
+                    <dt>Kund</dt>
+                    <dd th:text="${ticket.conversation.customerName ?: 'Gäst'}">
+                        Gäst
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>E-post</dt>
+                    <dd th:text="${ticket.conversation.customerEmail ?: 'Ej inloggad'}">
+                        Ej inloggad
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>Eskalerad av</dt>
+                    <dd th:text="${ticket.escalatedBy}">
+                        Agent
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>Skapad</dt>
+                    <dd th:text="${#temporals.format(ticket.createdAt, 'yyyy-MM-dd HH:mm')}">
+                        2026-08-04
+                    </dd>
+                </div>
+            </dl>
+
+            <a
+                    class="agent-open-chat"
+                    th:href="@{/kundtjanst/chattar/{id}(id=${ticket.conversation.id})}"
+            >
+                Öppna chatt
+            </a>
+        </article>
+    </section>
+</main>
+
+</body>
+</html>

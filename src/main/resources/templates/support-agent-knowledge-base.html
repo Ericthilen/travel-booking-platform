@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kunskapsbas – EriGo Kundtjänst</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/agent-portal.css">
+</head>
+<body class="agent-crm-body">
+<aside class="crm-sidebar">
+    <a class="crm-sidebar-logo" th:href="@{/}">
+        <span>E</span>
+        <strong>EriGo Kundtjänst</strong>
+    </a>
+
+    <nav class="crm-sidebar-nav" aria-label="Kundtjänstmeny">
+        <a th:href="@{/kundtjanst}"><span>⌂</span> Översikt</a>
+        <a th:href="@{/kundtjanst/mejl}"><span>✉</span> E-post</a>
+        <a class="is-active" th:href="@{/kundtjanst/kunskapsbas}">
+            <span>☰</span>
+            Kunskapsbas
+        </a>
+        <a th:href="@{/kundtjanst/rapporter}"><span>?</span> Rapporter</a>
+    </nav>
+</aside>
+
+<div class="crm-shell">
+    <header class="crm-topbar">
+        <form class="crm-search" role="search">
+            <span>⌕</span>
+            <input type="search" placeholder="Sök i kunskapsbasen...">
+            <kbd>⌘ K</kbd>
+        </form>
+        <a class="crm-logout" th:href="@{/kundtjanst}">Till dashboard</a>
+    </header>
+
+    <main class="crm-main knowledge-main">
+        <section class="crm-content">
+            <div class="crm-page-heading">
+                <div>
+                    <p>Agentstöd</p>
+                    <h1>Kunskapsbas</h1>
+                    <span>Snabb information om resor, bokning, betalning och vanliga kundfrågor.</span>
+                </div>
+            </div>
+
+            <div class="knowledge-topic-row">
+                <span th:each="topic : ${topics}" th:text="${topic}">
+                    Resor
+                </span>
+            </div>
+
+            <section class="knowledge-grid">
+                <article
+                        class="crm-panel knowledge-card"
+                        th:each="article : ${articles}"
+                >
+                    <p th:text="${article.category()}">Kategori</p>
+                    <h2 th:text="${article.title()}">Artikel</h2>
+                    <strong th:text="${article.summary()}">Kort sammanfattning</strong>
+                    <dl>
+                        <div>
+                            <dt>Agenttips</dt>
+                            <dd th:text="${article.agentGuidance()}">Tips</dd>
+                        </div>
+                        <div>
+                            <dt>Att tänka på</dt>
+                            <dd th:text="${article.importantNotes()}">Notis</dd>
+                        </div>
+                    </dl>
+                </article>
+            </section>
+        </section>
+    </main>
+</div>
+</body>
+</html>

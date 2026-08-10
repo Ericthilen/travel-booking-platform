@@ -613,6 +613,17 @@ body {
     color: #0b7680;
 }
 
+.site-header .navigation .staff-dropdown-toggle {
+    color: #fff;
+    background: #bf2f2f;
+}
+
+.site-header .navigation .staff-dropdown:hover .staff-dropdown-toggle,
+.site-header .navigation .staff-dropdown:focus-within .staff-dropdown-toggle {
+    color: #fff;
+    background: #9f2424;
+}
+
 .site-header .logout-button,
 .site-header .login-link {
     min-height: 46px;

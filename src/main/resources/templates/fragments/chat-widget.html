@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+>
+<body>
+
+<div
+        class="customer-chat"
+        th:fragment="chatWidget"
+        th:data-csrf-token="${_csrf != null ? _csrf.token : ''}"
+        th:data-csrf-header="${_csrf != null ? _csrf.headerName : ''}"
+        th:data-chat-user="${#authentication != null ? #authentication.name : 'guest'}"
+>
+    <link rel="stylesheet" th:href="@{/css/customer-chat.css}">
+
+    <button
+            class="customer-chat-button"
+            type="button"
+            aria-label="Öppna kundtjänstchatten"
+            data-chat-open
+    >
+        <span>?</span>
+        <strong>Hjälp</strong>
+    </button>
+
+    <section
+            class="customer-chat-panel"
+            aria-label="EriGo kundtjänst"
+            data-chat-panel
+            hidden
+    >
+        <header class="customer-chat-header">
+            <div>
+                <span class="customer-chat-kicker">EriGo Assist</span>
+                <h2>Kundtjänst</h2>
+                <p data-chat-status>AI hjälper dig direkt</p>
+            </div>
+
+            <button
+                    type="button"
+                    aria-label="Stäng chatten"
+                    data-chat-close
+            >
+                ×
+            </button>
+        </header>
+
+        <div class="customer-chat-intro">
+            <strong>Vad behöver du hjälp med?</strong>
+            <span>Fråga om resor, bokning, betalning, faktura, avbokning eller konto.</span>
+        </div>
+
+        <div class="customer-chat-messages" data-chat-messages></div>
+
+        <form class="customer-chat-form" data-chat-form>
+            <textarea
+                    name="message"
+                    rows="2"
+                    placeholder="Skriv din fråga här..."
+                    aria-label="Skriv din fråga"
+                    data-chat-input
+            ></textarea>
+
+            <button type="submit">
+                Skicka
+            </button>
+        </form>
+    </section>
+
+    <section
+            class="customer-chat-close-dialog"
+            aria-label="Avsluta chatten"
+            data-chat-close-dialog
+            hidden
+    >
+        <div>
+            <h3>Avsluta chatten</h3>
+            <p>Kryssa rutan</p>
+
+            <button type="button" data-chat-end>
+                Avsluta chatten
+            </button>
+
+            <button type="button" data-chat-cancel-close>
+                Stäng fönstret
+            </button>
+        </div>
+    </section>
+
+    <script defer th:src="@{/js/customer-chat.js}"></script>
+</div>
+
+</body>
+</html>

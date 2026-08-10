@@ -16,12 +16,63 @@
     </a>
 
     <nav class="navigation" aria-label="Huvudmeny">
-        <a
-                th:href="@{/}"
-                th:classappend="${activePage == 'home'} ? 'active-link'"
+        <div
+                class="nav-dropdown staff-dropdown"
+                sec:authorize="hasAnyRole('ADMIN','AGENT')"
         >
-            Hem
-        </a>
+            <button
+                    class="nav-dropdown-toggle staff-dropdown-toggle"
+                    type="button"
+                    aria-haspopup="true"
+            >
+                <span
+                        th:text="${staffMenuName}"
+                >
+                    ERIGOS ERIC
+                </span>
+            </button>
+
+            <div class="nav-dropdown-menu staff-dropdown-menu">
+                <a
+                        th:href="@{/kundtjanst}"
+                        sec:authorize="hasRole('AGENT')"
+                >
+                    CS dashboard
+                </a>
+                <span
+                        class="nav-disabled-link"
+                        sec:authorize="hasRole('ADMIN') and !hasRole('AGENT')"
+                >
+                    CS dashboard
+                </span>
+
+                <a
+                        th:href="@{/admin}"
+                        sec:authorize="hasRole('ADMIN')"
+                >
+                    Adminpanel
+                </a>
+                <span
+                        class="nav-disabled-link"
+                        sec:authorize="hasRole('AGENT') and !hasRole('ADMIN')"
+                >
+                    Adminpanel
+                </span>
+
+                <a
+                        th:href="@{/admin/resor}"
+                        sec:authorize="hasRole('ADMIN')"
+                >
+                    Hantera resor
+                </a>
+                <span
+                        class="nav-disabled-link"
+                        sec:authorize="hasRole('AGENT') and !hasRole('ADMIN')"
+                >
+                    Hantera resor
+                </span>
+            </div>
+        </div>
 
         <a
                 th:href="@{/resor}"
@@ -60,14 +111,6 @@
         </div>
 
         <a
-                th:href="@{/admin}"
-                th:classappend="${activePage == 'admin'} ? 'active-link'"
-                sec:authorize="hasRole('ADMIN')"
-        >
-            Admin
-        </a>
-
-        <a
                 th:href="@{/mitt-konto}"
                 th:classappend="${activePage == 'account'} ? 'active-link'"
                 sec:authorize="isAuthenticated()"
@@ -103,6 +146,8 @@
     >
         ☰
     </button>
+
+    <div th:replace="~{fragments/chat-widget :: chatWidget}"></div>
 </header>
 
 </body>

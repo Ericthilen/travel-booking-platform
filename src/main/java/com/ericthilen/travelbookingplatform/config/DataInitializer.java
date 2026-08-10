@@ -1,13 +1,19 @@
 package com.ericthilen.travelbookingplatform.config;
 
 import com.ericthilen.travelbookingplatform.model.Departure;
+import com.ericthilen.travelbookingplatform.model.Role;
 import com.ericthilen.travelbookingplatform.model.Travel;
+import com.ericthilen.travelbookingplatform.model.User;
 import com.ericthilen.travelbookingplatform.repository.DepartureRepository;
 import com.ericthilen.travelbookingplatform.repository.TravelRepository;
+import com.ericthilen.travelbookingplatform.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -20,7 +26,11 @@ public class DataInitializer {
     @Order(1)
     public CommandLineRunner initializeData(
             TravelRepository travelRepository,
-            DepartureRepository departureRepository
+            DepartureRepository departureRepository,
+            UserRepository userRepository,
+            JdbcTemplate jdbcTemplate,
+            PasswordEncoder passwordEncoder,
+            @Value("${SUPPORT_AGENT_PASSWORD:}") String supportAgentPassword
     ) {
         return args -> {
             if (travelRepository.count() == 0) {
@@ -33,7 +43,69 @@ public class DataInitializer {
                         departureRepository
                 );
             }
+
+            createSupportAgent(
+                    userRepository,
+                    jdbcTemplate,
+                    passwordEncoder,
+                    supportAgentPassword
+            );
+            updateCeoAccount(userRepository);
         };
+    }
+
+    private void updateCeoAccount(UserRepository userRepository) {
+        userRepository
+                .findByEmailIgnoreCase("thileneric@erigotravel.com")
+                .ifPresent(user -> {
+                    user.setRole(Role.ROLE_CEO);
+                    userRepository.save(user);
+                });
+    }
+
+    private void createSupportAgent(
+            UserRepository userRepository,
+            JdbcTemplate jdbcTemplate,
+            PasswordEncoder passwordEncoder,
+            String supportAgentPassword
+    ) {
+        makeRoleColumnReadyForSupportAgents(jdbcTemplate);
+
+        String email = "eric@customerservice.com";
+        String encodedPassword = supportAgentPassword.isBlank()
+                ? null
+                : passwordEncoder.encode(supportAgentPassword);
+
+        userRepository
+                .findByEmailIgnoreCase(email)
+                .ifPresentOrElse(
+                        user -> {
+                            user.setFullName("Eric Kundtjänst");
+                            if (encodedPassword != null) {
+                                user.setPassword(encodedPassword);
+                            }
+                            user.setRole(Role.ROLE_AGENT);
+                            userRepository.save(user);
+                        },
+                        () -> {
+                            if (encodedPassword != null) {
+                                userRepository.save(new User(
+                                        "Eric Kundtjänst",
+                                        email,
+                                        encodedPassword,
+                                        Role.ROLE_AGENT
+                                ));
+                            }
+                        }
+                );
+    }
+
+    private void makeRoleColumnReadyForSupportAgents(JdbcTemplate jdbcTemplate) {
+        try {
+            jdbcTemplate.execute("ALTER TABLE users MODIFY role VARCHAR(50) NOT NULL");
+        } catch (Exception ignored) {
+            // Some databases already store roles as text, so there is nothing to change.
+        }
     }
 
     private void createTravels(
