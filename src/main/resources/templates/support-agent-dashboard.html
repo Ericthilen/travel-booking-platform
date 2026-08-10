@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Kundtjänst – EriGo Travel</title>
+
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/agent-portal.css">
+</head>
+
+<body class="agent-crm-body">
+
+<aside class="crm-sidebar">
+    <a class="crm-sidebar-logo" th:href="@{/}">
+        <span>E</span>
+        <strong>EriGo Kundtjänst</strong>
+    </a>
+
+    <nav class="crm-sidebar-nav" aria-label="Kundtjänstmeny">
+        <a class="is-active" th:href="@{/kundtjanst}">
+            <span>⌂</span>
+            Översikt
+        </a>
+
+        <p>Konversationer</p>
+
+        <a th:href="@{/kundtjanst(status='ALL')}">
+            <span>□</span>
+            Alla konversationer
+            <em data-open-chats-menu th:text="${queueOverview.openChats + queueOverview.waitingForAgentChats + queueOverview.escalatedChats}">
+                0
+            </em>
+        </a>
+
+        <a th:href="@{/kundtjanst(status='OPEN')}">
+            <span>◱</span>
+            Chatt
+            <em data-chat-count th:text="${queueOverview.openChats}">0</em>
+        </a>
+
+        <a th:href="@{/kundtjanst/mejl}">
+            <span>✉</span>
+            E-post
+            <em data-email-count th:text="${queueOverview.incomingEmails}">0</em>
+        </a>
+
+        <a
+                th:href="@{/kundtjanst(mine=true)}"
+                th:classappend="${mine} ? 'is-active'"
+        >
+            <span>▣</span>
+            Mina ärenden
+            <em data-my-assigned-count th:text="${myAssignedCount}">0</em>
+        </a>
+
+        <p>Kunskapsbas</p>
+
+        <a th:href="@{/kundtjanst/kunskapsbas}">
+            <span>☰</span>
+            Kunskapsbas
+        </a>
+
+        <a th:href="@{/kundtjanst/rapporter}">
+            <span>?</span>
+            Rapporter
+        </a>
+    </nav>
+
+</aside>
+
+<div class="crm-shell">
+    <header class="crm-topbar">
+        <form class="crm-search" th:action="@{/kundtjanst}" method="get" role="search">
+            <span>⌕</span>
+            <label for="crmSearch" class="sr-only">Sök</label>
+            <input
+                    id="crmSearch"
+                    name="q"
+                    type="search"
+                    th:value="${searchQuery}"
+                    placeholder="Sök efter kund, konversation eller ärende..."
+            >
+            <input th:if="${mine}" type="hidden" name="mine" value="true">
+            <input th:if="${selectedStatus != 'ALL'}" type="hidden" name="status" th:value="${selectedStatus}">
+            <kbd>⌘ K</kbd>
+        </form>
+
+        <div class="crm-topbar-actions">
+            <div class="crm-agent-status" data-agent-status-control>
+                <span></span>
+                <button type="button" data-agent-status-button>
+                    Tillgänglig
+                </button>
+                <div class="crm-agent-status-menu" hidden data-agent-status-menu>
+                    <button type="button" data-agent-status-option="Tillgänglig">
+                        Tillgänglig
+                    </button>
+                    <button type="button" data-agent-status-option="Upptagen">
+                        Upptagen
+                    </button>
+                    <button type="button" data-agent-status-option="Offline">
+                        Offline
+                    </button>
+                    <button type="button" data-agent-status-option="På rast">
+                        På rast
+                    </button>
+                    <button type="button" data-agent-status-option="Strax tillbaka">
+                        Strax tillbaka
+                    </button>
+                </div>
+            </div>
+
+            <button class="crm-notification" type="button" aria-label="Notiser">
+                ♢
+                <em>3</em>
+            </button>
+
+            <div class="crm-profile">
+                <div class="crm-avatar">E</div>
+                <div>
+                    <strong sec:authentication="name">Eric Thilén</strong>
+                    <span>Agent</span>
+                </div>
+            </div>
+
+            <form th:action="@{/logout}" method="post">
+                <button class="crm-logout" type="submit">
+                    Logga ut
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <main class="crm-main">
+        <section class="crm-content">
+            <div class="crm-page-heading">
+                <div>
+                    <p>Kundtjänstportal</p>
+                    <h1>Välkommen tillbaka, Eric!</h1>
+                    <span>Här är en översikt av kundtjänsten i realtid.</span>
+                </div>
+
+            </div>
+
+            <section class="crm-stat-grid" data-agent-stats>
+                <article class="crm-stat-card chat">
+                    <div class="crm-stat-icon">◱</div>
+                    <div>
+                        <span>Öppna chattar</span>
+                        <strong data-open-chats th:text="${queueOverview.openChats}">0</strong>
+                        <p>
+                            <span data-open-chats-copy th:text="${queueOverview.openChats}">
+                                0
+                            </span>
+                            väntar just nu
+                        </p>
+                    </div>
+                </article>
+
+                <article class="crm-stat-card agent">
+                    <div class="crm-stat-icon">♙</div>
+                    <div>
+                        <span>Väntar på agent</span>
+                        <strong data-waiting-chats th:text="${queueOverview.waitingForAgentChats}">0</strong>
+                        <p>
+                            <span data-waiting-chats-copy th:text="${queueOverview.waitingForAgentChats}">
+                                0
+                            </span>
+                            behöver hjälp
+                        </p>
+                    </div>
+                </article>
+
+                <article class="crm-stat-card mail">
+                    <div class="crm-stat-icon">✉</div>
+                    <div>
+                        <span>Inkomna mejl</span>
+                        <strong data-incoming-emails th:text="${queueOverview.incomingEmails}">12</strong>
+                        <p>2 sedan igår</p>
+                    </div>
+                </article>
+            </section>
+
+            <section class="crm-chart-grid" aria-label="Statistik">
+                <article class="crm-panel">
+                    <div class="crm-panel-header">
+                        <h2>Konversationer över tid</h2>
+                        <select aria-label="Period">
+                            <option>Idag</option>
+                            <option>7 dagar</option>
+                            <option>30 dagar</option>
+                        </select>
+                    </div>
+
+                    <div class="crm-line-chart" aria-hidden="true">
+                        <svg viewBox="0 0 640 220" role="img">
+                            <path class="grid" d="M42 25H620M42 78H620M42 131H620M42 184H620"></path>
+                            <path class="line chat" d="M42 162 C95 125 135 154 181 110 C232 62 277 143 324 86 C371 40 438 105 492 75 C548 42 582 108 620 65"></path>
+                            <path class="line mail" d="M42 184 C106 176 158 160 210 158 C268 148 306 119 356 113 C402 102 448 66 496 104 C548 142 584 102 620 89"></path>
+                        </svg>
+                        <div class="crm-chart-legend">
+                            <span><i class="chat"></i>Chatt</span>
+                            <span><i class="mail"></i>E-post</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="crm-panel">
+                    <div class="crm-panel-header">
+                        <h2>Konversationer per kanal</h2>
+                    </div>
+
+                    <div class="crm-donut-layout">
+                        <div class="crm-donut" aria-hidden="true">
+                            <span>Totalt<br><strong data-total-conversations>0</strong></span>
+                        </div>
+
+                        <dl class="crm-channel-list">
+                            <div>
+                                <dt><i class="chat"></i> Chatt</dt>
+                                <dd data-channel-chat>0</dd>
+                            </div>
+                            <div>
+                                <dt><i class="mail"></i> E-post</dt>
+                                <dd data-channel-email>0</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </article>
+            </section>
+
+            <section class="crm-panel crm-conversations-panel">
+                <div class="crm-panel-header">
+                    <div>
+                        <h2>Senaste konversationer</h2>
+                        <span data-conversation-range>Visar aktiva ärenden</span>
+                    </div>
+                    <a th:href="@{/kundtjanst(status='ALL')}">Visa alla</a>
+                </div>
+
+                <div
+                        class="crm-conversation-filters agent-filters"
+                        th:data-selected-status="${selectedStatus}"
+                        data-agent-filters
+                >
+                    <a
+                            th:href="@{/kundtjanst(status='ALL')}"
+                            th:classappend="${selectedStatus == 'ALL' and !mine} ? 'is-active'"
+                            data-filter-channel="ALL"
+                    >
+                        Alla
+                    </a>
+                    <button type="button" data-channel-filter="CHAT">
+                        Chatt
+                    </button>
+                    <button type="button" data-channel-filter="EMAIL">
+                        E-post
+                    </button>
+                    <a
+                            th:href="@{/kundtjanst(status='OPEN')}"
+                            th:classappend="${selectedStatus == 'OPEN' and !mine} ? 'is-active'"
+                    >
+                        Pågår
+                    </a>
+                    <a
+                            th:href="@{/kundtjanst(status='WAITING_FOR_AGENT')}"
+                            th:classappend="${selectedStatus == 'WAITING_FOR_AGENT' and !mine} ? 'is-active'"
+                    >
+                        Väntar på agent
+                    </a>
+                    <a
+                            th:href="@{/kundtjanst(status='ESCALATED')}"
+                            th:classappend="${selectedStatus == 'ESCALATED' and !mine} ? 'is-active'"
+                    >
+                        Eskalerade
+                    </a>
+                    <a
+                            th:href="@{/kundtjanst(status='CLOSED')}"
+                            th:classappend="${selectedStatus == 'CLOSED' and !mine} ? 'is-active'"
+                    >
+                        Avslutade
+                    </a>
+                    <a
+                            th:href="@{/kundtjanst(status='ARCHIVED')}"
+                            th:classappend="${selectedStatus == 'ARCHIVED' and !mine} ? 'is-active'"
+                    >
+                        Arkiverade
+                    </a>
+                    <a
+                            th:href="@{/kundtjanst(mine=true)}"
+                            th:classappend="${mine} ? 'is-active'"
+                    >
+                        Mina ärenden
+                    </a>
+                </div>
+
+                <div
+                        class="crm-table-shell agent-chat-list"
+                        th:data-selected-status="${selectedStatus}"
+                        th:data-mine="${mine}"
+                        th:data-current-agent-name="${agentName}"
+                        th:data-search-query="${searchQuery}"
+                        th:data-support-agents="${#strings.listJoin(supportAgentNames, '|')}"
+                        th:data-csrf-token="${_csrf != null ? _csrf.token : ''}"
+                        th:data-csrf-parameter="${_csrf != null ? _csrf.parameterName : '_csrf'}"
+                        data-agent-chat-list
+                >
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Kund</th>
+                            <th>Kanal</th>
+                            <th>Ämne</th>
+                            <th>Agent</th>
+                            <th>Senast aktiv</th>
+                            <th>Status</th>
+                            <th>Åtgärd</th>
+                        </tr>
+                        </thead>
+
+                        <tbody data-agent-chat-table>
+                        <tr
+                                th:each="conversation : ${conversations}"
+                                th:data-href="@{/kundtjanst/chattar/{id}(id=${conversation.id})}"
+                                th:data-archive-at="${conversation.archiveAt != null ? #temporals.format(conversation.archiveAt, 'yyyy-MM-dd''T''HH:mm:ss') : ''}"
+                                th:classappend="${conversation.status.name() == 'CLOSED'} ? 'chat-row-closed' : (${conversation.status.name() == 'ESCALATED'} ? 'chat-row-escalated' : (${conversation.status.name() == 'WAITING_FOR_AGENT'} ? 'chat-row-waiting' : 'chat-row-active'))"
+                        >
+                            <td>
+                                <div class="crm-customer-cell">
+                                    <span th:text="${conversation.customerName != null && !conversation.customerName.isBlank() ? #strings.substring(conversation.customerName, 0, 1) : 'G'}">
+                                        G
+                                    </span>
+                                    <div>
+                                        <strong th:text="${conversation.customerName ?: 'Gäst'}">
+                                            Gäst
+                                        </strong>
+                                        <small th:text="${conversation.customerEmail ?: 'Ej inloggad'}">
+                                            Ej inloggad
+                                        </small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="crm-channel-badge chat">Chatt</span></td>
+                            <td th:text="${conversation.subject}">Kundfråga</td>
+                            <td th:text="${conversation.assignedAgentName ?: 'Ej ansluten'}">
+                                Ej ansluten
+                            </td>
+                            <td th:text="${#temporals.format(conversation.updatedAt, 'HH:mm')}">
+                                12:30
+                            </td>
+                            <td>
+                                <span
+                                        class="agent-status"
+                                        th:classappend="${conversation.status.name() == 'CLOSED'} ? 'closed' : (${conversation.status.name() == 'ESCALATED'} ? 'escalated' : (${conversation.status.name() == 'WAITING_FOR_AGENT'} ? 'waiting' : 'open'))"
+                                        th:text="${conversation.status.displayName}"
+                                >
+                                    Pågår
+                                </span>
+                                <small
+                                        class="agent-archive-timer"
+                                        data-archive-timer
+                                        th:if="${conversation.status.name() == 'CLOSED'}"
+                                        th:data-archive-at="${conversation.archiveAt != null ? #temporals.format(conversation.archiveAt, 'yyyy-MM-dd''T''HH:mm:ss') : ''}"
+                                >
+                                    Arkiveras om 15:00
+                                </small>
+                            </td>
+                            <td>
+                                <div class="agent-row-actions">
+                                    <a
+                                            class="agent-open-chat"
+                                            th:href="@{/kundtjanst/chattar/{id}(id=${conversation.id})}"
+                                    >
+                                        Öppna
+                                    </a>
+                                    <form
+                                            th:if="${conversation.status.name() == 'CLOSED'}"
+                                            th:action="@{/kundtjanst/chattar/{id}/arkivera(id=${conversation.id})}"
+                                            method="post"
+                                    >
+                                        <button class="agent-archive-button" type="submit">
+                                            Arkivera
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <div
+                            class="agent-empty"
+                            th:hidden="${!conversations.isEmpty()}"
+                            data-agent-empty
+                    >
+                        Det finns inga konversationer i den här vyn just nu.
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <aside class="crm-rightbar">
+            <section class="crm-panel">
+                <div class="crm-panel-header">
+                    <h2>Agenter online</h2>
+                    <a href="#">Visa alla</a>
+                </div>
+
+                <div class="crm-agent-list">
+                    <article>
+                        <span class="crm-avatar erik">E</span>
+                        <div>
+                            <strong>Eric Thilén (Du)</strong>
+                            <small data-current-agent-status>Tillgänglig</small>
+                        </div>
+                        <em>4</em>
+                    </article>
+                </div>
+            </section>
+
+            <section class="crm-panel crm-performance">
+                <h2>Prestanda idag</h2>
+
+                <dl>
+                    <div>
+                        <dt>Genomsnittlig svarstid</dt>
+                        <dd>2m 45s <span>↓ 12%</span></dd>
+                    </div>
+                    <div>
+                        <dt>Löst vid första kontakt</dt>
+                        <dd>87% <span>↑ 8%</span></dd>
+                    </div>
+                    <div>
+                        <dt>Kundnöjdhet</dt>
+                        <dd>
+                            <a class="crm-performance-link" th:href="@{/kundtjanst/kundnojdhet}">
+                                <span
+                                        data-satisfaction-average
+                                        th:text="${customerSatisfactionAverage > 0 ? #numbers.formatDecimal(customerSatisfactionAverage, 1, 1) + ' / 5' : '0.0 / 5'}"
+                                >
+                                    0.0 / 5
+                                </span>
+                                <small data-satisfaction-count th:text="${customerSatisfactionCount + ' svar'}">0 svar</small>
+                            </a>
+                        </dd>
+                    </div>
+                </dl>
+            </section>
+        </aside>
+    </main>
+</div>
+
+<script defer th:src="@{/js/agent-dashboard.js}"></script>
+
+</body>
+</html>
