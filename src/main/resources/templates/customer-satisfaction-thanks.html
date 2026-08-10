@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tack för ditt svar – EriGo Travel</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<main class="legal-page">
+    <section class="legal-hero">
+        <p>Kundnöjdhet</p>
+        <h1>Tack för ditt svar</h1>
+        <span th:text="'Du gav ärende ' + ${review.caseNumber} + ' betyget ' + ${review.rating} + ' av 5.'">
+            Tack för ditt svar.
+        </span>
+    </section>
+</main>
+</body>
+</html>
