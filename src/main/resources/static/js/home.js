@@ -1,6 +1,53 @@
 const searchForm = document.querySelector(".search-form");
 const menuButton = document.querySelector(".menu-button");
 const navigation = document.querySelector(".navigation");
+const homeVideo = document.querySelector("[data-home-video]");
+
+if (homeVideo) {
+    homeVideo.muted = true;
+    homeVideo.defaultMuted = true;
+    homeVideo.loop = true;
+    homeVideo.playsInline = true;
+
+    const startHomeVideo = () => {
+        if (!homeVideo.paused) {
+            return;
+        }
+
+        homeVideo.play().catch(() => {
+            // Some browsers wait for the first user interaction before autoplay.
+        });
+    };
+
+    if ("IntersectionObserver" in window) {
+        const videoObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    startHomeVideo();
+                }
+            });
+        }, { threshold: 0.25 });
+
+        videoObserver.observe(homeVideo);
+    }
+
+    homeVideo.addEventListener("loadeddata", startHomeVideo);
+    homeVideo.addEventListener("canplay", startHomeVideo);
+    homeVideo.addEventListener("pause", () => {
+        if (!homeVideo.ended) {
+            window.setTimeout(startHomeVideo, 350);
+        }
+    });
+
+    ["click", "touchstart", "scroll"].forEach((eventName) => {
+        window.addEventListener(eventName, startHomeVideo, {
+            once: true,
+            passive: true
+        });
+    });
+
+    startHomeVideo();
+}
 
 if (searchForm) {
     const destinationInput = document.querySelector("#destination");
