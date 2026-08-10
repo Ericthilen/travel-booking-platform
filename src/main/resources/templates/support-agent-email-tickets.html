@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-post – EriGo Kundtjänst</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/agent-portal.css">
+</head>
+<body class="agent-crm-body email-desk-body" data-realtime-refresh="true" data-realtime-protect-compose="true">
+<aside class="crm-sidebar email-desk-sidebar">
+    <a class="crm-sidebar-logo" th:href="@{/}">
+        <span>E</span>
+        <strong>EriGo Kundtjänst</strong>
+    </a>
+
+    <nav class="crm-sidebar-nav" aria-label="Kundtjänstmeny">
+        <a th:href="@{/kundtjanst}">
+            <span>⌂</span>
+            Översikt
+        </a>
+        <a class="is-active" th:href="@{/kundtjanst/mejl}">
+            <span>▣</span>
+            Mejl
+            <em th:text="${emailTickets.size()}">0</em>
+        </a>
+        <a th:href="@{/kundtjanst/kunskapsbas}">
+            <span>☰</span>
+            Kunskapsbas
+        </a>
+        <a th:href="@{/kundtjanst/rapporter}">
+            <span>?</span>
+            Rapporter
+        </a>
+    </nav>
+
+    <div class="email-desk-agent">
+        <span th:text="${agentInitials}">ET</span>
+        <div>
+            <strong th:text="${agentName}">Eric Thilen</strong>
+            <small>Tillgänglig</small>
+        </div>
+    </div>
+</aside>
+
+<div class="email-desk-shell">
+    <header class="email-desk-topbar">
+        <form class="email-desk-search" th:action="@{/kundtjanst/mejl}" method="get" role="search">
+            <span>⌕</span>
+            <label class="sr-only" for="emailDeskSearch">Sök</label>
+            <input
+                    id="emailDeskSearch"
+                    name="q"
+                    type="search"
+                    th:value="${emailSearchQuery}"
+                    placeholder="Sök mejl, kunder eller ärenden..."
+            >
+            <input th:if="${selectedEmailStatus != 'ALL'}" type="hidden" name="status" th:value="${selectedEmailStatus}">
+        </form>
+
+        <div class="email-desk-top-actions">
+            <details class="email-compose-menu">
+                <summary>+ Skapa mejl</summary>
+                <form
+                        class="email-compose-form"
+                        th:action="@{/kundtjanst/mejl/skapa}"
+                        method="post"
+                        enctype="multipart/form-data"
+                >
+                    <input name="recipientEmail" type="email" placeholder="Mottagare" required>
+                    <input name="subject" type="text" placeholder="Ämne">
+                    <select>
+                        <option value="">Välj mall</option>
+                        <option
+                                th:each="template : ${emailTemplates}"
+                                th:text="${template.name}"
+                                th:value="${template.content}"
+                        >
+                            Mall
+                        </option>
+                    </select>
+                    <textarea name="message" rows="6" placeholder="Skriv mejlet här..." required></textarea>
+                    <label class="email-file-pill">
+                        Bifoga fil
+                        <input name="attachments" type="file" multiple>
+                    </label>
+                    <button type="submit">Skicka mejl</button>
+                </form>
+            </details>
+            <span>♧</span>
+            <span>?</span>
+            <div class="email-desk-profile" th:text="${agentInitials}">ET</div>
+            <form th:action="@{/logout}" method="post">
+                <button class="email-desk-logout" type="submit">Logga ut</button>
+            </form>
+        </div>
+    </header>
+
+    <main class="email-desk">
+        <section class="email-ticket-list">
+            <div class="email-ticket-list-head">
+                <div>
+                    <h1>Alla mejl</h1>
+                    <span>Sortera: Senast uppdaterade</span>
+                </div>
+                <a th:href="@{/kundtjanst/mejl(status='ALL')}" title="Visa alla">⌄</a>
+            </div>
+
+            <div class="email-status-tabs">
+                <a th:href="@{/kundtjanst/mejl(status='ALL')}" th:classappend="${selectedEmailStatus == 'ALL'} ? 'is-active'">Alla</a>
+                <a
+                        th:each="status : ${emailStatuses}"
+                        th:href="@{/kundtjanst/mejl(status=${status.name()})}"
+                        th:classappend="${selectedEmailStatus == status.name()} ? 'is-active'"
+                        th:text="${status.displayName}"
+                >
+                    Status
+                </a>
+            </div>
+
+            <article
+                    th:each="ticket : ${emailTickets}"
+                    class="email-ticket-preview"
+                    th:classappend="${(selectedTicket != null && selectedTicket.id == ticket.id ? 'is-active ' : '') + 'ticket-' + ticket.status.name().toLowerCase()}"
+            >
+                <a th:href="@{/kundtjanst/mejl(ticketId=${ticket.id}, status=${selectedEmailStatus})}">
+                    <span class="email-ticket-check"></span>
+                    <span class="email-ticket-avatar" th:text="${ticket.customerName != null && !ticket.customerName.isBlank() ? #strings.substring(ticket.customerName, 0, 1) : #strings.substring(ticket.customerEmail, 0, 1)}">K</span>
+                    <span class="email-ticket-preview-copy">
+                        <strong th:text="${ticket.customerName != null && !ticket.customerName.isBlank() ? ticket.customerName : ticket.customerEmail}">
+                            Kund
+                        </strong>
+                        <em th:text="${ticket.subject}">Ämne</em>
+                        <small class="agent-status email" th:classappend="${ticket.status.name().toLowerCase()}" th:text="${ticket.status.displayName}">
+                            Öppen
+                        </small>
+                    </span>
+                    <time th:text="${#temporals.format(ticket.updatedAt, 'HH:mm')}">13:43</time>
+                </a>
+            </article>
+
+            <div class="agent-empty" th:if="${emailTickets.isEmpty()}">
+                Inga mejlärenden ännu.
+            </div>
+
+            <details class="email-desk-create">
+                <summary>Skapa manuellt mejlärende</summary>
+                <form th:action="@{/kundtjanst/mejl/inkommande}" method="post">
+                    <input name="email" type="email" placeholder="Kundens e-post" required>
+                    <input name="name" type="text" placeholder="Namn">
+                    <input name="subject" type="text" placeholder="Ämne">
+                    <textarea name="message" rows="4" placeholder="Meddelande..." required></textarea>
+                    <button type="submit">Skapa mejlärende</button>
+                </form>
+            </details>
+        </section>
+
+        <section class="email-ticket-workspace" th:if="${selectedTicket != null}">
+            <header class="email-ticket-workspace-head">
+                <div>
+                    <h2>
+                        <span th:text="${selectedTicket.subject}">Ärende</span>
+                        <small class="email-ticket-dot"></small>
+                        <small class="agent-status email" th:classappend="${selectedTicket.status.name().toLowerCase()}" th:text="${selectedTicket.status.displayName}">
+                            Öppen
+                        </small>
+                    </h2>
+                    <p>
+                        Mejl #
+                        <span th:text="${selectedTicket.ticketNumber}">1234567</span>
+                        · Skapad
+                        <span th:text="${#temporals.format(selectedTicket.createdAt, 'yyyy-MM-dd HH:mm')}">nyss</span>
+                    </p>
+                </div>
+                <div class="email-ticket-icon-actions">
+                    <form th:action="@{/kundtjanst/mejl/{id}/status(id=${selectedTicket.id})}" method="post">
+                        <input type="hidden" name="status" value="CLOSED">
+                        <button type="submit" title="Avsluta">✓</button>
+                    </form>
+                    <form th:action="@{/kundtjanst/mejl/{id}/status(id=${selectedTicket.id})}" method="post">
+                        <input type="hidden" name="status" value="ESCALATED">
+                        <button type="submit" title="Eskalera">⌁</button>
+                    </form>
+                    <button type="button" title="Etikett">⌑</button>
+                    <button type="button" title="Mer">…</button>
+                </div>
+            </header>
+
+            <section
+                    class="agent-alert success"
+                    th:if="${chatMessage}"
+                    th:text="${chatMessage}"
+            ></section>
+            <section
+                    class="agent-alert error"
+                    th:if="${chatError}"
+                    th:text="${chatError}"
+            ></section>
+
+            <div class="email-thread">
+                <article
+                        th:each="message : ${selectedTicket.messages}"
+                        class="email-thread-message"
+                        th:classappend="${message.senderType.toLowerCase()}"
+                >
+                    <span class="email-ticket-avatar" th:text="${message.senderType == 'AGENT' ? (message.senderName == agentName ? agentInitials : 'A') : #strings.substring(message.senderName, 0, 1)}">E</span>
+                    <div>
+                        <header>
+                            <strong th:text="${message.senderName}">Avsändare</strong>
+                            <time th:text="${#temporals.format(message.createdAt, 'HH:mm')}">13:43</time>
+                        </header>
+                        <div class="email-message-content" th:utext="${message.message}">Meddelande</div>
+                    </div>
+                </article>
+            </div>
+
+            <form
+                    class="email-desk-composer"
+                    th:action="@{/kundtjanst/mejl/{id}/svara(id=${selectedTicket.id})}"
+                    method="post"
+                    enctype="multipart/form-data"
+            >
+                <nav aria-label="Svarstyp">
+                    <button type="button" class="is-active">Svara</button>
+                    <button type="button">Intern anteckning</button>
+                </nav>
+                <div class="email-format-toolbar">
+                    <button type="button" data-wrap="**">B</button>
+                    <button type="button" data-wrap="_">I</button>
+                    <button type="button" data-insert="😊">😊</button>
+                    <button type="button" data-insert="👍">👍</button>
+                    <button type="button" id="insert-signature-btn">Signatur</button>
+                    <label>
+                        Färg
+                        <input type="color" value="#087d83">
+                    </label>
+                    <label class="email-file-pill">
+                        Bifoga fil
+                        <input name="attachments" type="file" multiple>
+                    </label>
+                </div>
+                <input type="hidden" name="message" id="reply-message-hidden">
+                <div id="reply-editor" contenteditable="true" class="email-reply-editor" placeholder="Skriv ditt svar här..."></div>
+                <footer>
+                    <select class="email-template-select">
+                        <option value="">Infoga mall</option>
+                        <option
+                                th:each="template : ${emailTemplates}"
+                                th:text="${template.name}"
+                                th:value="${template.content}"
+                        >
+                            Mall
+                        </option>
+                    </select>
+                    <button type="submit">Skicka svar</button>
+                </footer>
+            </form>
+        </section>
+
+        <section class="email-ticket-workspace email-ticket-empty" th:if="${selectedTicket == null}">
+            <h2>Välj ett mejl</h2>
+            <p>När ett mejl kommer in visas det här som ett mejlärende.</p>
+        </section>
+
+        <aside class="email-ticket-details" th:if="${selectedTicket != null}">
+            <section>
+                <header>
+                    <h2>Kunddetaljer</h2>
+                    <span>⌃</span>
+                </header>
+                <div class="email-customer-card">
+                    <span class="email-ticket-avatar" th:text="${selectedTicket.customerName != null && !selectedTicket.customerName.isBlank() ? #strings.substring(selectedTicket.customerName, 0, 1) : #strings.substring(selectedTicket.customerEmail, 0, 1)}">K</span>
+                    <div>
+                        <strong th:text="${selectedTicket.customerName ?: selectedTicket.customerEmail}">Kund</strong>
+                        <small th:text="${selectedTicket.customerEmail}">kund@example.com</small>
+                    </div>
+                </div>
+                <a href="#">Visa kundprofil ↗</a>
+            </section>
+
+            <section>
+                <header>
+                    <h2>Mejlinformation</h2>
+                    <span>⌃</span>
+                </header>
+                <form th:action="@{/kundtjanst/mejl/{id}/status(id=${selectedTicket.id})}" method="post">
+                    <label>
+                        Status
+                        <select name="status">
+                            <option
+                                    th:each="status : ${emailStatuses}"
+                                    th:value="${status.name()}"
+                                    th:selected="${selectedTicket.status == status}"
+                                    th:text="${status.displayName}"
+                            >
+                                Status
+                            </option>
+                        </select>
+                    </label>
+                    <button type="submit">Spara status</button>
+                </form>
+                <form th:action="@{/kundtjanst/mejl/{id}/agent(id=${selectedTicket.id})}" method="post">
+                    <label>
+                        Agent
+                        <input name="agentName" type="text" th:value="${selectedTicket.assignedAgentName}" placeholder="Ej tilldelad">
+                    </label>
+                    <button type="submit">Spara agent</button>
+                </form>
+            </section>
+
+            <section>
+                <header>
+                    <h2>Mejlåtgärder</h2>
+                    <span>⌃</span>
+                </header>
+                <form th:action="@{/kundtjanst/mejl/{id}/agent(id=${selectedTicket.id})}" method="post">
+                    <input type="hidden" name="agentName" th:value="${#authentication.name}">
+                    <button type="submit">Tilldela till mig</button>
+                </form>
+                <form th:action="@{/kundtjanst/mejl/{id}/status(id=${selectedTicket.id})}" method="post">
+                    <input type="hidden" name="status" value="WAITING_ON_US">
+                    <button type="submit">Väntar på svar från oss</button>
+                </form>
+                <form th:action="@{/kundtjanst/mejl/{id}/status(id=${selectedTicket.id})}" method="post">
+                    <input type="hidden" name="status" value="ESCALATED">
+                    <button type="submit" class="danger">Eskalera ärendet</button>
+                </form>
+            </section>
+
+            <section>
+                <header>
+                    <h2>Mallar</h2>
+                    <span>⌃</span>
+                </header>
+                <form th:action="@{/kundtjanst/mejl/mallar}" method="post">
+                    <label>
+                        Mallnamn
+                        <input name="name" type="text" placeholder="Ex. Jobbmall">
+                    </label>
+                    <label>
+                        Innehåll
+                        <textarea name="content" rows="5" placeholder="Med vänliga hälsningar,&#10;Eric&#10;EriGo Travel"></textarea>
+                    </label>
+                    <button type="submit">Spara mall</button>
+                </form>
+                <div class="email-template-list">
+                    <span
+                            th:each="template : ${emailTemplates}"
+                            th:text="${template.name}"
+                    >
+                        Mall
+                    </span>
+                </div>
+            </section>
+
+            <section>
+                <header>
+                    <h2>Tidslinje</h2>
+                    <span>⌃</span>
+                </header>
+                <ol class="email-timeline">
+                    <li>
+                        <strong>Skapad</strong>
+                        <span th:text="${#temporals.format(selectedTicket.createdAt, 'yyyy-MM-dd HH:mm')}">nyss</span>
+                    </li>
+                    <li>
+                        <strong>Senast uppdaterad</strong>
+                        <span th:text="${#temporals.format(selectedTicket.updatedAt, 'yyyy-MM-dd HH:mm')}">nyss</span>
+                    </li>
+                </ol>
+            </section>
+        </aside>
+    </main>
+</div>
+
+<template id="email-signature-template">
+    <div class="email-signature-wrapper" style="margin-top: 24px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width: 100%; max-width: 600px; border-collapse: collapse; background-color: #ffffff;">
+            <!-- Avslutningsfras -->
+            <tr>
+                <td style="padding-bottom: 24px; font-size: 15px; color: #102a33; line-height: 1.5;">
+                    Med vänliga hälsningar,
+                </td>
+            </tr>
+
+            <!-- Namn och Titel -->
+            <tr>
+                <td style="padding-bottom: 2px;">
+                    <strong style="font-size: 18px; color: #073f50;" th:text="${agentName}">Eric Thilen</strong>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-bottom: 20px; font-size: 14px; color: #66787f;">
+                    Kundservice | EriGo Travel
+                </td>
+            </tr>
+
+            <!-- Avdelare -->
+            <tr>
+                <td style="border-top: 1px solid #dfe8eb; height: 1px; font-size: 1px; line-height: 1px; padding-bottom: 20px;">&nbsp;</td>
+            </tr>
+
+            <!-- Logotyp och Kvalitetsmärken -->
+            <tr>
+                <td style="padding-bottom: 20px;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
+                        <tr>
+                            <!-- Horisontell Logotyp (Textbaserad placeholder då bild saknas) -->
+                            <td style="vertical-align: middle; width: 140px;">
+                                <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                                    <tr>
+                                        <td style="background-color: #073f50; color: #ffffff; padding: 8px 12px; border-radius: 4px; font-weight: bold; font-size: 20px; letter-spacing: -0.5px;">
+                                            EriGo
+                                        </td>
+                                        <td style="color: #073f50; padding-left: 6px; font-weight: bold; font-size: 20px; letter-spacing: -0.5px;">
+                                            Travel
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                            <!-- Kvalitetsmärken / Certifieringar -->
+                            <td style="vertical-align: middle; padding-left: 20px; border-left: 1px solid #dfe8eb;">
+                                <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                                    <tr>
+                                        <td style="font-size: 11px; color: #138396; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
+                                            Prisbelönt resebyrå
+                                        </td>
+                                        <td style="padding: 0 5px; font-size: 14px; color: #dfe8eb;">|</td>
+                                        <td style="font-size: 11px; color: #138396; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
+                                            Resegaranti
+                                        </td>
+                                        <td style="padding: 0 5px; font-size: 14px; color: #dfe8eb;">|</td>
+                                        <td style="font-size: 11px; color: #138396; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
+                                            Trygg E-handel
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <!-- Kontaktinformation -->
+            <tr>
+                <td style="padding-top: 10px; font-size: 13px; color: #66787f; line-height: 20px;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                            <td style="padding-right: 15px;">
+                                <strong>A</strong> &nbsp; Strandvägen 1, 114 51 Stockholm
+                            </td>
+                            <td style="padding-right: 15px;">
+                                <strong>T</strong> &nbsp; <a href="tel:+46701234567" style="color: #138396; text-decoration: none;">+46 70 123 4567</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding-right: 15px;">
+                                <strong>E</strong> &nbsp; <a th:href="'mailto:' + ${agentEmail}" style="color: #138396; text-decoration: none;" th:text="${agentEmail}">travelserigo@gmail.com</a>
+                            </td>
+                            <td style="padding-right: 15px;">
+                                <strong>W</strong> &nbsp; <a href="https://www.erigotravel.se" style="color: #138396; text-decoration: none;">www.erigotravel.se</a>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+</template>
+
+<script src="/js/email-desk.js"></script>
+<script src="/js/realtime-page-refresh.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const signatureTemplate = document.getElementById('email-signature-template');
+        const replyEditor = document.getElementById('reply-editor');
+        if (replyEditor && signatureTemplate && !replyEditor.innerHTML.trim()) {
+            replyEditor.innerHTML = signatureTemplate.innerHTML.trim();
+        }
+    });
+</script>
+</body>
+</html>

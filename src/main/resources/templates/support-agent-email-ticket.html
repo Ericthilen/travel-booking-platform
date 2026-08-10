@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html
+        lang="sv"
+        xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Ticket ' + ${ticket.ticketNumber} + ' – EriGo Kundtjänst'">
+        E-postticket
+    </title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/agent-portal.css">
+</head>
+<body class="agent-page">
+<header class="agent-header">
+    <a class="agent-login-logo" th:href="@{/}">
+        <span>E</span>
+        <strong>EriGo Kundtjänst</strong>
+    </a>
+    <nav>
+        <a th:href="@{/kundtjanst}">Dashboard</a>
+        <a th:href="@{/kundtjanst/mejl}">E-post</a>
+        <a th:href="@{/kundtjanst/rapporter}">Rapporter</a>
+    </nav>
+</header>
+
+<main class="agent-page">
+    <a class="agent-back" th:href="@{/kundtjanst/mejl}">Tillbaka till E-post</a>
+
+    <section class="email-ticket-layout">
+        <article class="crm-panel email-ticket-thread">
+            <div class="crm-panel-header">
+                <div>
+                    <h2 th:text="'Ticket #' + ${ticket.ticketNumber}">Ticket</h2>
+                    <span th:text="${ticket.subject}">Ämne</span>
+                </div>
+                <span class="agent-status email" th:classappend="${ticket.status.name().toLowerCase()}" th:text="${ticket.status.displayName}">
+                    Öppen
+                </span>
+            </div>
+
+            <section
+                    class="agent-alert success"
+                    th:if="${chatMessage}"
+                    th:text="${chatMessage}"
+            ></section>
+            <section
+                    class="agent-alert error"
+                    th:if="${chatError}"
+                    th:text="${chatError}"
+            ></section>
+
+            <div class="email-message-list">
+                <article
+                        class="email-message-card"
+                        th:each="message : ${ticket.messages}"
+                        th:classappend="${message.senderType.toLowerCase()}"
+                >
+                    <strong th:text="${message.senderName}">Avsändare</strong>
+                    <time th:text="${#temporals.format(message.createdAt, 'yyyy-MM-dd HH:mm')}">Tid</time>
+                    <p th:text="${message.message}">Meddelande</p>
+                </article>
+            </div>
+
+            <form class="email-ticket-reply" th:action="@{/kundtjanst/mejl/{id}/svara(id=${ticket.id})}" method="post">
+                <label for="emailReply">Svara kunden</label>
+                <textarea id="emailReply" name="message" rows="5" placeholder="Skriv svaret till kunden..." required></textarea>
+                <button type="submit">Lägg till svar</button>
+            </form>
+        </article>
+
+        <aside class="crm-panel email-ticket-side">
+            <h2>Ärendeinfo</h2>
+            <dl>
+                <div>
+                    <dt>Kund</dt>
+                    <dd th:text="${ticket.customerName ?: ticket.customerEmail}">Kund</dd>
+                </div>
+                <div>
+                    <dt>E-post</dt>
+                    <dd th:text="${ticket.customerEmail}">kund@example.com</dd>
+                </div>
+                <div>
+                    <dt>Agent</dt>
+                    <dd th:text="${ticket.assignedAgentName ?: 'Ej tilldelad'}">Ej tilldelad</dd>
+                </div>
+            </dl>
+
+            <form th:action="@{/kundtjanst/mejl/{id}/agent(id=${ticket.id})}" method="post">
+                <label for="agentName">Lägg agent på ticketen</label>
+                <input id="agentName" name="agentName" type="text" placeholder="Ex. Eric" th:value="${ticket.assignedAgentName}">
+                <button type="submit">Spara agent</button>
+            </form>
+
+            <form th:action="@{/kundtjanst/mejl/{id}/status(id=${ticket.id})}" method="post">
+                <label for="ticketStatus">Status</label>
+                <select id="ticketStatus" name="status">
+                    <option
+                            th:each="status : ${emailStatuses}"
+                            th:value="${status.name()}"
+                            th:selected="${ticket.status == status}"
+                            th:text="${status.displayName}"
+                    >
+                        Status
+                    </option>
+                </select>
+                <button type="submit">Uppdatera status</button>
+            </form>
+        </aside>
+    </section>
+</main>
+</body>
+</html>
