@@ -122,6 +122,8 @@ public final class TestDataFactory {
                 totalPrice,
                 LocalDateTime.now().minusDays(1),
                 DiscoverySource.WEBSITE,
+                "v1.0",
+                LocalDateTime.now(),
                 paymentPlan,
                 depositAmount,
                 depositDueDate,
