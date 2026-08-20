@@ -19,6 +19,24 @@ html {
     scroll-behavior: smooth;
 }
 
+html.erigo-scroll-restore-pending,
+html.erigo-scroll-restore-pending body {
+    scroll-behavior: auto !important;
+    visibility: hidden !important;
+}
+
+.erigo-local-save-message {
+    width: fit-content;
+    max-width: 100%;
+    margin: 14px 0 0;
+    transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.erigo-save-message-hiding {
+    opacity: 0;
+    transform: translateY(-4px);
+}
+
 body {
     margin: 0;
     font-family: Arial, Helvetica, sans-serif;

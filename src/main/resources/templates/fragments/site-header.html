@@ -10,6 +10,58 @@
         class="site-header"
         th:fragment="siteHeader(activePage)"
 >
+    <script>
+        (() => {
+            const storageKey = "erigo:form-scroll-position";
+            const submitKey = "erigo:last-form-submit";
+
+            const buildFormState = (form) => {
+                const action = new URL(form.action || window.location.href, window.location.href);
+
+                return {
+                    path: window.location.pathname,
+                    y: window.scrollY,
+                    actionPath: action.pathname,
+                    submittedAt: Date.now()
+                };
+            };
+
+            try {
+                const stored = sessionStorage.getItem(storageKey);
+                const position = stored ? JSON.parse(stored) : null;
+
+                if (position
+                        && (position.path === window.location.pathname
+                                || position.actionPath === window.location.pathname)) {
+                    document.documentElement.classList.add("erigo-scroll-restore-pending");
+                    document.documentElement.style.scrollBehavior = "auto";
+                    window.__erigoPendingScrollPosition = position;
+                }
+            } catch (error) {
+                sessionStorage.removeItem(storageKey);
+            }
+
+            document.addEventListener("submit", (event) => {
+                const form = event.target;
+
+                if (!(form instanceof HTMLFormElement)) {
+                    return;
+                }
+
+                if (form.method.toLowerCase() !== "post" || form.dataset.noScrollRestore === "true") {
+                    return;
+                }
+
+                sessionStorage.setItem(
+                        storageKey,
+                        JSON.stringify(buildFormState(form))
+                );
+                sessionStorage.setItem(submitKey, JSON.stringify(buildFormState(form)));
+            }, true);
+        })();
+    </script>
+    <script src="/js/form-scroll-preserve.js"></script>
+
     <a class="logo" th:href="@{/}">
         <span class="logo-mark">E</span>
         <span>EriGo Travel</span>

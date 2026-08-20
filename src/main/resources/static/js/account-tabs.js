@@ -41,9 +41,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const query = new URLSearchParams(window.location.search);
     const page = query.get("page");
 
-    if (page) {
+    if (page && !window.__erigoRestoredScroll) {
         window.requestAnimationFrame(() => scrollToSection(page));
     } else {
-        setActiveLink("profile");
+        setActiveLink(page || "profile");
     }
 });
