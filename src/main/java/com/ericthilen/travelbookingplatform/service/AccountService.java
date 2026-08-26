@@ -67,7 +67,11 @@ public class AccountService {
         AccountProfileRequest request = new AccountProfileRequest();
         request.setFullName(user.getFullName());
         request.setEmail(user.getEmail());
-        customer.ifPresent(value -> request.setPhone(value.getPhone()));
+        request.setPhone(
+                customer
+                        .map(Customer::getPhone)
+                        .orElse(user.getPhone())
+        );
 
         return request;
     }
@@ -77,7 +81,9 @@ public class AccountService {
             AccountProfileRequest request
     ) {
         User user = getUser(currentEmail);
-        String newEmail = request.getEmail().trim().toLowerCase();
+        String newFullName = clean(request.getFullName());
+        String newPhone = clean(request.getPhone());
+        String newEmail = clean(request.getEmail()).toLowerCase();
 
         Optional<User> existingUser =
                 userRepository.findByEmailIgnoreCase(newEmail);
@@ -89,16 +95,29 @@ public class AccountService {
             );
         }
 
-        user.setFullName(request.getFullName().trim());
-        user.setEmail(newEmail);
-
         Optional<Customer> customer = customerRepository.findByUser(user);
+        String currentPhone = customer
+                .map(Customer::getPhone)
+                .orElse(user.getPhone());
+
+        if (sameValue(user.getFullName(), newFullName)
+                && sameValue(currentPhone, newPhone)
+                && sameEmail(user.getEmail(), newEmail)) {
+            throw new IllegalArgumentException(
+                    "Du har inte ändrat några uppgifter."
+            );
+        }
+
+        user.setFullName(newFullName);
+        user.setEmail(newEmail);
+        user.setPhone(newPhone);
+
         if (customer.isPresent()) {
-            NameParts nameParts = splitName(request.getFullName());
+            NameParts nameParts = splitName(newFullName);
             customer.get().updateContactInformation(
                     nameParts.firstName(),
                     nameParts.lastName(),
-                    clean(request.getPhone()),
+                    newPhone,
                     newEmail
             );
             customerRepository.save(customer.get());
@@ -235,6 +254,14 @@ public class AccountService {
         }
 
         return value.trim();
+    }
+
+    private boolean sameValue(String currentValue, String newValue) {
+        return clean(currentValue).equals(clean(newValue));
+    }
+
+    private boolean sameEmail(String currentValue, String newValue) {
+        return clean(currentValue).equalsIgnoreCase(clean(newValue));
     }
 
     private record NameParts(String firstName, String lastName) {

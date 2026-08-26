@@ -171,12 +171,12 @@
 
                         <div>
                             <span>Telefon</span>
-                            <strong th:text="${customer != null ? customer.phone : 'Saknas'}">
+                            <strong th:text="${customer != null ? customer.phone : (user.phone != null && !user.phone.isBlank() ? user.phone : 'Saknas')}">
                                 +46 70 000 00 00
                             </strong>
                         </div>
 
-                        <div>
+                        <div sec:authorize="hasAnyRole('ADMIN','AGENT','CEO')">
                             <span>Roll</span>
                             <strong th:text="${#strings.replace(user.role.name(), 'ROLE_', '')}">
                                 USER

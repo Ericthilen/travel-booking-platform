@@ -5,6 +5,7 @@ import com.ericthilen.travelbookingplatform.model.Booking;
 import com.ericthilen.travelbookingplatform.model.BookingStatus;
 import com.ericthilen.travelbookingplatform.model.EmailStatus;
 import com.ericthilen.travelbookingplatform.model.PaymentStatus;
+import com.ericthilen.travelbookingplatform.repository.BookingEventRepository;
 import com.ericthilen.travelbookingplatform.repository.BookingRepository;
 import com.ericthilen.travelbookingplatform.repository.CustomerRepository;
 import com.ericthilen.travelbookingplatform.repository.DepartureRepository;
@@ -57,12 +58,16 @@ class BookingServiceTest {
     @Mock
     private PaymentRepository paymentRepository;
 
+    @Mock
+    private BookingEventRepository bookingEventRepository;
+
     private BookingService bookingService;
 
     @BeforeEach
     void setUp() {
         bookingService = new BookingService(
                 bookingRepository,
+                bookingEventRepository,
                 customerRepository,
                 departureRepository,
                 roomTypeRepository,
@@ -355,7 +360,7 @@ class BookingServiceTest {
                 LocalDate.now().plusDays(7)
         );
 
-        booking.cancel(0, 0);
+        booking.cancel(0, 0, "Test cancellation");
 
         assertThrows(
                 IllegalStateException.class,

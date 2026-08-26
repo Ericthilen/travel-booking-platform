@@ -5,6 +5,7 @@ import com.ericthilen.travelbookingplatform.model.Booking;
 import com.ericthilen.travelbookingplatform.model.Payment;
 import com.ericthilen.travelbookingplatform.model.PaymentMethod;
 import com.ericthilen.travelbookingplatform.model.PaymentStatus;
+import com.ericthilen.travelbookingplatform.repository.BookingEventRepository;
 import com.ericthilen.travelbookingplatform.repository.BookingRepository;
 import com.ericthilen.travelbookingplatform.repository.PaymentRepository;
 import com.ericthilen.travelbookingplatform.support.TestDataFactory;
@@ -36,13 +37,17 @@ class PaymentServiceTest {
     @Mock
     private BookingRepository bookingRepository;
 
+    @Mock
+    private BookingEventRepository bookingEventRepository;
+
     private PaymentService paymentService;
 
     @BeforeEach
     void setUp() {
         paymentService = new PaymentService(
                 paymentRepository,
-                bookingRepository
+                bookingRepository,
+                bookingEventRepository
         );
     }
 
@@ -258,7 +263,7 @@ class PaymentServiceTest {
     void registerPaymentShouldRejectCancelledBooking() {
         Booking booking = createBooking();
 
-        booking.cancel(0, 0);
+        booking.cancel(0, 0, "Test cancellation");
 
         when(
                 bookingRepository.findById(1L)

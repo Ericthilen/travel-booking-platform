@@ -23,6 +23,8 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    private String phone;
+
     @Column(nullable = false)
     private String password;
 
@@ -57,6 +59,10 @@ public class User {
         return email;
     }
 
+    public String getPhone() {
+        return phone;
+    }
+
     public String getPassword() {
         return password;
     }
@@ -71,6 +77,10 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public void setPassword(String password) {

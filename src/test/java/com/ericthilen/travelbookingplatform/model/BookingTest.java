@@ -97,7 +97,7 @@ class BookingTest {
         Booking booking =
                 bookingWithTotalPrice(10_000);
 
-        booking.cancel(0, 0);
+        booking.cancel(0, 0, "Test cancellation");
 
         assertThrows(
                 IllegalStateException.class,
@@ -114,7 +114,8 @@ class BookingTest {
 
         booking.cancel(
                 5_000,
-                1_000
+                1_000,
+                "Test reason"
         );
 
         assertEquals(
@@ -156,7 +157,8 @@ class BookingTest {
 
         booking.cancel(
                 4_000,
-                0
+                0,
+                "Test reason"
         );
 
         assertEquals(
@@ -175,11 +177,11 @@ class BookingTest {
         Booking booking =
                 bookingWithTotalPrice(10_000);
 
-        booking.cancel(0, 0);
+        booking.cancel(0, 0, "Test cancellation");
 
         assertThrows(
                 IllegalStateException.class,
-                () -> booking.cancel(0, 0)
+                () -> booking.cancel(0, 0, "Second cancellation")
         );
     }
 
