@@ -2,6 +2,7 @@ package com.ericthilen.travelbookingplatform.repository;
 
 import com.ericthilen.travelbookingplatform.model.Departure;
 import com.ericthilen.travelbookingplatform.model.ManagementStatus;
+import com.ericthilen.travelbookingplatform.model.TravelType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -53,6 +54,22 @@ public interface DepartureRepository
     List<String> findBookableDepartureAirports();
 
     @Query("""
+            select distinct departure.departureAirport
+            from Departure departure
+            where departure.departureAirport is not null
+              and departure.departureAirport <> ''
+              and departure.travel.travelType = :travelType
+              and (
+                    departure.status = com.ericthilen.travelbookingplatform.model.ManagementStatus.ACTIVE
+                    or departure.status is null
+              )
+            order by departure.departureAirport asc
+            """)
+    List<String> findBookableDepartureAirportsByTravelType(
+            @Param("travelType") TravelType travelType
+    );
+
+    @Query("""
             select distinct departure.departureDate
             from Departure departure
             where departure.departureDate >= :date
@@ -65,5 +82,22 @@ public interface DepartureRepository
             """)
     List<LocalDate> findBookableDepartureDatesFrom(
             @Param("date") LocalDate date
+    );
+
+    @Query("""
+            select distinct departure.departureDate
+            from Departure departure
+            where departure.departureDate >= :date
+              and departure.availableSeats > 0
+              and departure.travel.travelType = :travelType
+              and (
+                    departure.status = com.ericthilen.travelbookingplatform.model.ManagementStatus.ACTIVE
+                    or departure.status is null
+              )
+            order by departure.departureDate asc
+            """)
+    List<LocalDate> findBookableDepartureDatesFromByTravelType(
+            @Param("date") LocalDate date,
+            @Param("travelType") TravelType travelType
     );
 }

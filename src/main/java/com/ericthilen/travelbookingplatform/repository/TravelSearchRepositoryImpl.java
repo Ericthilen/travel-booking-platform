@@ -4,6 +4,7 @@ import com.ericthilen.travelbookingplatform.dto.TravelSearchFilters;
 import com.ericthilen.travelbookingplatform.model.Departure;
 import com.ericthilen.travelbookingplatform.model.ManagementStatus;
 import com.ericthilen.travelbookingplatform.model.Travel;
+import com.ericthilen.travelbookingplatform.model.TravelType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -52,6 +53,12 @@ public class TravelSearchRepositoryImpl implements TravelSearchRepository {
                 predicates,
                 travel.get("mealType"),
                 filters.getMealType()
+        );
+        addTravelTypePredicate(
+                builder,
+                predicates,
+                travel,
+                filters.getTravelType()
         );
 
         if (filters.getMaxPrice() != null) {
@@ -184,6 +191,26 @@ public class TravelSearchRepositoryImpl implements TravelSearchRepository {
         ));
     }
 
+    private void addTravelTypePredicate(
+            CriteriaBuilder builder,
+            List<Predicate> predicates,
+            Root<Travel> travel,
+            String travelType
+    ) {
+        if (travelType == null || travelType.isBlank()) {
+            return;
+        }
+
+        try {
+            predicates.add(builder.equal(
+                    travel.get("travelType"),
+                    TravelType.valueOf(travelType)
+            ));
+        } catch (IllegalArgumentException ignored) {
+            // Unknown type should not break the page.
+        }
+    }
+
     private Predicate keywordPredicate(
             CriteriaBuilder builder,
             CriteriaQuery<Travel> query,
@@ -271,9 +298,9 @@ public class TravelSearchRepositoryImpl implements TravelSearchRepository {
 
         String departureAirport = clean(filters.getDepartureAirport());
         if (!departureAirport.isBlank()) {
-            predicates.add(builder.equal(
+            predicates.add(builder.like(
                     builder.lower(departure.get("departureAirport")),
-                    departureAirport.toLowerCase()
+                    "%" + departureAirport.toLowerCase() + "%"
             ));
         }
 
