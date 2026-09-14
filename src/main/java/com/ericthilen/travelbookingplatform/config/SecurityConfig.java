@@ -28,6 +28,8 @@ public class SecurityConfig {
                                 "/error",
                                 "/resor",
                                 "/resor/**",
+                                "/bussresor",
+                                "/bussresor/**",
                                 "/bokning",
                                 "/bokning/**",
                                 "/hitta-bokning",

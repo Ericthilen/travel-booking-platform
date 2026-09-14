@@ -1,5 +1,6 @@
 package com.ericthilen.travelbookingplatform.controller;
 
+import com.ericthilen.travelbookingplatform.model.BusPickupStop;
 import com.ericthilen.travelbookingplatform.model.Travel;
 import com.ericthilen.travelbookingplatform.model.Departure;
 import com.ericthilen.travelbookingplatform.service.DepartureService;
@@ -8,6 +9,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.TextStyle;
@@ -70,6 +73,14 @@ public class HomeController {
                 homeCountryGroups(allTravels)
         );
         model.addAttribute(
+                "homeFlightDeparturePlaces",
+                departurePlacesForType(allTravels, false)
+        );
+        model.addAttribute(
+                "homeBusDeparturePlaces",
+                departurePlacesForType(allTravels, true)
+        );
+        model.addAttribute(
                 "homeMapTravels",
                 homeMapTravels(allTravels)
         );
@@ -99,6 +110,8 @@ public class HomeController {
                         travel.getDestination(),
                         travel.getCountry(),
                         travel.getHotelName(),
+                        travel.getTravelTypeLabel(),
+                        travel.isBusTrip() ? "🚌" : "✈",
                         travel.getNights(),
                         departure.getDepartureAirport(),
                         departure.getDepartureDate(),
@@ -141,8 +154,114 @@ public class HomeController {
                                 .stream()
                                 .filter(travel -> country.equals(travel.getCountry()))
                                 .sorted(Comparator.comparing(Travel::getDestination))
-                                .toList()
+                                .toList(),
+                        departurePlacesForCountry(
+                                travels,
+                                country
+                        )
                 ))
+                .toList();
+    }
+
+    private List<HomeDeparturePlace> departurePlacesForCountry(
+            List<Travel> travels,
+            String country
+    ) {
+        List<HomeDeparturePlace> places = new ArrayList<>();
+
+        for (Travel travel : travels) {
+            if (!country.equals(travel.getCountry())) {
+                continue;
+            }
+
+            if (travel.isBusTrip()) {
+                for (BusPickupStop stop : travel.getPickupStops()) {
+                    places.add(new HomeDeparturePlace(
+                            "Buss",
+                            stop.getCity(),
+                            "/bussresor?country=" + url(country)
+                                    + "&departureAirport=" + url(stop.getCity())
+                    ));
+                }
+                continue;
+            }
+
+            for (Departure departure
+                    : departureService.getDeparturesForTravel(travel.getId())) {
+                places.add(new HomeDeparturePlace(
+                        "Flyg",
+                        departure.getDepartureAirport(),
+                        "/resor?country=" + url(country)
+                                + "&departureAirport="
+                                + url(departure.getDepartureAirport())
+                ));
+            }
+        }
+
+        return places
+                .stream()
+                .filter(place -> place.name() != null
+                        && !place.name().isBlank())
+                .collect(Collectors.toMap(
+                        place -> place.type() + place.name(),
+                        place -> place,
+                        (first, second) -> first
+                ))
+                .values()
+                .stream()
+                .sorted(Comparator
+                        .comparing(HomeDeparturePlace::type)
+                        .thenComparing(HomeDeparturePlace::name))
+                .toList();
+    }
+
+    private List<HomeDeparturePlace> departurePlacesForType(
+            List<Travel> travels,
+            boolean busTrips
+    ) {
+        List<HomeDeparturePlace> places = new ArrayList<>();
+
+        for (Travel travel : travels) {
+            if (travel.isBusTrip() != busTrips) {
+                continue;
+            }
+
+            if (travel.isBusTrip()) {
+                for (BusPickupStop stop : travel.getPickupStops()) {
+                    places.add(new HomeDeparturePlace(
+                            "Buss",
+                            stop.getCity(),
+                            "/bussresor?departureAirport=" + url(stop.getCity())
+                    ));
+                }
+                continue;
+            }
+
+            for (Departure departure
+                    : departureService.getDeparturesForTravel(travel.getId())) {
+                places.add(new HomeDeparturePlace(
+                        "Flyg",
+                        departure.getDepartureAirport(),
+                        "/resor?departureAirport="
+                                + url(departure.getDepartureAirport())
+                ));
+            }
+        }
+
+        return places
+                .stream()
+                .filter(place -> place.name() != null
+                        && !place.name().isBlank())
+                .collect(Collectors.toMap(
+                        place -> place.type() + place.name(),
+                        place -> place,
+                        (first, second) -> first
+                ))
+                .values()
+                .stream()
+                .sorted(Comparator
+                        .comparing(HomeDeparturePlace::type)
+                        .thenComparing(HomeDeparturePlace::name))
                 .toList();
     }
 
@@ -158,6 +277,8 @@ public class HomeController {
                             travel.getDestination(),
                             travel.getCountry(),
                             travel.getHotelName(),
+                            travel.getTravelTypeLabel(),
+                            travel.isBusTrip() ? "🚌" : "✈",
                             travel.getPrice(),
                             travel.getImageUrl(),
                             String.join(
@@ -190,6 +311,13 @@ public class HomeController {
         };
     }
 
+    private String url(String value) {
+        return URLEncoder.encode(
+                value == null ? "" : value,
+                StandardCharsets.UTF_8
+        );
+    }
+
     private Coordinates coordinatesFor(String destination) {
         return switch (destination) {
             case "Mallorca" -> mapCoordinates(39.6953, 3.0176);
@@ -220,6 +348,8 @@ public class HomeController {
             String destination,
             String country,
             String hotelName,
+            String travelTypeLabel,
+            String travelTypeIcon,
             int nights,
             String departureAirport,
             LocalDate departureDate,
@@ -236,6 +366,8 @@ public class HomeController {
             String destination,
             String country,
             String hotelName,
+            String travelTypeLabel,
+            String travelTypeIcon,
             int price,
             String imageUrl,
             String seasons,
@@ -246,7 +378,15 @@ public class HomeController {
 
     public record HomeCountryGroup(
             String country,
-            List<Travel> travels
+            List<Travel> travels,
+            List<HomeDeparturePlace> departurePlaces
+    ) {
+    }
+
+    public record HomeDeparturePlace(
+            String type,
+            String name,
+            String url
     ) {
     }
 

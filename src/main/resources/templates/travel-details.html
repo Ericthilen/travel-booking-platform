@@ -19,7 +19,7 @@
 <body>
 
 <div
-        th:replace="~{fragments/site-header :: siteHeader('travels')}"
+        th:replace="~{fragments/site-header :: siteHeader(${travel.busTrip} ? 'bus' : 'travels')}"
 ></div>
 
 <main>
@@ -30,14 +30,14 @@
     <div class="details-hero-content">
       <a
               class="back-link"
-              th:href="@{/resor}"
+              th:href="${travel.busTrip} ? @{/bussresor} : @{/resor}"
       >
         ← Tillbaka till alla resor
       </a>
 
       <p
               class="details-country"
-              th:text="${travel.country}"
+              th:text="${travel.travelTypeLabel + ' · ' + travel.country}"
       >
         Land
       </p>
@@ -103,6 +103,10 @@
         <p th:text="${travel.description}">
           Beskrivning av resan.
         </p>
+
+        <p th:text="${travel.longDescription}">
+          Längre resebeskrivning.
+        </p>
       </section>
 
       <section class="details-card">
@@ -122,11 +126,13 @@
 
             <div>
               <h3>
-                Flyg tur och retur
+                <span th:text="${travel.transportLabel}">Flyg tur och retur</span>
               </h3>
 
               <p>
-                Avresa från
+                <span th:text="${travel.busTrip} ? 'Påstigning från flera orter, bland annat' : 'Avresa från'">
+                  Avresa från
+                </span>
 
                 <strong
                         th:text="${travel.departureAirport}"
@@ -188,10 +194,79 @@
               </h3>
 
               <p>
-                Incheckat bagage och handbagage ingår.
+                Bagage ingår enligt reseinformationen.
               </p>
             </div>
           </article>
+        </div>
+      </section>
+
+      <section class="details-card" th:if="${!travel.includedItems.isEmpty()}">
+        <p class="eyebrow dark">
+          Ingår
+        </p>
+
+        <h2>
+          Vad som ingår
+        </h2>
+
+        <div class="facilities-grid">
+          <div
+                  class="facility"
+                  th:each="item : ${travel.includedItems}"
+          >
+            <span>✓</span>
+
+            <p th:text="${item}">
+              Ingår
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="details-card" th:if="${travel.busTrip and !travel.pickupStops.isEmpty()}">
+        <p class="eyebrow dark">
+          Buss
+        </p>
+
+        <h2>
+          Påstigningsorter
+        </h2>
+
+        <div class="facilities-grid">
+          <div
+                  class="facility"
+                  th:each="stop : ${travel.pickupStops}"
+          >
+            <span>🚌</span>
+
+            <p th:text="${stop.label}">
+              Göteborg kl. 06:00
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="details-card" th:if="${!travel.dayProgram.isEmpty()}">
+        <p class="eyebrow dark">
+          Program
+        </p>
+
+        <h2>
+          Dag för dag
+        </h2>
+
+        <div class="facilities-grid">
+          <div
+                  class="facility"
+                  th:each="day : ${travel.dayProgram}"
+          >
+            <span>•</span>
+
+            <p th:text="${day}">
+              Dag 1 – Avresa
+            </p>
+          </div>
         </div>
       </section>
 
@@ -259,7 +334,7 @@
 
         <div>
                     <span>
-                        Avreseflygplats
+                        <span th:text="${travel.departurePlaceLabel}">Avreseflygplats</span>
                     </span>
 
           <strong th:text="${travel.departureAirport}">

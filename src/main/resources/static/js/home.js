@@ -159,6 +159,10 @@ if (homeFinder) {
         homeFinder.querySelector("[data-finder-description]");
     const resetButton = homeFinder.querySelector("[data-finder-reset]");
     const emptyMessage = homeFinder.querySelector("[data-finder-empty]");
+    const typeButtons =
+        [...homeFinder.querySelectorAll("[data-type-filter]")];
+    const typeFlyouts =
+        [...homeFinder.querySelectorAll("[data-type-flyout]")];
     const seasonButtons =
         [...homeFinder.querySelectorAll("[data-season-filter]")];
     const seasonFlyouts =
@@ -168,6 +172,10 @@ if (homeFinder) {
         [...homeFinder.querySelectorAll("[data-country-filter]")];
     const countryFlyouts =
         [...homeFinder.querySelectorAll("[data-country-flyout]")];
+    const countryTypeButtons =
+        [...homeFinder.querySelectorAll("[data-country-type-tab]")];
+    const placeFilterButtons =
+        [...homeFinder.querySelectorAll("[data-place-filter]")];
     const countryGroup = homeFinder.querySelector(".home-country-group");
     const calendarRows =
         [...homeFinder.querySelectorAll(".home-calendar-row")];
@@ -181,6 +189,7 @@ if (homeFinder) {
 
     let activeView = "calendar";
     let activeSeason = "";
+    let openType = "";
     let openSeason = "";
     let openCountry = "";
 
@@ -442,16 +451,155 @@ if (homeFinder) {
         });
     };
 
+    const closeTypeFlyouts = () => {
+        openType = "";
+
+        typeFlyouts.forEach((flyout) => {
+            flyout.hidden = true;
+            filterTypeFlyout(flyout, "");
+        });
+
+        typeButtons.forEach((button) => {
+            button.classList.remove("is-active");
+        });
+    };
+
     const closeCountryFlyouts = () => {
         openCountry = "";
 
         countryFlyouts.forEach((flyout) => {
             flyout.hidden = true;
+            filterCountryFlyout(flyout, "ALL", "");
         });
 
         countryButtons.forEach((button) => {
             button.classList.remove("is-active");
         });
+    };
+
+    const emptyTextForCountryType = (type) => {
+        if (type === "FLIGHT") {
+            return "Inga planerade flygresor just nu.";
+        }
+
+        if (type === "BUS") {
+            return "Inga planerade bussresor just nu.";
+        }
+
+        return "Inga planerade resor just nu.";
+    };
+
+    const normalizePlace = (value) => {
+        return (value || "")
+            .toString()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase()
+            .replace(/\s+/g, " ")
+            .trim();
+    };
+
+    const linkMatchesPlace = (link, place) => {
+        if (!place) {
+            return true;
+        }
+
+        return normalizePlace(link.dataset.departurePlaces)
+            .includes(normalizePlace(place));
+    };
+
+    const updatePlaceButtons = (flyout, selectedPlace) => {
+        const buttons =
+            [...flyout.querySelectorAll("[data-place-filter]")];
+
+        buttons.forEach((button) => {
+            button.classList.toggle(
+                "is-active",
+                (button.dataset.placeFilter || "") === selectedPlace
+            );
+        });
+    };
+
+    const filterTypeFlyout = (flyout, place) => {
+        if (!flyout) {
+            return;
+        }
+
+        const selectedPlace = place || "";
+        const links =
+            [...flyout.querySelectorAll(".home-country-travel-link")];
+        const emptyBox = flyout.querySelector("[data-type-empty]");
+        let visibleCount = 0;
+
+        flyout.dataset.selectedPlace = selectedPlace;
+
+        links.forEach((link) => {
+            const shouldShow = linkMatchesPlace(link, selectedPlace);
+
+            link.hidden = !shouldShow;
+
+            if (shouldShow) {
+                visibleCount += 1;
+            }
+        });
+
+        updatePlaceButtons(flyout, selectedPlace);
+
+        if (emptyBox) {
+            emptyBox.textContent = selectedPlace
+                ? "Tyvärr inga påstigningar i " + selectedPlace + "."
+                : "Inga resor från den platsen just nu.";
+            emptyBox.hidden = visibleCount > 0;
+        }
+    };
+
+    const filterCountryFlyout = (flyout, type, place) => {
+        if (!flyout) {
+            return;
+        }
+
+        const selectedType = type ?? flyout.dataset.selectedType ?? "ALL";
+        const selectedPlace = place ?? flyout.dataset.selectedPlace ?? "";
+        const links =
+            [...flyout.querySelectorAll(".home-country-travel-link")];
+        const buttons =
+            [...flyout.querySelectorAll("[data-country-type-tab]")];
+        const emptyBox = flyout.querySelector("[data-country-empty]");
+        let visibleCount = 0;
+
+        flyout.dataset.selectedType = selectedType;
+        flyout.dataset.selectedPlace = selectedPlace;
+
+        links.forEach((link) => {
+            const matchesType = selectedType === "ALL"
+                || link.dataset.travelType === selectedType;
+            const shouldShow = matchesType
+                && linkMatchesPlace(link, selectedPlace);
+
+            link.hidden = !shouldShow;
+
+            if (shouldShow) {
+                visibleCount += 1;
+            }
+        });
+
+        buttons.forEach((button) => {
+            button.classList.toggle(
+                "is-active",
+                button.dataset.countryTypeTab === selectedType
+            );
+        });
+
+        updatePlaceButtons(flyout, selectedPlace);
+
+        if (!emptyBox) {
+            return;
+        }
+
+        emptyBox.textContent = selectedPlace
+            ? "Tyvärr inga påstigningar i " + selectedPlace + "."
+            : emptyTextForCountryType(selectedType);
+        emptyBox.hidden = visibleCount > 0;
     };
 
     const positionSidebarFlyout = (button, flyout) => {
@@ -460,6 +608,7 @@ if (homeFinder) {
         }
 
         const buttonBox = button.getBoundingClientRect();
+        const isCountryFlyout = flyout.hasAttribute("data-country-flyout");
         const flyoutWidth = Math.min(
             360,
             window.innerWidth - 28
@@ -468,14 +617,33 @@ if (homeFinder) {
             buttonBox.right - 2,
             window.innerWidth - flyoutWidth - 14
         );
-        const top = Math.min(
-            buttonBox.top,
+        const maxTop = Math.max(
+            14,
             window.innerHeight - flyout.offsetHeight - 14
+        );
+        const wantedTop = isCountryFlyout
+            ? Math.min(buttonBox.top - 24, 110)
+            : buttonBox.top;
+        const top = Math.min(
+            wantedTop,
+            maxTop
+        );
+        const finalTop = Math.max(14, top);
+        const arrowTop = Math.max(
+            18,
+            Math.min(
+                flyout.offsetHeight - 34,
+                buttonBox.top + buttonBox.height / 2 - finalTop - 14
+            )
         );
 
         flyout.style.width = flyoutWidth + "px";
         flyout.style.left = Math.max(14, left) + "px";
-        flyout.style.top = Math.max(14, top) + "px";
+        flyout.style.top = finalTop + "px";
+        flyout.style.setProperty(
+            "--flyout-arrow-top",
+            arrowTop + "px"
+        );
     };
 
     const openSeasonFlyout = (button) => {
@@ -494,6 +662,7 @@ if (homeFinder) {
 
         activeSeason = selectedSeason;
         openSeason = selectedSeason;
+        closeTypeFlyouts();
         closeCountryFlyouts();
 
         seasonFlyouts.forEach((flyout) => {
@@ -520,6 +689,7 @@ if (homeFinder) {
         }
 
         openCountry = selectedCountry;
+        closeTypeFlyouts();
         closeSeasonFlyouts();
 
         countryFlyouts.forEach((flyout) => {
@@ -529,6 +699,7 @@ if (homeFinder) {
             flyout.hidden = !isSelected;
 
             if (isSelected) {
+                filterCountryFlyout(flyout, "ALL", "");
                 positionSidebarFlyout(button, flyout);
             }
         });
@@ -537,6 +708,38 @@ if (homeFinder) {
             countryButton.classList.toggle(
                 "is-active",
                 countryButton === button
+            );
+        });
+    };
+
+    const openTypeFlyout = (button) => {
+        const selectedType = button.dataset.typeFilter;
+
+        if (openType === selectedType) {
+            closeTypeFlyouts();
+            return;
+        }
+
+        openType = selectedType;
+        closeSeasonFlyouts();
+        closeCountryFlyouts();
+
+        typeFlyouts.forEach((flyout) => {
+            const isSelected =
+                flyout.dataset.typeFlyout === selectedType;
+
+            flyout.hidden = !isSelected;
+
+            if (isSelected) {
+                filterTypeFlyout(flyout, "");
+                positionSidebarFlyout(button, flyout);
+            }
+        });
+
+        typeButtons.forEach((typeButton) => {
+            typeButton.classList.toggle(
+                "is-active",
+                typeButton === button
             );
         });
     };
@@ -578,8 +781,16 @@ if (homeFinder) {
 
     viewButtons.forEach((button) => {
         button.addEventListener("click", () => {
+            closeTypeFlyouts();
             setView(button.dataset.finderView);
             scrollToFinder();
+        });
+    });
+
+    typeButtons.forEach((button) => {
+        button.addEventListener("click", (event) => {
+            event.stopPropagation();
+            openTypeFlyout(button);
         });
     });
 
@@ -597,7 +808,46 @@ if (homeFinder) {
         });
     });
 
+    countryTypeButtons.forEach((button) => {
+        button.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            filterCountryFlyout(
+                button.closest(".home-country-flyout"),
+                button.dataset.countryTypeTab,
+                undefined
+            );
+        });
+    });
+
+    placeFilterButtons.forEach((button) => {
+        button.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const place = button.dataset.placeFilter || "";
+            const typeFlyout = button.closest("[data-type-flyout]");
+            const countryFlyout = button.closest("[data-country-flyout]");
+
+            if (typeFlyout) {
+                filterTypeFlyout(typeFlyout, place);
+            }
+
+            if (countryFlyout) {
+                filterCountryFlyout(countryFlyout, undefined, place);
+            }
+        });
+    });
+
     document.addEventListener("click", (event) => {
+        if (
+            openType
+            && !event.target.closest(".home-type-item")
+        ) {
+            closeTypeFlyouts();
+        }
+
         if (
             seasonGroup
             && openSeason
@@ -618,6 +868,7 @@ if (homeFinder) {
     });
 
     window.addEventListener("resize", () => {
+        closeTypeFlyouts();
         closeSeasonFlyouts();
         closeCountryFlyouts();
     });
@@ -634,6 +885,7 @@ if (homeFinder) {
     if (resetButton) {
         resetButton.addEventListener("click", () => {
             activeSeason = "";
+            closeTypeFlyouts();
             closeSeasonFlyouts();
             closeCountryFlyouts();
 
