@@ -10,6 +10,7 @@ import com.ericthilen.travelbookingplatform.legal.LegalDocumentVersions;
 import com.ericthilen.travelbookingplatform.model.Booking;
 import com.ericthilen.travelbookingplatform.model.BookingEvent;
 import com.ericthilen.travelbookingplatform.model.BookingStatus;
+import com.ericthilen.travelbookingplatform.model.BusPickupStop;
 import com.ericthilen.travelbookingplatform.model.Customer;
 import com.ericthilen.travelbookingplatform.model.Departure;
 import com.ericthilen.travelbookingplatform.model.EmailStatus;
@@ -166,6 +167,19 @@ public class BookingService {
                         bookingSession.getRoomOccupancies()
                 )
         );
+        if (departure.getTravel().isBusTrip()) {
+            BusPickupStop pickupStop = departure
+                    .getTravel()
+                    .findPickupStop(bookingSession.getPickupCity());
+
+            if (pickupStop == null) {
+                throw new IllegalArgumentException(
+                        "Välj en giltig påstigningsort."
+                );
+            }
+
+            booking.setPickupStop(pickupStop);
+        }
 
         for (TravelerRequest travelerRequest
                 : bookingSession.getTravelers()) {

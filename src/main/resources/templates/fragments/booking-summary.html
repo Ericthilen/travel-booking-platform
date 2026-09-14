@@ -20,6 +20,13 @@
             <p>
                 <span th:text="${summary.numberOfTravelers}">2</span> resenärer<br>
                 <span th:text="${summary.numberOfRooms}">1</span> x <span th:text="${summary.roomType.name}">Standardrum</span>
+                <span
+                        th:if="${summary.departure.travel.busTrip and bookingSession != null and bookingSession.pickupCity != null and !bookingSession.pickupCity.isBlank()}"
+                >
+                    <br>
+                    Påstigning:
+                    <span th:text="${bookingSession.pickupCity}">Göteborg</span>
+                </span>
             </p>
         </div>
 

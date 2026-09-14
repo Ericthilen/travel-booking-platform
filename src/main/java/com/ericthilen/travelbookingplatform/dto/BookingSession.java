@@ -12,6 +12,8 @@ public class BookingSession implements Serializable {
 
     private int numberOfRooms;
 
+    private String pickupCity;
+
     private List<Integer> roomOccupancies = new ArrayList<>();
 
     private Long roomTypeId;
@@ -44,6 +46,10 @@ public class BookingSession implements Serializable {
 
     public int getNumberOfRooms() {
         return numberOfRooms;
+    }
+
+    public String getPickupCity() {
+        return pickupCity;
     }
 
     public List<Integer> getRoomOccupancies() {
@@ -100,6 +106,10 @@ public class BookingSession implements Serializable {
 
     public void setNumberOfRooms(int numberOfRooms) {
         this.numberOfRooms = numberOfRooms;
+    }
+
+    public void setPickupCity(String pickupCity) {
+        this.pickupCity = pickupCity;
     }
 
     public void setRoomOccupancies(
