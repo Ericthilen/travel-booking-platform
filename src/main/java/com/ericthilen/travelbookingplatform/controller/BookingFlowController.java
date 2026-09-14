@@ -9,6 +9,7 @@ import com.ericthilen.travelbookingplatform.dto.DiscountCodeRequest;
 import com.ericthilen.travelbookingplatform.dto.TravelerRequest;
 import com.ericthilen.travelbookingplatform.legal.LegalDocumentVersions;
 import com.ericthilen.travelbookingplatform.model.Booking;
+import com.ericthilen.travelbookingplatform.model.BusPickupStop;
 import com.ericthilen.travelbookingplatform.model.Departure;
 import com.ericthilen.travelbookingplatform.model.DiscoverySource;
 import com.ericthilen.travelbookingplatform.model.RoomType;
@@ -95,7 +96,8 @@ public class BookingFlowController {
 
         validateTravelerSelection(
                 bookingSelectionRequest,
-                bindingResult
+                bindingResult,
+                departure.get()
         );
 
         if (bookingSelectionRequest.getNumberOfTravelers()
@@ -123,6 +125,9 @@ public class BookingFlowController {
         );
         bookingSession.setNumberOfRooms(
                 bookingSelectionRequest.getNumberOfRooms()
+        );
+        bookingSession.setPickupCity(
+                clean(bookingSelectionRequest.getPickupCity())
         );
         bookingSession.setRoomOccupancies(
                 bookingSelectionRequest.getRoomOccupancies()
@@ -641,8 +646,23 @@ public class BookingFlowController {
 
     private void validateTravelerSelection(
             BookingSelectionRequest request,
-            BindingResult bindingResult
+            BindingResult bindingResult,
+            Departure departure
     ) {
+        if (departure.getTravel().isBusTrip()) {
+            BusPickupStop pickupStop = departure
+                    .getTravel()
+                    .findPickupStop(clean(request.getPickupCity()));
+
+            if (pickupStop == null) {
+                bindingResult.rejectValue(
+                        "pickupCity",
+                        "missingPickupCity",
+                        "Välj var du vill gå på bussen."
+                );
+            }
+        }
+
         List<Integer> roomOccupancies =
                 request.getRoomOccupancies();
 
@@ -787,5 +807,9 @@ public class BookingFlowController {
         }
 
         return null;
+    }
+
+    private String clean(String value) {
+        return value == null ? "" : value.trim();
     }
 }

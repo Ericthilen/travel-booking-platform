@@ -1,6 +1,7 @@
 package com.ericthilen.travelbookingplatform.service;
 
 import com.ericthilen.travelbookingplatform.model.Departure;
+import com.ericthilen.travelbookingplatform.model.TravelType;
 import com.ericthilen.travelbookingplatform.repository.DepartureRepository;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +41,31 @@ public class DepartureService {
         return departureRepository.findBookableDepartureAirports();
     }
 
+    public List<String> getBookableDepartureAirports(TravelType travelType) {
+        if (travelType == null) {
+            return getBookableDepartureAirports();
+        }
+
+        return departureRepository
+                .findBookableDepartureAirportsByTravelType(travelType);
+    }
+
     public List<LocalDate> getBookableDepartureDatesFrom(LocalDate date) {
         return departureRepository.findBookableDepartureDatesFrom(date);
+    }
+
+    public List<LocalDate> getBookableDepartureDatesFrom(
+            LocalDate date,
+            TravelType travelType
+    ) {
+        if (travelType == null) {
+            return getBookableDepartureDatesFrom(date);
+        }
+
+        return departureRepository
+                .findBookableDepartureDatesFromByTravelType(
+                        date,
+                        travelType
+                );
     }
 }

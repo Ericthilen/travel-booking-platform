@@ -20,7 +20,7 @@
 <body>
 
 <div
-        th:replace="~{fragments/site-header :: siteHeader('travels')}"
+        th:replace="~{fragments/site-header :: siteHeader(${travel.busTrip} ? 'bus' : 'travels')}"
 ></div>
 
 <main>
@@ -114,8 +114,87 @@
         </div>
 
         <div
+                class="bus-departure-list"
+                th:if="${travel.busTrip and !departures.isEmpty()}"
+        >
+            <div class="bus-departure-header">
+                <span>Avresa</span>
+                <span>Resmål</span>
+                <span>Pris från</span>
+                <span>Platser kvar</span>
+                <span></span>
+            </div>
+
+            <article
+                    class="bus-departure-row"
+                    th:each="departure : ${departures}"
+            >
+                <div class="bus-date-cell">
+                    <details class="pickup-info">
+                        <summary aria-label="Visa påstigningsplatser och tider">
+                            i
+                        </summary>
+
+                        <div class="pickup-popover">
+                            <h3>Påstigning</h3>
+
+                            <ul>
+                                <li th:each="stop : ${travel.pickupStops}">
+                                    <strong th:text="${stop.city}">Göteborg</strong>
+                                    <span th:text="${stop.departureTime}">06:00</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </details>
+
+                    <span
+                            th:text="${#temporals.format(departure.departureDate, 'yyyy-MM-dd') + ' ' + departure.departureWeekdayShort}"
+                    >
+                        2027-05-03 Mån
+                    </span>
+                </div>
+
+                <div class="bus-destination-cell">
+                    <strong
+                            th:text="${travel.destination + ' ' + (travel.nights + 1) + 'd'}"
+                    >
+                        Bergenbanan 5d
+                    </strong>
+
+                    <small th:text="${travel.hotelName}">
+                        Hotell
+                    </small>
+                </div>
+
+                <div class="bus-price-cell">
+                    <strong
+                            th:text="${#numbers.formatInteger(departure.pricePerPerson, 1, 'WHITESPACE') + ':-'}"
+                    >
+                        9 355:-
+                    </strong>
+                </div>
+
+                <div class="bus-seats-cell">
+                    <strong
+                            th:text="${departure.availableSeats > 8 ? '>8' : departure.availableSeats}"
+                    >
+                        >8
+                    </strong>
+                </div>
+
+                <a
+                        class="bus-book-button"
+                        th:href="@{/bokning/{departureId}/resenarer(departureId=${departure.id})}"
+                >
+                    Boka resa
+                    <span aria-hidden="true">→</span>
+                </a>
+            </article>
+        </div>
+
+        <div
                 class="departure-list"
-                th:unless="${departures.isEmpty()}"
+                th:if="${!travel.busTrip and !departures.isEmpty()}"
         >
             <article
                     class="departure-card"
@@ -176,7 +255,7 @@
 
                                 <div class="flight-track">
                                     <span th:text="${'Direktflyg · ' + departure.outboundDurationLabel}">
-                                        Direktflyg · 3h 35m
+                                        Direkt · 3h 35m
                                     </span>
 
                                     <div class="flight-track-line"></div>
@@ -219,13 +298,15 @@
                                 </span>
 
                                 <span>
-                                    Incheckat bagage ingår
+                                    Bagage ingår
                                 </span>
                             </div>
 
                             <p class="flight-handbag-row">
-                                <strong>Handbagage</strong>
-                                Liten väska 30x40x20, ska få plats under sätet framför dig
+                                <strong th:text="${travel.busTrip} ? 'Bussresa' : 'Handbagage'">Handbagage</strong>
+                                <span th:text="${travel.busTrip} ? 'Välj påstigningsort i nästa steg.' : 'Liten väska 30x40x20, ska få plats under sätet framför dig'">
+                                    Liten väska 30x40x20, ska få plats under sätet framför dig
+                                </span>
                             </p>
                         </section>
 
@@ -260,7 +341,7 @@
 
                                 <div class="flight-track">
                                     <span th:text="${'Direktflyg · ' + departure.returnDurationLabel}">
-                                        Direktflyg · 3h 35m
+                                        Direkt · 3h 35m
                                     </span>
 
                                     <div class="flight-track-line"></div>
@@ -303,13 +384,15 @@
                                 </span>
 
                                 <span>
-                                    Incheckat bagage ingår
+                                    Bagage ingår
                                 </span>
                             </div>
 
                             <p class="flight-handbag-row">
-                                <strong>Handbagage</strong>
-                                Liten väska 30x40x20, ska få plats under sätet framför dig
+                                <strong th:text="${travel.busTrip} ? 'Hemresa' : 'Handbagage'">Handbagage</strong>
+                                <span th:text="${travel.busTrip} ? 'Bussen kör tillbaka längs samma huvudstråk.' : 'Liten väska 30x40x20, ska få plats under sätet framför dig'">
+                                    Liten väska 30x40x20, ska få plats under sätet framför dig
+                                </span>
                             </p>
                         </section>
                     </div>
@@ -369,7 +452,7 @@
     </p>
 </footer>
 
-<script src="/js/home.js" defer></script>
+<script src="/js/travel-departures.js" defer></script>
 
 </body>
 </html>

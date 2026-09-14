@@ -55,11 +55,14 @@ public class DataInitializer {
     }
 
     private void updateCeoAccount(UserRepository userRepository) {
+        String ceoEmail = "thileneric@erigotravel.com";
         userRepository
-                .findByEmailIgnoreCase("thileneric@erigotravel.com")
+                .findByEmailIgnoreCase(ceoEmail)
                 .ifPresent(user -> {
-                    user.setRole(Role.ROLE_CEO);
-                    userRepository.save(user);
+                    if (user.getRole() != Role.ROLE_CEO) {
+                        user.setRole(Role.ROLE_CEO);
+                        userRepository.save(user);
+                    }
                 });
     }
 
@@ -69,9 +72,13 @@ public class DataInitializer {
             PasswordEncoder passwordEncoder,
             String supportAgentPassword
     ) {
+        String email = "eric@customerservice.com";
+        if (userRepository.findByEmailIgnoreCase(email).isPresent()) {
+            return;
+        }
+
         makeRoleColumnReadyForSupportAgents(jdbcTemplate);
 
-        String email = "eric@customerservice.com";
         String encodedPassword = supportAgentPassword.isBlank()
                 ? null
                 : passwordEncoder.encode(supportAgentPassword);

@@ -6,6 +6,7 @@ public class TravelSearchFilters {
 
     private String destination;
     private String country;
+    private String travelType;
     private String departureAirport;
     private LocalDate earliestDepartureDate;
     private LocalDate latestDepartureDate;
@@ -34,6 +35,14 @@ public class TravelSearchFilters {
 
     public void setCountry(String country) {
         this.country = country;
+    }
+
+    public String getTravelType() {
+        return travelType;
+    }
+
+    public void setTravelType(String travelType) {
+        this.travelType = travelType;
     }
 
     public String getDepartureAirport() {

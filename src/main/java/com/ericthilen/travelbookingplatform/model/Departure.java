@@ -15,6 +15,8 @@ import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Duration;
+import java.time.format.TextStyle;
+import java.util.Locale;
 
 @Entity
 @Table(name = "departures")
@@ -179,6 +181,15 @@ public class Departure {
 
     public LocalDate getReturnDate() {
         return returnDate;
+    }
+
+    public String getDepartureWeekdayShort() {
+        return departureDate
+                .getDayOfWeek()
+                .getDisplayName(
+                        TextStyle.SHORT,
+                        Locale.forLanguageTag("sv-SE")
+                );
     }
 
     public String getDepartureAirport() {

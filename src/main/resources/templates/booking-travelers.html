@@ -94,6 +94,40 @@
               method="post"
       >
         <div class="selection-grid">
+          <div
+                  class="booking-field"
+                  th:if="${departure.travel.busTrip}"
+          >
+            <label for="pickupCity">
+              Påstigningsort
+            </label>
+
+            <select
+                    id="pickupCity"
+                    th:field="*{pickupCity}"
+            >
+              <option value="">
+                Välj ort
+              </option>
+
+              <option
+                      th:each="stop : ${departure.travel.pickupStops}"
+                      th:value="${stop.city}"
+                      th:text="${stop.label}"
+              >
+                Göteborg kl. 06:00
+              </option>
+            </select>
+
+            <p
+                    class="field-error"
+                    th:if="${#fields.hasErrors('pickupCity')}"
+                    th:errors="*{pickupCity}"
+            >
+              Felmeddelande
+            </p>
+          </div>
+
           <div class="booking-field">
             <label for="numberOfTravelers">
               Antal resenärer
@@ -213,7 +247,9 @@
         <dl>
           <div>
             <dt>
-              Avresa
+              <span th:text="${departure.travel.busTrip} ? 'Resedatum' : 'Avresa'">
+                Avresa
+              </span>
             </dt>
 
             <dd
@@ -232,6 +268,16 @@
                     th:text="${#temporals.format(departure.returnDate, 'dd MMMM yyyy')}"
             >
               19 augusti 2026
+            </dd>
+          </div>
+
+          <div th:if="${departure.travel.busTrip}">
+            <dt>
+              Påstigning
+            </dt>
+
+            <dd>
+              Väljs i formuläret
             </dd>
           </div>
 

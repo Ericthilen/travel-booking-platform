@@ -25,7 +25,7 @@
     </description>
 
     <properties>
-        <java.version>25</java.version>
+        <java.version>24</java.version>
         <openpdf.version>3.0.4</openpdf.version>
     </properties>
 

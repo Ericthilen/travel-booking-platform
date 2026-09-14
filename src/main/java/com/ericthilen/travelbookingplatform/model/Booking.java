@@ -55,6 +55,12 @@ public class Booking {
     @Column(length = 500)
     private String roomDistribution;
 
+    @Column(length = 120)
+    private String pickupCity;
+
+    @Column(length = 20)
+    private String pickupDepartureTime;
+
     @Column(nullable = false)
     private int totalPrice;
 
@@ -211,6 +217,17 @@ public class Booking {
         travelers.add(traveler);
     }
 
+    public void setPickupStop(BusPickupStop pickupStop) {
+        if (pickupStop == null) {
+            pickupCity = null;
+            pickupDepartureTime = null;
+            return;
+        }
+
+        pickupCity = pickupStop.getCity();
+        pickupDepartureTime = pickupStop.getDepartureTime();
+    }
+
     public void registerPayment(int amount) {
         if (status == BookingStatus.CANCELLED) {
             throw new IllegalStateException(
@@ -332,6 +349,27 @@ public class Booking {
         }
 
         return roomDistribution;
+    }
+
+    public String getPickupCity() {
+        return pickupCity;
+    }
+
+    public String getPickupDepartureTime() {
+        return pickupDepartureTime;
+    }
+
+    public String getPickupLabel() {
+        if (pickupCity == null || pickupCity.isBlank()) {
+            return "";
+        }
+
+        if (pickupDepartureTime == null
+                || pickupDepartureTime.isBlank()) {
+            return pickupCity;
+        }
+
+        return pickupCity + " kl. " + pickupDepartureTime;
     }
 
     public void updateRoomDistribution(String roomDistribution) {

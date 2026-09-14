@@ -28,6 +28,8 @@ public class BookingSelectionRequest {
     )
     private int numberOfRooms = 1;
 
+    private String pickupCity = "";
+
     private List<Integer> roomOccupancies = new ArrayList<>();
 
     public int getNumberOfTravelers() {
@@ -42,6 +44,10 @@ public class BookingSelectionRequest {
         return roomOccupancies;
     }
 
+    public String getPickupCity() {
+        return pickupCity;
+    }
+
     public void setNumberOfTravelers(int numberOfTravelers) {
         this.numberOfTravelers = numberOfTravelers;
     }
@@ -54,5 +60,9 @@ public class BookingSelectionRequest {
             List<Integer> roomOccupancies
     ) {
         this.roomOccupancies = roomOccupancies;
+    }
+
+    public void setPickupCity(String pickupCity) {
+        this.pickupCity = pickupCity;
     }
 }

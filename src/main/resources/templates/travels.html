@@ -16,7 +16,7 @@
 
 <body>
 
-<div th:replace="~{fragments/site-header :: siteHeader('travels')}"></div>
+<div th:replace="~{fragments/site-header :: siteHeader(${isBusPage} ? 'bus' : 'travels')}"></div>
 
 <main>
     <section class="travel-list-section">
@@ -26,12 +26,12 @@
                     Filtrera
                 </h2>
 
-                <a th:href="@{/resor}">
+                <a th:href="${listAction}">
                     Rensa
                 </a>
             </div>
 
-            <form class="travel-filter-form" th:action="@{/resor}" method="get">
+            <form class="travel-filter-form" th:action="${listAction}" method="get">
                 <input
                         type="hidden"
                         name="calendarMonth"
@@ -65,9 +65,14 @@
                 </label>
 
                 <label>
-                    Avreseflygplats
+                    <span th:text="${departurePlaceLabel}">Avreseflygplats</span>
                     <select name="departureAirport">
-                        <option value="">Alla flygplatser</option>
+                        <option
+                                value=""
+                                th:text="${isBusPage} ? 'Alla påstigningsorter' : 'Alla flygplatser'"
+                        >
+                            Alla flygplatser
+                        </option>
                         <option
                                 th:each="airportOption : ${departureAirports}"
                                 th:value="${airportOption}"
@@ -273,15 +278,17 @@
             <div class="travel-list-heading">
                 <div>
                     <p class="eyebrow dark">
-                        Våra resor
+                        <span th:text="${isBusPage} ? 'Bussresor' : 'Flygresor'">Våra resor</span>
                     </p>
 
                     <h1>
-                        Alla tillgängliga resor
+                        <span th:text="${isBusPage} ? 'Bussresor med hotell' : 'Paketresor med flyg och hotell'">
+                            Alla tillgängliga resor
+                        </span>
                     </h1>
                 </div>
 
-                <form class="travel-sort-form" th:action="@{/resor}" method="get">
+                <form class="travel-sort-form" th:action="${listAction}" method="get">
                     <input type="hidden" name="destination" th:value="${destination}">
                     <input type="hidden" name="country" th:value="${country}">
                     <input type="hidden" name="maxPrice" th:value="${maxPrice}">
@@ -334,7 +341,8 @@
                 </span>
 
                 <span th:if="${departureAirport != null and !departureAirport.isBlank()}">
-                    Flygplats: <strong th:text="${departureAirport}">Göteborg</strong>
+                    <span th:text="${departurePlaceLabel}">Flygplats</span>:
+                    <strong th:text="${departureAirport}">Göteborg</strong>
                 </span>
 
                 <span th:if="${earliestDepartureDate != null}">
@@ -390,7 +398,7 @@
                     <div class="travel-list-content">
                         <p
                                 class="travel-country"
-                                th:text="${travel.country}"
+                                th:text="${travel.travelTypeLabel + ' · ' + travel.country}"
                         >
                             Land
                         </p>
@@ -479,7 +487,7 @@
                     Prova att ta bort något filter eller sök bredare.
                 </p>
 
-                <a th:href="@{/resor}">
+                <a th:href="${listAction}">
                     Visa alla resor
                 </a>
             </div>
@@ -492,12 +500,13 @@
         <strong>EriGo Travel</strong>
 
         <p>
-            Utvalda paketresor med flyg, hotell och trygg bokning.
+            Utvalda paketresor med flyg, buss, hotell och trygg bokning.
         </p>
     </div>
 
     <nav aria-label="Footer">
-        <a th:href="@{/resor}">Resor</a>
+        <a th:href="@{/resor}">Flygresor</a>
+        <a th:href="@{/bussresor}">Bussresor</a>
         <a th:href="@{/hitta-bokning}">Hitta bokning</a>
         <a th:href="@{/mitt-konto}">Mitt konto</a>
     </nav>

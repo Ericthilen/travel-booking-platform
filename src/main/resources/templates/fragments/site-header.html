@@ -130,7 +130,14 @@
                 th:href="@{/resor}"
                 th:classappend="${activePage == 'travels'} ? 'active-link'"
         >
-            Resor
+            Flygresor
+        </a>
+
+        <a
+                th:href="@{/bussresor}"
+                th:classappend="${activePage == 'bus'} ? 'active-link'"
+        >
+            Bussresor
         </a>
 
         <div

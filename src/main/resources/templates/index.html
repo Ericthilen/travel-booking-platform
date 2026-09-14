@@ -190,6 +190,166 @@
                     <span>%</span>
                     Sista minuten
                 </button>
+
+                <div class="home-type-item">
+                    <button
+                            class="home-sidebar-action"
+                            type="button"
+                            data-type-filter="FLIGHT"
+                    >
+                        <span>✈</span>
+                        Flygresor
+                    </button>
+
+                    <div class="home-type-flyout" data-type-flyout="FLIGHT" hidden>
+                        <a
+                                class="home-type-flyout-heading home-type-all-link"
+                                th:href="@{/resor}"
+                                aria-label="Visa alla flygresor"
+                        >
+                            <span>Alla flygresor</span>
+                            <strong>→</strong>
+                        </a>
+
+                        <div class="home-type-filter-actions">
+                            <details class="home-place-filter">
+                                <summary>
+                                    Avreseplatser
+                                </summary>
+
+                                <div class="home-place-filter-popover">
+                                    <button
+                                            type="button"
+                                            data-place-filter=""
+                                    >
+                                        <small>Alla</small>
+
+                                        <span>Alla avreseplatser</span>
+                                    </button>
+
+                                    <button
+                                            th:each="place : ${homeFlightDeparturePlaces}"
+                                            type="button"
+                                            th:data-place-filter="${place.name}"
+                                    >
+                                        <small th:text="${place.type}">
+                                            Flyg
+                                        </small>
+
+                                        <span th:text="${place.name}">
+                                            Arlanda
+                                        </span>
+                                    </button>
+                                </div>
+                            </details>
+                        </div>
+
+                        <div class="home-country-empty" data-type-empty hidden>
+                            Inga resor från den platsen just nu.
+                        </div>
+
+                        <div class="home-type-flyout-list">
+                            <a
+                                    class="home-country-travel-link"
+                                    th:each="travel : ${allTravels}"
+                                    th:if="${travel.flightTrip}"
+                                    th:data-departure-places="${travel.departurePlacesText}"
+                                    th:href="@{/resor/{id}(id=${travel.id})}"
+                            >
+                                <img th:src="${travel.imageUrl}" th:alt="${travel.destination}">
+
+                                <span>
+                                    <b th:text="${travel.destination}">Mallorca</b>
+                                    <small th:text="${travel.hotelName}">Hotell</small>
+                                </span>
+
+                                <em th:text="|fr. ${#numbers.formatInteger(travel.price, 0, 'WHITESPACE')} kr|">
+                                    fr. 8 995 kr
+                                </em>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="home-type-item">
+                    <button
+                            class="home-sidebar-action"
+                            type="button"
+                            data-type-filter="BUS"
+                    >
+                        <span>🚌</span>
+                        Bussresor
+                    </button>
+
+                    <div class="home-type-flyout" data-type-flyout="BUS" hidden>
+                        <a
+                                class="home-type-flyout-heading home-type-all-link"
+                                th:href="@{/bussresor}"
+                                aria-label="Visa alla bussresor"
+                        >
+                            <span>Alla bussresor</span>
+                            <strong>→</strong>
+                        </a>
+
+                        <div class="home-type-filter-actions">
+                            <details class="home-place-filter">
+                                <summary>
+                                    Påstigningsplatser
+                                </summary>
+
+                                <div class="home-place-filter-popover">
+                                    <button
+                                            type="button"
+                                            data-place-filter=""
+                                    >
+                                        <small>Alla</small>
+
+                                        <span>Alla påstigningsplatser</span>
+                                    </button>
+
+                                    <button
+                                            th:each="place : ${homeBusDeparturePlaces}"
+                                            type="button"
+                                            th:data-place-filter="${place.name}"
+                                    >
+                                        <small th:text="${place.type}">
+                                            Buss
+                                        </small>
+
+                                        <span th:text="${place.name}">
+                                            Göteborg, Nils Ericsonterminalen
+                                        </span>
+                                    </button>
+                                </div>
+                            </details>
+                        </div>
+
+                        <div class="home-country-empty" data-type-empty hidden>
+                            Inga resor från den platsen just nu.
+                        </div>
+
+                        <div class="home-type-flyout-list">
+                            <a
+                                    class="home-country-travel-link"
+                                    th:each="travel : ${allTravels}"
+                                    th:if="${travel.busTrip}"
+                                    th:data-departure-places="${travel.departurePlacesText}"
+                                    th:href="@{/resor/{id}(id=${travel.id})}"
+                            >
+                                <img th:src="${travel.imageUrl}" th:alt="${travel.destination}">
+
+                                <span>
+                                    <b th:text="${travel.destination}">Amsterdam</b>
+                                    <small th:text="${travel.hotelName}">Hotell</small>
+                                </span>
+
+                                <em th:text="|fr. ${#numbers.formatInteger(travel.price, 0, 'WHITESPACE')} kr|">
+                                    fr. 8 995 kr
+                                </em>
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="home-sidebar-group home-season-group">
@@ -248,18 +408,76 @@
                             th:data-country-flyout="${countryGroup.country}"
                             hidden
                     >
-                        <a
-                                class="home-country-flyout-heading"
-                                th:href="@{/resor(country=${countryGroup.country})}"
-                        >
+                        <div class="home-country-flyout-heading">
                             <span>Se alla resor</span>
                             <strong>→</strong>
-                        </a>
+                        </div>
+
+                        <div class="home-country-filter-actions">
+                            <button
+                                    class="is-active"
+                                    type="button"
+                                    data-country-type-tab="ALL"
+                            >
+                                Alla
+                            </button>
+
+                            <button
+                                    type="button"
+                                    data-country-type-tab="FLIGHT"
+                            >
+                                Flygresor
+                            </button>
+
+                            <button
+                                    type="button"
+                                    data-country-type-tab="BUS"
+                            >
+                                Bussresor
+                            </button>
+
+                            <details class="home-place-filter">
+                                <summary>
+                                    Avreseplatser
+                                </summary>
+
+                                <div class="home-place-filter-popover">
+                                    <button
+                                            type="button"
+                                            data-place-filter=""
+                                    >
+                                        <small>Alla</small>
+
+                                        <span>Alla avreseplatser</span>
+                                    </button>
+
+                                    <button
+                                            th:each="place : ${countryGroup.departurePlaces}"
+                                            type="button"
+                                            th:data-place-filter="${place.name}"
+                                    >
+                                        <small th:text="${place.type}">
+                                            Buss
+                                        </small>
+
+                                        <span th:text="${place.name}">
+                                            Göteborg
+                                        </span>
+                                    </button>
+                                </div>
+                            </details>
+                        </div>
+
+                        <div class="home-country-empty" data-country-empty hidden>
+                            Inga planerade resor just nu.
+                        </div>
 
                         <div class="home-country-flyout-list">
                             <a
                                     class="home-country-travel-link"
                                     th:each="travel : ${countryGroup.travels}"
+                                    th:data-travel-type="${travel.travelType.name()}"
+                                    th:data-departure-places="${travel.departurePlacesText}"
                                     th:href="@{/resor/{id}(id=${travel.id})}"
                             >
                                 <img
@@ -274,6 +492,13 @@
 
                                     <small th:text="${travel.hotelName}">
                                         Hotell
+                                    </small>
+
+                                    <small
+                                            class="home-travel-type-badge"
+                                            th:text="${travel.travelTypeLabel}"
+                                    >
+                                        Bussresa
                                     </small>
                                 </span>
 
@@ -322,9 +547,9 @@
                     </label>
 
                     <label>
-                        <span>Välj flygplats</span>
+                        <span>Välj avreseplats</span>
                         <select data-airport-filter>
-                            <option value="">Alla flygplatser</option>
+                            <option value="">Alla flygplatser och påstigningsplatser</option>
 
                             <option
                                     th:each="departure : ${homeDepartures}"
@@ -356,7 +581,7 @@
                     <div class="home-calendar-header">
                         <span>Avresa</span>
                         <span>Resmål</span>
-                        <span>Flygplats</span>
+                        <span>Avreseplats</span>
                         <span>Pris från</span>
                         <span>Platser kvar</span>
                         <span></span>
@@ -377,7 +602,7 @@
                             th:data-image="${departure.imageUrl}"
                     >
                         <span>
-                            ✈
+                            <span th:text="${departure.travelTypeIcon}">✈</span>
                             <strong th:text="${#temporals.format(departure.departureDate, 'yyyy-MM-dd')}">
                                 2026-08-11
                             </strong>

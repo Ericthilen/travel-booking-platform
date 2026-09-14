@@ -4,6 +4,7 @@ import com.ericthilen.travelbookingplatform.dto.TravelSearchFilters;
 import com.ericthilen.travelbookingplatform.dto.TravelCalendarDay;
 import com.ericthilen.travelbookingplatform.model.ManagementStatus;
 import com.ericthilen.travelbookingplatform.model.Travel;
+import com.ericthilen.travelbookingplatform.model.TravelType;
 import com.ericthilen.travelbookingplatform.service.DepartureService;
 import com.ericthilen.travelbookingplatform.service.TravelService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -60,13 +61,102 @@ public class TravelController {
             @RequestParam(required = false) String sort,
             Model model
     ) {
-        List<Travel> allTravels = travelService.getAllTravels();
+        return showTravelList(
+                destination,
+                country,
+                maxPrice,
+                hotelStars,
+                nights,
+                mealType,
+                pool,
+                beach,
+                family,
+                departureAirport,
+                departureDate,
+                earliestDepartureDate,
+                latestDepartureDate,
+                travelers,
+                onlyAvailable,
+                calendarMonth,
+                sort,
+                TravelType.FLIGHT,
+                model
+        );
+    }
+
+    @GetMapping("/bussresor")
+    public String showBusTravels(
+            @RequestParam(required = false) String destination,
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) Integer maxPrice,
+            @RequestParam(required = false) Integer hotelStars,
+            @RequestParam(required = false) Integer nights,
+            @RequestParam(required = false) String mealType,
+            @RequestParam(required = false) Boolean pool,
+            @RequestParam(required = false) Boolean beach,
+            @RequestParam(required = false) Boolean family,
+            @RequestParam(required = false) String departureAirport,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate departureDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate earliestDepartureDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate latestDepartureDate,
+            @RequestParam(required = false) Integer travelers,
+            @RequestParam(required = false) Boolean onlyAvailable,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate calendarMonth,
+            @RequestParam(required = false) String sort,
+            Model model
+    ) {
+        return showTravelList(
+                destination,
+                country,
+                maxPrice,
+                hotelStars,
+                nights,
+                mealType,
+                pool,
+                beach,
+                family,
+                departureAirport,
+                departureDate,
+                earliestDepartureDate,
+                latestDepartureDate,
+                travelers,
+                onlyAvailable,
+                calendarMonth,
+                sort,
+                TravelType.BUS,
+                model
+        );
+    }
+
+    private String showTravelList(
+            String destination,
+            String country,
+            Integer maxPrice,
+            Integer hotelStars,
+            Integer nights,
+            String mealType,
+            Boolean pool,
+            Boolean beach,
+            Boolean family,
+            String departureAirport,
+            LocalDate departureDate,
+            LocalDate earliestDepartureDate,
+            LocalDate latestDepartureDate,
+            Integer travelers,
+            Boolean onlyAvailable,
+            LocalDate calendarMonth,
+            String sort,
+            TravelType travelType,
+            Model model
+    ) {
+        List<Travel> allTravels = travelService.getAllTravels(travelType);
         LocalDate selectedEarliestDepartureDate = earliestDepartureDate == null
                 ? departureDate
                 : earliestDepartureDate;
         TravelSearchFilters filters = new TravelSearchFilters();
         filters.setDestination(clean(destination));
         filters.setCountry(clean(country));
+        filters.setTravelType(travelType == null ? null : travelType.name());
         filters.setDepartureAirport(clean(departureAirport));
         filters.setEarliestDepartureDate(selectedEarliestDepartureDate);
         filters.setLatestDepartureDate(latestDepartureDate);
@@ -87,7 +177,10 @@ public class TravelController {
                 filters.getEarliestDepartureDate()
         );
         List<LocalDate> availableDepartureDates =
-                departureService.getBookableDepartureDatesFrom(calendarStart);
+                departureService.getBookableDepartureDatesFrom(
+                        calendarStart,
+                        travelType
+                );
         Set<LocalDate> availableDepartureDateSet =
                 new HashSet<>(availableDepartureDates);
 
@@ -160,7 +253,7 @@ public class TravelController {
         );
         model.addAttribute(
                 "departureAirports",
-                departureService.getBookableDepartureAirports()
+                departureService.getBookableDepartureAirports(travelType)
         );
         model.addAttribute(
                 "nightOptions",
@@ -186,6 +279,10 @@ public class TravelController {
         model.addAttribute("travelers", filters.getTravelers());
         model.addAttribute("onlyAvailable", filters.isOnlyAvailable());
         model.addAttribute("sort", filters.getSort());
+        model.addAttribute("travelType", travelType);
+        model.addAttribute("isBusPage", travelType == TravelType.BUS);
+        model.addAttribute("listAction", travelType == TravelType.BUS ? "/bussresor" : "/resor");
+        model.addAttribute("departurePlaceLabel", travelType == TravelType.BUS ? "Påstigningsort" : "Avreseflygplats");
 
         return "travels";
     }
