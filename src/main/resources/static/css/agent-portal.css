@@ -2595,10 +2595,16 @@ i.mail {
     border-color: #07384a;
 }
 
-.agent-message.system {
+.agent-message.ai {
     max-width: 100%;
     background: #fff8e5;
     border-color: #ead59c;
+}
+
+.agent-message.system,
+.agent-message.agent {
+    background: #ffffff;
+    border-color: #e1ddd4;
 }
 
 .agent-message.typing {
@@ -3167,19 +3173,29 @@ i.mail {
     box-shadow: 0 17px 0 -3px currentColor;
 }
 
-.agent-message-row.agent .agent-message-avatar::before,
 .agent-message-row.system .agent-message-avatar::before {
     content: "CS";
+}
+
+.agent-message-row.agent .agent-message-avatar::before {
+    content: "AG";
 }
 
 .agent-message-row.note .agent-message-avatar::before {
     content: "NT";
 }
 
-.agent-message-row.system .agent-message-avatar {
+.agent-message-row.ai .agent-message-avatar {
     color: #9a7214;
     background: #fff7df;
     border-color: #f0dfa9;
+}
+
+.agent-message-row.agent .agent-message-avatar,
+.agent-message-row.system .agent-message-avatar {
+    color: #0c7580;
+    background: #ffffff;
+    border-color: #d3eded;
 }
 
 .agent-message-row.note .agent-message-avatar {
@@ -3205,10 +3221,15 @@ i.mail {
     border-color: #07384a;
 }
 
-.agent-conversation-main .agent-message.agent,
-.agent-conversation-main .agent-message.system {
+.agent-conversation-main .agent-message.ai {
     background: #fff9e8;
     border-color: #f0dfa9;
+}
+
+.agent-conversation-main .agent-message.agent,
+.agent-conversation-main .agent-message.system {
+    background: #ffffff;
+    border-color: #e1e4df;
 }
 
 .agent-conversation-main .agent-message.note {
@@ -3257,6 +3278,45 @@ i.mail {
 .agent-conversation-main .agent-message p {
     font-size: 16px;
     line-height: 1.55;
+}
+
+.agent-message-booking-link {
+    width: fit-content;
+    margin-top: 12px;
+    padding: 8px 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #08384a;
+    background: #e8f8f6;
+    border: 1px solid #bfe4df;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 1000;
+}
+
+.agent-message-booking-link span {
+    margin: 0;
+    padding: 3px 7px;
+    color: #ffffff;
+    background: #07384a;
+    border-radius: 999px;
+    font-size: inherit;
+}
+
+.agent-message-booking-link:hover,
+.agent-message-booking-link:focus-visible {
+    color: #ffffff;
+    background: #0b6f78;
+    border-color: #0b6f78;
+    outline: none;
+}
+
+.agent-message-booking-link:hover span,
+.agent-message-booking-link:focus-visible span {
+    color: #07384a;
+    background: #ffffff;
 }
 
 .agent-message-edit {
@@ -3370,6 +3430,36 @@ i.mail {
     color: #07384a;
     background: #ffffff;
     border-bottom-color: #0b7781;
+}
+
+.agent-preview-toggle {
+    min-height: 46px;
+    margin-left: auto;
+    padding: 0 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #5d6b70;
+    font-size: 13px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.agent-preview-toggle input {
+    width: 16px;
+    height: 16px;
+    accent-color: #0b7781;
+}
+
+.agent-chat-shell.is-closed .agent-conversation-main::after {
+    content: "Chatten är avslutad";
+    order: 35;
+    padding: 14px 16px;
+    color: #56656a;
+    background: #f3f5f5;
+    border: 1px solid #dde4e5;
+    border-radius: 14px;
+    font-weight: 900;
 }
 
 .agent-reply-shortcuts {
@@ -3574,6 +3664,64 @@ i.mail {
     margin-bottom: 28px;
     padding-bottom: 28px;
     border-bottom: 1px solid #e8eeee;
+}
+
+.agent-booking-context {
+    display: grid;
+    gap: 12px;
+}
+
+.agent-booking-context[hidden] {
+    display: none;
+}
+
+.agent-booking-context div {
+    padding: 10px 12px;
+    display: grid;
+    gap: 3px;
+    background: #f7fbfb;
+    border: 1px solid #e0eaeb;
+    border-radius: 12px;
+}
+
+.agent-booking-context span {
+    color: #728187;
+    font-size: 11px;
+    font-weight: 1000;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.agent-booking-context strong {
+    color: #102427;
+    font-size: 14px;
+    line-height: 1.35;
+}
+
+.agent-booking-context a {
+    min-height: 44px;
+    padding: 0 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    background: #07384a;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 1000;
+}
+
+.agent-booking-context a:hover,
+.agent-booking-context a:focus-visible {
+    background: #0b6f78;
+    outline: none;
+}
+
+.agent-booking-empty {
+    margin: 0;
+    color: #7c8a8f;
+    font-weight: 800;
+    line-height: 1.45;
 }
 
 .agent-tag-button {

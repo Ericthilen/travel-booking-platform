@@ -16,14 +16,43 @@ if (agentConversation) {
     const noteForm = agentConversation.querySelector("[data-agent-note-form]");
     const noteInput = noteForm?.querySelector("textarea");
     const noteClose = noteForm?.querySelector("[data-note-close]");
+    const statusBadge = agentConversation.querySelector("[data-agent-status-badge]");
+    const joinHint = agentConversation.querySelector("[data-agent-join-hint]");
+    const joinForm = agentConversation.querySelector("[data-agent-join-form]");
+    const openControls = agentConversation.querySelectorAll("[data-agent-open-control]");
+    const closeHistoryItem =
+            agentConversation.querySelector("[data-close-history-item]");
+    const closeHistoryTime =
+            agentConversation.querySelector("[data-close-history-time]");
+    const closeHistoryMessage =
+            agentConversation.querySelector("[data-close-history-message]");
+    const bookingCard = agentConversation.querySelector("[data-booking-card]");
+    const bookingEmpty = agentConversation.querySelector("[data-booking-empty]");
+    const bookingNumber = agentConversation.querySelector("[data-booking-number]");
+    const bookingDestination =
+            agentConversation.querySelector("[data-booking-destination]");
+    const bookingDate = agentConversation.querySelector("[data-booking-date]");
+    const bookingCustomer =
+            agentConversation.querySelector("[data-booking-customer]");
+    const bookingStatus = agentConversation.querySelector("[data-booking-status]");
+    const bookingLink = agentConversation.querySelector("[data-booking-link]");
+    const previewToggle =
+            agentConversation.querySelector("[data-typing-preview-toggle]");
     const csrfToken = agentConversation.dataset.csrfToken;
     const csrfHeader = agentConversation.dataset.csrfHeader;
+    const previewStorageKey = "erigoAgentTypingPreview";
     let lastMessageCount = messagesElement.children.length;
+    let showTypingPreview =
+            window.localStorage.getItem(previewStorageKey) === "true";
     let typingTimer;
     let typingStopTimer;
     let remoteTypingName = "";
     let remoteTypingPreview = "";
     let remoteTypingDots = 1;
+
+    if (previewToggle) {
+        previewToggle.checked = showTypingPreview;
+    }
 
     messagesElement.scrollTop = messagesElement.scrollHeight;
 
@@ -62,6 +91,21 @@ if (agentConversation) {
         text.dataset.messageText = "true";
         bubble.append(meta, text);
 
+        if (message.detectedBookingNumber) {
+            const bookingLink = document.createElement("a");
+            const bookingNumber = document.createElement("span");
+
+            bookingLink.className = "agent-message-booking-link";
+            bookingLink.href = "/admin/bokningar/"
+                    + encodeURIComponent(message.detectedBookingId);
+            bookingLink.target = "_blank";
+            bookingLink.rel = "noopener noreferrer";
+            bookingLink.textContent = "Öppna bokning ";
+            bookingNumber.textContent = message.detectedBookingNumber;
+            bookingLink.appendChild(bookingNumber);
+            bubble.appendChild(bookingLink);
+        }
+
         if (message.editable) {
             const editButton = document.createElement("button");
             editButton.className = "agent-message-edit";
@@ -91,6 +135,86 @@ if (agentConversation) {
         lastMessageCount = messages.length;
     };
 
+    const updateConversationState = (chat) => {
+        const isClosed = chat.status === "CLOSED";
+
+        if (statusBadge) {
+            statusBadge.textContent = chat.statusLabel;
+            statusBadge.className =
+                    "agent-status agent-conversation-status "
+                    + chat.status.toLowerCase();
+        }
+
+        agentConversation.dataset.conversationStatus = chat.status;
+        agentConversation.classList.toggle("is-closed", isClosed);
+
+        openControls.forEach((control) => {
+            if (isClosed) {
+                control.hidden = true;
+            } else if (!control.matches("[data-agent-note-form]")) {
+                control.hidden = false;
+            }
+        });
+
+        if (joinHint) {
+            joinHint.hidden = isClosed || chat.agentJoined;
+        }
+
+        if (joinForm) {
+            joinForm.hidden = isClosed || chat.agentJoined;
+        }
+
+        if (isClosed) {
+            if (closeHistoryItem) {
+                closeHistoryItem.hidden = false;
+            }
+
+            if (closeHistoryTime && chat.closedAt) {
+                closeHistoryTime.textContent = chat.closedAt;
+            }
+
+            if (closeHistoryMessage && chat.closeHistoryMessage) {
+                closeHistoryMessage.textContent = chat.closeHistoryMessage;
+            }
+
+            stopRemoteTyping();
+        }
+
+        if (chat.booking) {
+            if (bookingCard) {
+                bookingCard.hidden = false;
+            }
+
+            if (bookingEmpty) {
+                bookingEmpty.hidden = true;
+            }
+
+            if (bookingNumber) {
+                bookingNumber.textContent = chat.booking.bookingNumber;
+            }
+
+            if (bookingDestination) {
+                bookingDestination.textContent = chat.booking.destination;
+            }
+
+            if (bookingDate) {
+                bookingDate.textContent = chat.booking.departureDate;
+            }
+
+            if (bookingCustomer) {
+                bookingCustomer.textContent = chat.booking.customerName;
+            }
+
+            if (bookingStatus) {
+                bookingStatus.textContent = chat.booking.status;
+            }
+
+            if (bookingLink) {
+                bookingLink.href = chat.booking.url;
+            }
+        }
+    };
+
     const renderTypingIndicator = () => {
         const oldIndicator =
                 messagesElement.querySelector("[data-typing-indicator]");
@@ -99,7 +223,7 @@ if (agentConversation) {
             oldIndicator.remove();
         }
 
-        if (!remoteTypingName && !remoteTypingPreview) {
+        if (!remoteTypingName && (!showTypingPreview || !remoteTypingPreview)) {
             return;
         }
 
@@ -122,7 +246,7 @@ if (agentConversation) {
 
         bubble.appendChild(typingLine);
 
-        if (remoteTypingPreview) {
+        if (showTypingPreview && remoteTypingPreview) {
             const preview = document.createElement("p");
             preview.textContent = remoteTypingPreview;
             bubble.appendChild(preview);
@@ -166,7 +290,7 @@ if (agentConversation) {
 
         if (!typing.typing) {
             remoteTypingName = "";
-            remoteTypingPreview = typing.preview || "";
+            remoteTypingPreview = showTypingPreview ? typing.preview || "" : "";
 
             if (!remoteTypingPreview) {
                 stopRemoteTyping();
@@ -183,7 +307,7 @@ if (agentConversation) {
         }
 
         remoteTypingName = typing.name || "Kund";
-        remoteTypingPreview = typing.preview || "";
+        remoteTypingPreview = showTypingPreview ? typing.preview || "" : "";
         startTypingLoop();
         renderTypingIndicator();
     };
@@ -197,6 +321,7 @@ if (agentConversation) {
 
         if (response.ok) {
             const chat = await response.json();
+            updateConversationState(chat);
             renderMessages(chat.messages);
         }
     };
@@ -323,6 +448,22 @@ if (agentConversation) {
     };
 
     if (replyInput) {
+        if (previewToggle) {
+            previewToggle.addEventListener("change", () => {
+                showTypingPreview = previewToggle.checked;
+                window.localStorage.setItem(
+                        previewStorageKey,
+                        String(showTypingPreview)
+                );
+
+                if (!showTypingPreview) {
+                    remoteTypingPreview = "";
+                }
+
+                renderTypingIndicator();
+            });
+        }
+
         if (shortcutsToggle && shortcutsMenu) {
             shortcutsToggle.addEventListener("click", () => {
                 shortcutsMenu.hidden = !shortcutsMenu.hidden;

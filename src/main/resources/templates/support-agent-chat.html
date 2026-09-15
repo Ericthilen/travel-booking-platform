@@ -17,6 +17,7 @@
 <main class="agent-conversation-page">
     <section
             class="agent-chat-shell agent-conversation-shell"
+            th:classappend="${conversation.status.name() == 'CLOSED'} ? ' is-closed'"
             th:data-conversation-id="${conversation.id}"
             th:data-csrf-token="${_csrf != null ? _csrf.token : ''}"
             th:data-csrf-header="${_csrf != null ? _csrf.headerName : ''}"
@@ -27,6 +28,7 @@
                     class="agent-status agent-conversation-status"
                     th:classappend="${conversation.status.name().toLowerCase()}"
                     th:text="${conversation.status.displayName}"
+                    data-agent-status-badge
             >
                 Pågår
             </span>
@@ -83,6 +85,8 @@
                     th:if="${conversation.status.name() != 'CLOSED' and !conversation.hasAgentJoined()}"
                     th:action="@{/kundtjanst/chattar/{id}/anslut(id=${conversation.id})}"
                     method="post"
+                    data-agent-join-form
+                    data-agent-open-control
             >
                 <button type="submit">
                     Chatta med kund
@@ -104,8 +108,24 @@
 
                     <form
                             th:if="${conversation.status.name() != 'CLOSED'}"
+                            th:action="@{/kundtjanst/chattar/{id}/identifiera(id=${conversation.id})}"
+                            method="post"
+                            data-agent-open-control
+                    >
+                        <button
+                                class="agent-tool-button"
+                                type="submit"
+                                th:disabled="${!conversation.hasAgentJoined()}"
+                        >
+                            Identifiera kund
+                        </button>
+                    </form>
+
+                    <form
+                            th:if="${conversation.status.name() != 'CLOSED'}"
                             th:action="@{/kundtjanst/chattar/{id}/eskalera(id=${conversation.id})}"
                             method="post"
+                            data-agent-open-control
                     >
                         <button class="agent-tool-button agent-warning-button" type="submit">
                             Eskalera
@@ -116,6 +136,7 @@
                             th:if="${conversation.status.name() != 'CLOSED'}"
                             th:action="@{/kundtjanst/chattar/{id}/avsluta(id=${conversation.id})}"
                             method="post"
+                            data-agent-open-control
                     >
                         <button class="agent-tool-button" type="submit">
                             Avsluta
@@ -149,6 +170,7 @@
             <div
                     class="agent-join-hint"
                     th:if="${conversation.status.name() != 'CLOSED' and !conversation.hasAgentJoined()}"
+                    data-agent-join-hint
             >
                 Klicka på <strong>Chatta med kund</strong> innan du svarar. Först då ser kunden att du har anslutit.
             </div>
@@ -181,6 +203,17 @@
                             Meddelande
                         </p>
 
+                        <a
+                                class="agent-message-booking-link"
+                                th:if="${message.hasDetectedBooking()}"
+                                th:href="@{/admin/bokningar/{id}(id=${message.detectedBookingId})}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                        >
+                            Öppna bokning
+                            <span th:text="${message.detectedBookingNumber}">E1234567</span>
+                        </a>
+
                         <button
                                 class="agent-message-edit"
                                 type="button"
@@ -199,6 +232,7 @@
                     th:action="@{/kundtjanst/chattar/{id}/svara(id=${conversation.id})}"
                     th:object="${replyRequest}"
                     method="post"
+                    data-agent-open-control
             >
                 <label for="agentReply">Svara kunden</label>
 
@@ -222,6 +256,11 @@
                     <button type="button">
                         Kunskapsbas
                     </button>
+
+                    <label class="agent-preview-toggle">
+                        <input type="checkbox" data-typing-preview-toggle>
+                        <span>Förhandsvisa kundens text</span>
+                    </label>
                 </div>
 
                 <div
@@ -269,6 +308,7 @@
                     method="post"
                     hidden
                     data-agent-note-form
+                    data-agent-open-control
             >
                 <label for="agentNote">
                     Privat anteckning
@@ -312,6 +352,83 @@
             </dl>
 
             <section class="agent-detail-block">
+                <h3>Bokning</h3>
+
+                <div
+                        class="agent-booking-context"
+                        th:hidden="${linkedBooking == null}"
+                        data-booking-card
+                >
+                    <div>
+                        <span>Bokningsnummer</span>
+                        <strong
+                                data-booking-number
+                                th:text="${linkedBooking != null ? linkedBooking.bookingNumber : ''}"
+                        >
+                            E1234567
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Resmål</span>
+                        <strong
+                                data-booking-destination
+                                th:text="${linkedBooking != null ? linkedBooking.destination : ''}"
+                        >
+                            Almunecar
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Avgång</span>
+                        <strong
+                                data-booking-date
+                                th:text="${linkedBooking != null ? linkedBooking.departureDate : ''}"
+                        >
+                            2026-03-03
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Kund</span>
+                        <strong
+                                data-booking-customer
+                                th:text="${linkedBooking != null ? linkedBooking.customerName : ''}"
+                        >
+                            Kundnamn
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Status</span>
+                        <strong
+                                data-booking-status
+                                th:text="${linkedBooking != null ? linkedBooking.status : ''}"
+                        >
+                            Bekräftad
+                        </strong>
+                    </div>
+
+                    <a
+                            th:href="${linkedBooking != null ? linkedBooking.url : '#'}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            data-booking-link
+                    >
+                        Gå till kundens bokning
+                    </a>
+                </div>
+
+                <p
+                        class="agent-booking-empty"
+                        th:hidden="${linkedBooking != null}"
+                        data-booking-empty
+                >
+                    Ingen bokning kopplad ännu.
+                </p>
+            </section>
+
+            <section class="agent-detail-block">
                 <h3>Tags</h3>
                 <button class="agent-tag-button" type="button">+ Lägg till tagg</button>
             </section>
@@ -349,13 +466,24 @@
                         </p>
                     </li>
 
-                    <li th:if="${conversation.closedAt != null}">
+                    <li
+                            th:hidden="${conversation.closedAt == null}"
+                            data-close-history-item
+                    >
                         <span class="agent-history-dot done"></span>
                         <strong>Konversation avslutad</strong>
-                        <time th:text="${#temporals.format(conversation.closedAt, 'yyyy-MM-dd HH:mm')}">
+                        <time
+                                th:text="${conversation.closedAt != null ? #temporals.format(conversation.closedAt, 'yyyy-MM-dd HH:mm') : ''}"
+                                data-close-history-time
+                        >
                             2026-08-04 09:30
                         </time>
-                        <p>Ärendet är avslutat</p>
+                        <p
+                                th:text="${closeHistoryMessage ?: 'Ärendet är avslutat'}"
+                                data-close-history-message
+                        >
+                            Ärendet är avslutat
+                        </p>
                     </li>
                 </ol>
             </section>
