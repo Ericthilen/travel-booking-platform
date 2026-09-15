@@ -205,10 +205,67 @@
     color: #ffffff;
 }
 
-.customer-chat-message.is-system {
+.customer-chat-message.is-ai {
     max-width: 100%;
     background: #fff8e5;
     border-color: #ead59c;
+}
+
+.customer-chat-message.is-system,
+.customer-chat-message.is-agent {
+    background: #ffffff;
+    border-color: #e6e1d8;
+}
+
+.customer-identification-form {
+    margin-top: 12px;
+    display: grid;
+    gap: 8px;
+}
+
+.customer-identification-form input {
+    min-height: 40px;
+    padding: 0 11px;
+    color: #102427;
+    background: #ffffff;
+    border: 1px solid #d8e0df;
+    border-radius: 10px;
+    font: inherit;
+    font-size: 14px;
+}
+
+.customer-identification-form input:focus {
+    border-color: #0b7781;
+    outline: 3px solid rgba(11, 119, 129, 0.16);
+}
+
+.customer-identification-form button {
+    min-height: 42px;
+    color: #ffffff;
+    background: #07384a;
+    border: 0;
+    border-radius: 12px;
+    font: inherit;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.customer-identification-form.is-sending {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.customer-identification-sent {
+    width: fit-content;
+    margin-top: 12px;
+    padding: 7px 11px;
+    display: inline-flex;
+    color: #0b6b4f;
+    background: #e4f8ef;
+    border: 1px solid #bce8d4;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 900;
 }
 
 .customer-chat-message.is-typing {

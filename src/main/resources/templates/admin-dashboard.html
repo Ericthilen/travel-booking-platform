@@ -20,8 +20,8 @@
         th:replace="~{fragments/site-header :: siteHeader('admin')}"
 ></div>
 
-<main class="admin-dashboard-page">
-    <section class="admin-dashboard-container">
+<main class="admin-dashboard-page admin-register-page">
+    <section class="admin-register-shell" data-home-finder>
         <div
                 class="admin-alert"
                 th:if="${param.bookingNotFound}"
@@ -29,324 +29,437 @@
             Bokningen kunde inte hittas.
         </div>
 
-        <section class="admin-dashboard-heading">
-            <div>
-                <p class="eyebrow dark">
-                    Administration
-                </p>
+        <aside class="home-travel-sidebar booking-register-sidebar" aria-label="Resefilter">
+            <div class="home-sidebar-primary">
+                <a class="home-sidebar-action is-active" th:href="@{/#reseplanerare}" data-finder-view="calendar">
+                    <span>▣</span>
+                    Kalender
+                </a>
 
-                <h1>
-                    Adminpanel
-                </h1>
+                <a class="home-sidebar-action" th:href="@{/#reseplanerare}" data-finder-view="map">
+                    <span>⌖</span>
+                    Världskarta
+                </a>
 
-                <p>
-                    Översikt över bokningar, betalningar, avgångar och mejl.
-                </p>
+                <a class="home-sidebar-action" th:href="@{/#reseplanerare}" data-finder-view="last-minute">
+                    <span>%</span>
+                    Sista minuten
+                </a>
+
+                <div class="home-type-item">
+                    <button class="home-sidebar-action" type="button" data-type-filter="FLIGHT">
+                        <span>✈</span>
+                        Flygresor
+                    </button>
+
+                    <div class="home-type-flyout" data-type-flyout="FLIGHT" hidden>
+                        <a class="home-type-flyout-heading home-type-all-link" th:href="@{/resor}">
+                            <span>Alla flygresor</span>
+                            <strong>→</strong>
+                        </a>
+
+                        <div class="home-type-filter-actions">
+                            <details class="home-place-filter">
+                                <summary>Avreseplatser</summary>
+
+                                <div class="home-place-filter-popover">
+                                    <button type="button" data-place-filter="">
+                                        <small>Alla</small>
+                                        <span>Alla avreseplatser</span>
+                                    </button>
+
+                                    <button th:each="place : ${homeFlightDeparturePlaces}" type="button" th:data-place-filter="${place.name}">
+                                        <small th:text="${place.type}">Flyg</small>
+                                        <span th:text="${place.name}">Arlanda</span>
+                                    </button>
+                                </div>
+                            </details>
+                        </div>
+
+                        <div class="home-country-empty" data-type-empty hidden>
+                            Inga resor från den platsen just nu.
+                        </div>
+
+                        <div class="home-type-flyout-list">
+                            <a class="home-country-travel-link" th:each="travel : ${allTravels}" th:if="${travel.flightTrip}" th:data-departure-places="${travel.departurePlacesText}" th:href="@{/resor/{id}(id=${travel.id})}">
+                                <img th:src="${travel.imageUrl}" th:alt="${travel.destination}">
+                                <span>
+                                    <b th:text="${travel.destination}">Mallorca</b>
+                                    <small th:text="${travel.hotelName}">Hotell</small>
+                                </span>
+                                <em th:text="|fr. ${#numbers.formatInteger(travel.price, 0, 'WHITESPACE')} kr|">fr. 8 995 kr</em>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="home-type-item">
+                    <button class="home-sidebar-action" type="button" data-type-filter="BUS">
+                        <span>🚌</span>
+                        Bussresor
+                    </button>
+
+                    <div class="home-type-flyout" data-type-flyout="BUS" hidden>
+                        <a class="home-type-flyout-heading home-type-all-link" th:href="@{/bussresor}">
+                            <span>Alla bussresor</span>
+                            <strong>→</strong>
+                        </a>
+
+                        <div class="home-type-filter-actions">
+                            <details class="home-place-filter">
+                                <summary>Påstigningsplatser</summary>
+
+                                <div class="home-place-filter-popover">
+                                    <button type="button" data-place-filter="">
+                                        <small>Alla</small>
+                                        <span>Alla påstigningsplatser</span>
+                                    </button>
+
+                                    <button th:each="place : ${homeBusDeparturePlaces}" type="button" th:data-place-filter="${place.name}">
+                                        <small th:text="${place.type}">Buss</small>
+                                        <span th:text="${place.name}">Göteborg</span>
+                                    </button>
+                                </div>
+                            </details>
+                        </div>
+
+                        <div class="home-country-empty" data-type-empty hidden>
+                            Inga resor från den platsen just nu.
+                        </div>
+
+                        <div class="home-type-flyout-list">
+                            <a class="home-country-travel-link" th:each="travel : ${allTravels}" th:if="${travel.busTrip}" th:data-departure-places="${travel.departurePlacesText}" th:href="@{/resor/{id}(id=${travel.id})}">
+                                <img th:src="${travel.imageUrl}" th:alt="${travel.destination}">
+                                <span>
+                                    <b th:text="${travel.destination}">Amsterdam</b>
+                                    <small th:text="${travel.hotelName}">Hotell</small>
+                                </span>
+                                <em th:text="|fr. ${#numbers.formatInteger(travel.price, 0, 'WHITESPACE')} kr|">fr. 8 995 kr</em>
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="admin-heading-actions">
-                <a href="#admin-search">Sök bokning</a>
-                <a href="#latest-bookings">Senaste bokningar</a>
-                <a th:href="@{/admin/resor}">Hantera resor</a>
-                <a th:href="@{/admin/chattar}">Kundtjänstchattar</a>
-            </div>
-        </section>
+            <div class="home-sidebar-group home-season-group">
+                <h3>Säsong</h3>
 
-        <section class="admin-stat-grid">
-            <article class="admin-stat-card">
-                <div class="admin-stat-icon">▣</div>
-                <div>
-                    <span>Antal bokningar</span>
-                    <strong th:text="${dashboard.numberOfBookings}">0</strong>
+                <div class="home-season-item">
+                    <button type="button" data-season-filter="var" data-season-name="vår">Vår</button>
+                    <div class="home-season-flyout" data-season-flyout="var" hidden></div>
                 </div>
-            </article>
 
-            <article class="admin-stat-card">
-                <div class="admin-stat-icon">+</div>
-                <div>
-                    <span>Nya bokningar idag</span>
-                    <strong th:text="${dashboard.newBookingsToday}">0</strong>
+                <div class="home-season-item">
+                    <button type="button" data-season-filter="sommar" data-season-name="sommar">Sommar</button>
+                    <div class="home-season-flyout" data-season-flyout="sommar" hidden></div>
                 </div>
-            </article>
 
-            <article class="admin-stat-card">
-                <div class="admin-stat-icon">kr</div>
-                <div>
-                    <span>Total försäljning</span>
-                    <strong>
-                        <span th:text="${#numbers.formatInteger(dashboard.totalSales, 1, 'WHITESPACE')}">
-                            0
-                        </span>
-                        kr
-                    </strong>
+                <div class="home-season-item">
+                    <button type="button" data-season-filter="host" data-season-name="höst">Höst</button>
+                    <div class="home-season-flyout" data-season-flyout="host" hidden></div>
                 </div>
-            </article>
 
-            <article class="admin-stat-card">
-                <div class="admin-stat-icon">✓</div>
-                <div>
-                    <span>Inbetalt belopp</span>
-                    <strong>
-                        <span th:text="${#numbers.formatInteger(dashboard.paidAmount, 1, 'WHITESPACE')}">
-                            0
-                        </span>
-                        kr
-                    </strong>
+                <div class="home-season-item">
+                    <button type="button" data-season-filter="vinter" data-season-name="vinter">Vinter</button>
+                    <div class="home-season-flyout" data-season-flyout="vinter" hidden></div>
                 </div>
-            </article>
-
-            <article class="admin-stat-card warning">
-                <div class="admin-stat-icon">!</div>
-                <div>
-                    <span>Obetalda bokningar</span>
-                    <strong th:text="${dashboard.unpaidBookings}">0</strong>
-                </div>
-            </article>
-
-            <article class="admin-stat-card danger">
-                <div class="admin-stat-icon">×</div>
-                <div>
-                    <span>Avbokningar</span>
-                    <strong th:text="${dashboard.cancellations}">0</strong>
-                </div>
-            </article>
-
-            <article class="admin-stat-card danger">
-                <div class="admin-stat-icon">✉</div>
-                <div>
-                    <span>Misslyckade mejl</span>
-                    <strong th:text="${dashboard.failedEmails}">0</strong>
-                </div>
-            </article>
-        </section>
-
-        <section class="admin-search-card" id="admin-search">
-            <div>
-                <p class="eyebrow dark">
-                    Sök bokning
-                </p>
-
-                <h2>
-                    Hitta bokning eller kund
-                </h2>
             </div>
 
-            <form
-                    class="admin-search-form"
-                    th:action="@{/admin}"
-                    method="get"
+            <div class="home-sidebar-group home-country-group">
+                <h3>Länder</h3>
+
+                <div class="home-country-item" th:each="countryGroup : ${homeCountryGroups}">
+                    <button type="button" th:data-country-filter="${countryGroup.country}" th:text="${countryGroup.country}">
+                        Spanien
+                    </button>
+
+                    <div class="home-country-flyout" th:data-country-flyout="${countryGroup.country}" hidden>
+                        <div class="home-country-flyout-heading">
+                            <span>Se alla resor</span>
+                            <strong>→</strong>
+                        </div>
+
+                        <div class="home-country-filter-actions">
+                            <button class="is-active" type="button" data-country-type-tab="ALL">Alla</button>
+                            <button type="button" data-country-type-tab="FLIGHT">Flygresor</button>
+                            <button type="button" data-country-type-tab="BUS">Bussresor</button>
+
+                            <details class="home-place-filter">
+                                <summary>Avreseplatser</summary>
+
+                                <div class="home-place-filter-popover">
+                                    <button type="button" data-place-filter="">
+                                        <small>Alla</small>
+                                        <span>Alla avreseplatser</span>
+                                    </button>
+
+                                    <button th:each="place : ${countryGroup.departurePlaces}" type="button" th:data-place-filter="${place.name}">
+                                        <small th:text="${place.type}">Buss</small>
+                                        <span th:text="${place.name}">Göteborg</span>
+                                    </button>
+                                </div>
+                            </details>
+                        </div>
+
+                        <div class="home-country-empty" data-country-empty hidden>
+                            Inga planerade resor just nu.
+                        </div>
+
+                        <div class="home-country-flyout-list">
+                            <a class="home-country-travel-link" th:each="travel : ${countryGroup.travels}" th:data-travel-type="${travel.travelType.name()}" th:data-departure-places="${travel.departurePlacesText}" th:href="@{/resor/{id}(id=${travel.id})}">
+                                <img th:src="${travel.imageUrl}" th:alt="${travel.destination}">
+                                <span>
+                                    <b th:text="${travel.destination}">Mallorca</b>
+                                    <small th:text="${travel.hotelName}">Hotell</small>
+                                    <small class="home-travel-type-badge" th:text="${travel.travelTypeLabel}">Bussresa</small>
+                                </span>
+                                <em th:text="|fr. ${#numbers.formatInteger(travel.price, 0, 'WHITESPACE')} kr|">fr. 8 995 kr</em>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="booking-register-hidden-finder-data" aria-hidden="true">
+            <a
+                    class="home-calendar-row"
+                    th:each="departureCard : ${homeDepartures}"
+                    th:href="@{/resor/{id}(id=${departureCard.travelId})}"
+                    th:data-season="${departureCard.season}"
+                    th:data-date="${departureCard.departureDate}"
+                    th:data-airport="${departureCard.departureAirport}"
+                    th:data-nights="${departureCard.nights}"
+                    th:data-destination="${departureCard.destination}"
+                    th:data-hotel="${departureCard.hotelName}"
+                    th:data-image="${departureCard.imageUrl}"
+                    th:data-price="${departureCard.price}"
             >
-                <input
-                        type="search"
-                        name="query"
-                        th:value="${dashboard.searchQuery}"
-                        placeholder="Bokningsnummer, kundnummer, namn eller e-post"
-                >
+                <span><strong th:text="${#temporals.format(departureCard.departureDate, 'dd MMM')}">12 aug</strong></span>
+                <span>
+                    <strong th:text="${departureCard.destination}">Mallorca</strong>
+                    <small th:text="${departureCard.hotelName}">Hotell</small>
+                </span>
+                <span th:text="${departureCard.travelTypeIcon}">✈</span>
+                <span><strong th:text="${departureCard.price}">8995</strong></span>
+            </a>
+        </div>
 
-                <button type="submit">
-                    Sök
-                </button>
-            </form>
-
-            <div
-                    class="admin-search-results"
-                    th:if="${dashboard.hasSearchQuery()}"
-            >
-                <div class="admin-section-title">
-                    <h3>
-                        Sökresultat
-                    </h3>
-
+        <section class="booking-register-content">
+            <header class="booking-register-toolbar">
+                <div>
+                    <h1>Bokningsregister</h1>
                     <p>
-                        <span th:text="${dashboard.searchResults.size()}">
-                            0
-                        </span>
-                        träffar
+                        <span th:text="${dashboard.bookingRegister.size()}">0</span>
+                        träffar visas.
                     </p>
                 </div>
 
-                <div
-                        class="empty-admin-list"
-                        th:if="${dashboard.searchResults.isEmpty()}"
+                <form
+                        class="booking-register-form"
+                        th:action="@{/admin}"
+                        method="get"
                 >
-                    Inga bokningar matchade sökningen.
-                </div>
+                    <label>
+                        <span>Sök</span>
+                        <input
+                                type="search"
+                                name="query"
+                                th:value="${dashboard.searchQuery}"
+                                placeholder="Bokningsnr, telefon, för- & efternamn"
+                                autocomplete="off"
+                        >
+                    </label>
 
-                <div
-                        class="admin-booking-list"
-                        th:unless="${dashboard.searchResults.isEmpty()}"
-                >
-                    <article
-                            class="admin-booking-row"
-                            th:each="booking : ${dashboard.searchResults}"
+                    <label>
+                        <span>Datum</span>
+                        <input
+                                type="date"
+                                name="departureDate"
+                                th:value="${dashboard.registerDepartureDate}"
+                        >
+                    </label>
+
+                    <label>
+                        <span>Resnamn</span>
+                        <input
+                                type="search"
+                                name="travelName"
+                                th:value="${dashboard.registerTravelName}"
+                                placeholder="Ex. Toscana, Gardasjön"
+                                autocomplete="off"
+                        >
+                    </label>
+
+                    <button type="submit">
+                        Sök
+                    </button>
+
+                    <a
+                            class="register-reset-link"
+                            th:href="@{/admin}"
+                            th:if="${dashboard.hasRegisterFilter()}"
                     >
-                        <div class="admin-row-main">
-                            <strong th:text="${booking.bookingNumber}">
-                                BK-2026-123456
-                            </strong>
+                        Rensa
+                    </a>
+                </form>
+            </header>
 
-                            <span
-                                    th:text="${booking.customer.firstName + ' ' + booking.customer.lastName + ' · ' + booking.customer.email}"
+            <div class="booking-register-meta">
+                <label>
+                    Show
+                    <select aria-label="Antal rader">
+                        <option selected>30</option>
+                        <option>50</option>
+                        <option>100</option>
+                    </select>
+                    entries
+                </label>
+
+                <div>
+                    <span th:text="${dashboard.hasRegisterFilter()} ? 'Filtrerat register' : 'Alla bokningar'">
+                        Alla bokningar
+                    </span>
+                </div>
+            </div>
+
+            <div
+                    class="empty-admin-list register-empty"
+                    th:if="${dashboard.bookingRegister.isEmpty()}"
+            >
+                Inga bokningar matchade sökningen.
+            </div>
+
+            <div
+                    class="booking-register-table-wrap"
+                    th:unless="${dashboard.bookingRegister.isEmpty()}"
+            >
+                <table class="booking-register-table">
+                    <thead>
+                    <tr>
+                        <th>OCR</th>
+                        <th>Förnamn</th>
+                        <th>Efternamn</th>
+                        <th>Telefon</th>
+                        <th>Resdatum</th>
+                        <th>Resnamn</th>
+                        <th>Status</th>
+                        <th>Bokningsansvarig</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr
+                            th:each="booking : ${dashboard.bookingRegister}"
+                            th:classappend="${booking.status.name() == 'CANCELLED'} ? ' register-booking-cancelled' : ' register-booking-active'"
+                    >
+                        <td>
+                            <a
+                                    th:href="@{/admin/bokningar/{id}(id=${booking.id})}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    th:text="${booking.bookingNumber}"
                             >
-                                Kund
-                            </span>
-                        </div>
-
-                        <div class="admin-row-meta">
-                            <span th:text="${booking.status.displayName}">
+                                78052681
+                            </a>
+                        </td>
+                        <td th:text="${booking.customer.firstName}">Eric</td>
+                        <td th:text="${booking.customer.lastName}">Thilen</td>
+                        <td th:text="${booking.customer.phone}">070-123 45 67</td>
+                        <td th:text="${#temporals.format(booking.departure.departureDate, 'yyyy-MM-dd')}">
+                            2027-09-24
+                        </td>
+                        <td>
+                            <a
+                                    th:href="@{/admin/bokningar/{id}(id=${booking.id})}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    th:text="${booking.departure.travel.destination + ' ' + booking.departure.travel.nights + 'd'}"
+                            >
+                                Gardasjön 10d
+                            </a>
+                        </td>
+                        <td>
+                            <span
+                                    class="register-booking-status"
+                                    th:classappend="${booking.status.name().toLowerCase()}"
+                                    th:text="${booking.status.displayName}"
+                            >
                                 Bekräftad
                             </span>
-
-                            <span>
-                                <span th:text="${#numbers.formatInteger(booking.totalPrice, 1, 'WHITESPACE')}">
-                                    0
-                                </span>
-                                kr
-                            </span>
-                        </div>
-
-                        <div class="admin-row-actions">
-                            <a th:href="@{/admin/bokningar/{id}(id=${booking.id})}">
-                                Detaljer
-                            </a>
-
-                            <a th:href="@{/admin/bokningar/{id}/betalningar(id=${booking.id})}">
-                                Betalningar
-                            </a>
-                        </div>
-                    </article>
-                </div>
-            </div>
-        </section>
-
-        <section class="admin-dashboard-layout">
-            <div class="admin-main-column">
-                <section class="admin-panel" id="latest-bookings">
-                    <div class="admin-section-title">
-                        <div>
-                            <p class="eyebrow dark">
-                                Senaste
-                            </p>
-
-                            <h2>
-                                Senaste bokningar
-                            </h2>
-                        </div>
-                    </div>
-
-                    <div
-                            class="empty-admin-list"
-                            th:if="${dashboard.latestBookings.isEmpty()}"
-                    >
-                        Inga bokningar finns ännu.
-                    </div>
-
-                    <div
-                            class="admin-booking-list"
-                            th:unless="${dashboard.latestBookings.isEmpty()}"
-                    >
-                        <article
-                                class="admin-booking-row"
-                                th:each="booking : ${dashboard.latestBookings}"
+                        </td>
+                        <td
+                                th:text="${booking.user != null ? booking.user.fullName : booking.customer.firstName + ' ' + booking.customer.lastName}"
                         >
-                            <div class="admin-row-main">
-                                <strong th:text="${booking.bookingNumber}">
-                                    BK-2026-123456
-                                </strong>
+                            Bokningsansvarig
+                        </td>
+                    </tr>
+                    </tbody>
 
-                                <span
-                                        th:text="${booking.customer.firstName + ' ' + booking.customer.lastName + ' · ' + booking.departure.travel.destination}"
-                                >
-                                    Kund · Mallorca
-                                </span>
-                            </div>
-
-                            <div class="admin-row-meta">
-                                <span th:text="${booking.paymentStatus.displayName}">
-                                    Inte betald
-                                </span>
-
-                                <span>
-                                    <span th:text="${#numbers.formatInteger(booking.paidAmount, 1, 'WHITESPACE')}">
-                                        0
-                                    </span>
-                                    /
-                                    <span th:text="${#numbers.formatInteger(booking.totalPrice, 1, 'WHITESPACE')}">
-                                        0
-                                    </span>
-                                    kr
-                                </span>
-                            </div>
-
-                            <div class="admin-row-actions">
-                                <a th:href="@{/admin/bokningar/{id}(id=${booking.id})}">
-                                    Detaljer
-                                </a>
-
-                                <a th:href="@{/admin/bokningar/{id}/betalningar(id=${booking.id})}">
-                                    Betalningar
-                                </a>
-                            </div>
-                        </article>
-                    </div>
-                </section>
+                    <tfoot>
+                    <tr>
+                        <th>OCR</th>
+                        <th>Förnamn</th>
+                        <th>Efternamn</th>
+                        <th>Telefon</th>
+                        <th>Resdatum</th>
+                        <th>Resnamn</th>
+                        <th>Status</th>
+                        <th>Bokningsansvarig</th>
+                    </tr>
+                    </tfoot>
+                </table>
             </div>
 
-            <aside class="admin-side-column">
-                <section class="admin-panel admin-departure-panel">
-                    <div class="admin-section-title">
-                        <div>
-                            <p class="eyebrow dark">
-                                Avgångar
-                            </p>
+            <footer class="booking-register-footer">
+                <span>
+                    Showing
+                    <span th:text="${dashboard.registerStartEntry}">1</span>
+                    to
+                    <span th:text="${dashboard.registerEndEntry}">30</span>
+                    of
+                    <span th:text="${dashboard.registerTotalBookings}">130</span>
+                    entries
+                </span>
 
-                            <h2>
-                                Kommande avgångar
-                            </h2>
-                        </div>
-                    </div>
-
-                    <div
-                            class="empty-admin-list"
-                            th:if="${dashboard.upcomingDepartures.isEmpty()}"
+                <nav aria-label="Registersidor">
+                    <a
+                            th:if="${dashboard.registerTotalPages > 1 and dashboard.hasPreviousRegisterPage()}"
+                            th:href="@{/admin(query=${dashboard.searchQuery}, travelName=${dashboard.registerTravelName}, departureDate=${dashboard.registerDepartureDate}, page=${dashboard.registerPage - 1})}"
                     >
-                        Det finns inga kommande avgångar.
-                    </div>
+                        Previous
+                    </a>
+                    <span th:if="${dashboard.registerTotalPages > 1 and !dashboard.hasPreviousRegisterPage()}">
+                        Previous
+                    </span>
 
-                    <div
-                            class="admin-departure-list"
-                            th:unless="${dashboard.upcomingDepartures.isEmpty()}"
+                    <a
+                            th:each="pageNumber : ${#numbers.sequence(1, dashboard.registerTotalPages)}"
+                            th:if="${pageNumber != dashboard.registerPage}"
+                            th:href="@{/admin(query=${dashboard.searchQuery}, travelName=${dashboard.registerTravelName}, departureDate=${dashboard.registerDepartureDate}, page=${pageNumber})}"
+                            th:text="${pageNumber}"
                     >
-                        <article
-                                class="admin-departure-row"
-                                th:each="departure : ${dashboard.upcomingDepartures}"
-                        >
-                            <div>
-                                <strong th:text="${departure.travel.destination}">
-                                    Mallorca
-                                </strong>
+                        2
+                    </a>
+                    <strong
+                            th:each="pageNumber : ${#numbers.sequence(1, dashboard.registerTotalPages)}"
+                            th:if="${pageNumber == dashboard.registerPage}"
+                            th:text="${pageNumber}"
+                    >
+                        1
+                    </strong>
 
-                                <span th:text="${departure.travel.hotelName}">
-                                    Hotell
-                                </span>
-                            </div>
-
-                            <div>
-                                <span th:text="${#temporals.format(departure.departureDate, 'dd MMM yyyy')}">
-                                    12 aug 2026
-                                </span>
-
-                                <strong>
-                                    <span th:text="${departure.availableSeats}">
-                                        0
-                                    </span>
-                                    platser
-                                </strong>
-                            </div>
-                        </article>
-                    </div>
-                </section>
-            </aside>
+                    <a
+                            th:if="${dashboard.registerTotalPages > 1 and dashboard.hasNextRegisterPage()}"
+                            th:href="@{/admin(query=${dashboard.searchQuery}, travelName=${dashboard.registerTravelName}, departureDate=${dashboard.registerDepartureDate}, page=${dashboard.registerPage + 1})}"
+                    >
+                        Next
+                    </a>
+                    <span th:if="${dashboard.registerTotalPages > 1 and !dashboard.hasNextRegisterPage()}">
+                        Next
+                    </span>
+                </nav>
+            </footer>
         </section>
     </section>
 </main>

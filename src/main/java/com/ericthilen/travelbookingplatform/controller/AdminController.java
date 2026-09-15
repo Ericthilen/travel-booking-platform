@@ -5,13 +5,19 @@ import com.ericthilen.travelbookingplatform.dto.AdminNoteRequest;
 import com.ericthilen.travelbookingplatform.dto.AdminTravelerNameRequest;
 import com.ericthilen.travelbookingplatform.dto.CancellationRequest;
 import com.ericthilen.travelbookingplatform.dto.DiscountCodeRequest;
+import com.ericthilen.travelbookingplatform.model.BusPickupStop;
 import com.ericthilen.travelbookingplatform.model.Booking;
+import com.ericthilen.travelbookingplatform.model.Departure;
+import com.ericthilen.travelbookingplatform.model.Travel;
 import com.ericthilen.travelbookingplatform.service.AdminBookingManagementService;
 import com.ericthilen.travelbookingplatform.service.AdminDashboardService;
 import com.ericthilen.travelbookingplatform.service.BookingService;
+import com.ericthilen.travelbookingplatform.service.DepartureService;
 import com.ericthilen.travelbookingplatform.service.PaymentService;
+import com.ericthilen.travelbookingplatform.service.TravelService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,8 +28,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.Month;
+import java.time.format.TextStyle;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.time.LocalDate;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.TreeSet;
 
 @Controller
 public class AdminController {
@@ -42,29 +56,46 @@ public class AdminController {
     private final BookingService bookingService;
     private final PaymentService paymentService;
     private final AdminBookingManagementService adminBookingManagementService;
+    private final TravelService travelService;
+    private final DepartureService departureService;
 
     public AdminController(
             AdminDashboardService adminDashboardService,
             BookingService bookingService,
             PaymentService paymentService,
-            AdminBookingManagementService adminBookingManagementService
+            AdminBookingManagementService adminBookingManagementService,
+            TravelService travelService,
+            DepartureService departureService
     ) {
         this.adminDashboardService = adminDashboardService;
         this.bookingService = bookingService;
         this.paymentService = paymentService;
         this.adminBookingManagementService =
                 adminBookingManagementService;
+        this.travelService = travelService;
+        this.departureService = departureService;
     }
 
     @GetMapping("/admin")
     public String showAdminDashboard(
             @RequestParam(required = false) String query,
+            @RequestParam(required = false) String travelName,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate departureDate,
+            @RequestParam(defaultValue = "1") int page,
             Model model
     ) {
         model.addAttribute(
                 "dashboard",
-                adminDashboardService.getDashboard(query)
+                adminDashboardService.getDashboard(
+                        query,
+                        travelName,
+                        departureDate,
+                        page
+                )
         );
+        addRegisterMenuModel(model);
 
         return "admin-dashboard";
     }
@@ -72,12 +103,23 @@ public class AdminController {
     @GetMapping("/admin/bokningar")
     public String showAdminBookings(
             @RequestParam(required = false) String query,
+            @RequestParam(required = false) String travelName,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate departureDate,
+            @RequestParam(defaultValue = "1") int page,
             Model model
     ) {
         model.addAttribute(
                 "dashboard",
-                adminDashboardService.getDashboard(query)
+                adminDashboardService.getDashboard(
+                        query,
+                        travelName,
+                        departureDate,
+                        page
+                )
         );
+        addRegisterMenuModel(model);
 
         return "admin-dashboard";
     }
@@ -444,5 +486,201 @@ public class AdminController {
         }
 
         return authentication.getName();
+    }
+
+    private void addRegisterMenuModel(Model model) {
+        List<Travel> allTravels = travelService.getAllTravels();
+
+        model.addAttribute("allTravels", allTravels);
+        model.addAttribute("homeDepartures", homeDepartures(allTravels));
+        model.addAttribute("homeCountryGroups", homeCountryGroups(allTravels));
+        model.addAttribute(
+                "homeFlightDeparturePlaces",
+                departurePlacesForType(allTravels, false)
+        );
+        model.addAttribute(
+                "homeBusDeparturePlaces",
+                departurePlacesForType(allTravels, true)
+        );
+    }
+
+    private List<HomeDepartureCard> homeDepartures(List<Travel> travels) {
+        List<HomeDepartureCard> cards = new ArrayList<>();
+
+        for (Travel travel : travels) {
+            for (Departure departure
+                    : departureService.getDeparturesForTravel(travel.getId())) {
+                cards.add(new HomeDepartureCard(
+                        travel.getId(),
+                        travel.getDestination(),
+                        travel.getHotelName(),
+                        travel.isBusTrip() ? "🚌" : "✈",
+                        travel.getNights(),
+                        departure.getDepartureAirport(),
+                        departure.getDepartureDate(),
+                        departure.getDepartureDate()
+                                .getMonth()
+                                .getDisplayName(
+                                        TextStyle.FULL,
+                                        Locale.forLanguageTag("sv-SE")
+                                ),
+                        seasonFor(departure.getDepartureDate()),
+                        departure.getPricePerPerson(),
+                        travel.getImageUrl()
+                ));
+            }
+        }
+
+        return cards
+                .stream()
+                .sorted(Comparator.comparing(HomeDepartureCard::departureDate))
+                .toList();
+    }
+
+    private List<HomeCountryGroup> homeCountryGroups(List<Travel> travels) {
+        return travels
+                .stream()
+                .map(Travel::getCountry)
+                .filter(country -> country != null && !country.isBlank())
+                .collect(Collectors.toCollection(TreeSet::new))
+                .stream()
+                .map(country -> new HomeCountryGroup(
+                        country,
+                        travels
+                                .stream()
+                                .filter(travel ->
+                                        country.equals(travel.getCountry()))
+                                .sorted(Comparator.comparing(
+                                        Travel::getDestination
+                                ))
+                                .toList(),
+                        departurePlacesForCountry(travels, country)
+                ))
+                .toList();
+    }
+
+    private List<HomeDeparturePlace> departurePlacesForCountry(
+            List<Travel> travels,
+            String country
+    ) {
+        List<HomeDeparturePlace> places = new ArrayList<>();
+
+        for (Travel travel : travels) {
+            if (!country.equals(travel.getCountry())) {
+                continue;
+            }
+
+            if (travel.isBusTrip()) {
+                for (BusPickupStop stop : travel.getPickupStops()) {
+                    places.add(new HomeDeparturePlace(
+                            "Buss",
+                            stop.getCity()
+                    ));
+                }
+                continue;
+            }
+
+            for (Departure departure
+                    : departureService.getDeparturesForTravel(travel.getId())) {
+                places.add(new HomeDeparturePlace(
+                        "Flyg",
+                        departure.getDepartureAirport()
+                ));
+            }
+        }
+
+        return uniqueDeparturePlaces(places);
+    }
+
+    private List<HomeDeparturePlace> departurePlacesForType(
+            List<Travel> travels,
+            boolean busTrips
+    ) {
+        List<HomeDeparturePlace> places = new ArrayList<>();
+
+        for (Travel travel : travels) {
+            if (travel.isBusTrip() != busTrips) {
+                continue;
+            }
+
+            if (travel.isBusTrip()) {
+                for (BusPickupStop stop : travel.getPickupStops()) {
+                    places.add(new HomeDeparturePlace(
+                            "Buss",
+                            stop.getCity()
+                    ));
+                }
+                continue;
+            }
+
+            for (Departure departure
+                    : departureService.getDeparturesForTravel(travel.getId())) {
+                places.add(new HomeDeparturePlace(
+                        "Flyg",
+                        departure.getDepartureAirport()
+                ));
+            }
+        }
+
+        return uniqueDeparturePlaces(places);
+    }
+
+    private List<HomeDeparturePlace> uniqueDeparturePlaces(
+            List<HomeDeparturePlace> places
+    ) {
+        return places
+                .stream()
+                .filter(place -> place.name() != null
+                        && !place.name().isBlank())
+                .collect(Collectors.toMap(
+                        place -> place.type() + place.name(),
+                        place -> place,
+                        (first, second) -> first
+                ))
+                .values()
+                .stream()
+                .sorted(Comparator
+                        .comparing(HomeDeparturePlace::type)
+                        .thenComparing(HomeDeparturePlace::name))
+                .toList();
+    }
+
+    private String seasonFor(LocalDate date) {
+        Month month = date.getMonth();
+
+        return switch (month) {
+            case MARCH, APRIL, MAY -> "var";
+            case JUNE, JULY, AUGUST -> "sommar";
+            case SEPTEMBER, OCTOBER, NOVEMBER -> "host";
+            case DECEMBER, JANUARY, FEBRUARY -> "vinter";
+        };
+    }
+
+    public record HomeDepartureCard(
+            Long travelId,
+            String destination,
+            String hotelName,
+            String travelTypeIcon,
+            int nights,
+            String departureAirport,
+            LocalDate departureDate,
+            String departureMonth,
+            String season,
+            int price,
+            String imageUrl
+    ) {
+    }
+
+    public record HomeCountryGroup(
+            String country,
+            List<Travel> travels,
+            List<HomeDeparturePlace> departurePlaces
+    ) {
+    }
+
+    public record HomeDeparturePlace(
+            String type,
+            String name
+    ) {
     }
 }

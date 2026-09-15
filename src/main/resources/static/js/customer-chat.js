@@ -9,6 +9,8 @@ if (chatRoot) {
     const input = chatRoot.querySelector("[data-chat-input]");
     const statusText = chatRoot.querySelector("[data-chat-status]");
     const closeDialog = chatRoot.querySelector("[data-chat-close-dialog]");
+    const closeDialogTitle = closeDialog?.querySelector("h3");
+    const closeDialogText = closeDialog?.querySelector("p");
     const endChatButton = chatRoot.querySelector("[data-chat-end]");
     const cancelCloseButton = chatRoot.querySelector("[data-chat-cancel-close]");
     const csrfToken = chatRoot.dataset.csrfToken;
@@ -17,6 +19,7 @@ if (chatRoot) {
     const storageKey = "erigoChatPublicId:" + chatUser;
 
     let publicId = sessionStorage.getItem(storageKey);
+    let currentChatStatus = "";
     let isSending = false;
     let eventSource;
     let typingTimer;
@@ -41,17 +44,31 @@ if (chatRoot) {
         messagesElement.scrollTop = messagesElement.scrollHeight;
     };
 
-    const senderLabel = (sender) => {
-        if (sender === "CUSTOMER") {
+    const firstName = (name) => {
+        if (!name) {
+            return "";
+        }
+
+        return name.trim().split(/\s+/)[0] || "";
+    };
+
+    const senderLabel = (message) => {
+        if (message.sender === "CUSTOMER") {
             return "Du";
         }
 
-        if (sender === "AGENT") {
-            return "Kundtjänst";
+        if (message.sender === "AGENT") {
+            const author = message.author || "Kundtjänst";
+
+            if (author.includes("(Kundtjänst)")) {
+                return author;
+            }
+
+            return (firstName(author) || "Kundtjänst") + " (Kundtjänst)";
         }
 
-        if (sender === "SYSTEM") {
-            return "Kundtjänst";
+        if (message.sender === "SYSTEM") {
+            return message.author || "Kundtjänst";
         }
 
         return "EriGo Assist";
@@ -69,7 +86,7 @@ if (chatRoot) {
                     + "is-"
                     + message.sender.toLowerCase();
             meta.textContent =
-                    senderLabel(message.sender)
+                    senderLabel(message)
                     + " · "
                     + message.time;
             if (message.edited) {
@@ -78,10 +95,16 @@ if (chatRoot) {
             text.textContent = message.message;
 
             bubble.append(meta, text);
+
+            if (message.identificationRequest) {
+                bubble.appendChild(identificationForm(message));
+            }
+
             messagesElement.appendChild(bubble);
         });
 
         statusText.textContent = chat.statusLabel;
+        currentChatStatus = chat.status;
         chatRoot.classList.toggle(
             "is-escalated",
             chat.status === "ESCALATED"
@@ -98,6 +121,52 @@ if (chatRoot) {
 
         renderTypingIndicator();
         scrollToBottom();
+    };
+
+    const identificationForm = (message) => {
+        if (message.identificationSubmitted) {
+            const sent = document.createElement("strong");
+            sent.className = "customer-identification-sent";
+            sent.textContent = "Skickat";
+
+            return sent;
+        }
+
+        const formElement = document.createElement("form");
+        const customerNumber = document.createElement("input");
+        const bookingNumber = document.createElement("input");
+        const firstName = document.createElement("input");
+        const lastName = document.createElement("input");
+        const submitButton = document.createElement("button");
+
+        formElement.className = "customer-identification-form";
+        formElement.dataset.identificationForm = "true";
+        formElement.dataset.requestMessageId = message.id;
+        customerNumber.name = "customerNumber";
+        customerNumber.placeholder = "Kundnummer";
+        customerNumber.autocomplete = "off";
+        bookingNumber.name = "bookingNumber";
+        bookingNumber.placeholder = "Bokningsnummer";
+        bookingNumber.required = true;
+        bookingNumber.autocomplete = "off";
+        firstName.name = "firstName";
+        firstName.placeholder = "Förnamn";
+        firstName.autocomplete = "given-name";
+        lastName.name = "lastName";
+        lastName.placeholder = "Efternamn";
+        lastName.autocomplete = "family-name";
+        submitButton.type = "submit";
+        submitButton.textContent = "Skicka uppgifter";
+
+        formElement.append(
+                customerNumber,
+                bookingNumber,
+                firstName,
+                lastName,
+                submitButton
+        );
+
+        return formElement;
     };
 
     const renderTypingIndicator = () => {
@@ -276,6 +345,35 @@ if (chatRoot) {
         isSending = false;
     };
 
+    const submitIdentification = async (formElement) => {
+        if (!publicId || isSending) {
+            return;
+        }
+
+        isSending = true;
+        formElement.classList.add("is-sending");
+
+        const formData = new FormData(formElement);
+        const response = await fetch("/chat/" + publicId + "/identify", {
+            method: "POST",
+            headers: headers(),
+            body: JSON.stringify({
+                customerNumber: formData.get("customerNumber") || "",
+                bookingNumber: formData.get("bookingNumber") || "",
+                firstName: formData.get("firstName") || "",
+                lastName: formData.get("lastName") || "",
+                requestMessageId: formElement.dataset.requestMessageId || null
+            })
+        });
+
+        if (response.ok) {
+            renderMessages(await response.json());
+        }
+
+        formElement.classList.remove("is-sending");
+        isSending = false;
+    };
+
     const openChat = async () => {
         panel.hidden = false;
         chatRoot.classList.add("is-open");
@@ -338,6 +436,24 @@ if (chatRoot) {
             return;
         }
 
+        const isClosed = currentChatStatus === "CLOSED";
+
+        if (closeDialogTitle) {
+            closeDialogTitle.textContent = isClosed
+                    ? "Chatten är avslutad"
+                    : "Avsluta chatten";
+        }
+
+        if (closeDialogText) {
+            closeDialogText.textContent = isClosed
+                    ? "Chatten är redan avslutad."
+                    : "Kryssa rutan";
+        }
+
+        endChatButton.hidden = isClosed;
+        cancelCloseButton.textContent = isClosed
+                ? "Stäng fönstret"
+                : "Stäng fönstret";
         closeDialog.hidden = false;
     };
 
@@ -367,6 +483,17 @@ if (chatRoot) {
     form.addEventListener("submit", (event) => {
         event.preventDefault();
         sendMessage(input.value.trim());
+    });
+
+    messagesElement.addEventListener("submit", (event) => {
+        const identification = event.target.closest(
+                "[data-identification-form]"
+        );
+
+        if (identification) {
+            event.preventDefault();
+            submitIdentification(identification);
+        }
     });
 
     input.addEventListener("keydown", (event) => {

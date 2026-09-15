@@ -87,6 +87,8 @@
             <div class="nav-dropdown-menu staff-dropdown-menu">
                 <a
                         th:href="@{/kundtjanst}"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         sec:authorize="hasRole('AGENT')"
                 >
                     CS dashboard
@@ -100,19 +102,23 @@
 
                 <a
                         th:href="@{/admin}"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         sec:authorize="hasRole('ADMIN')"
                 >
-                    Adminpanel
+                    Hitta bokning
                 </a>
                 <span
                         class="nav-disabled-link"
                         sec:authorize="hasRole('AGENT') and !hasRole('ADMIN')"
                 >
-                    Adminpanel
+                    Hitta bokning
                 </span>
 
                 <a
                         th:href="@{/admin/resor}"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         sec:authorize="hasRole('ADMIN')"
                 >
                     Hantera resor
