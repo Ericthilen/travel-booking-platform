@@ -59,6 +59,17 @@ public class CustomerChatConversation {
 
     private LocalDateTime closedAt;
 
+    private Long linkedBookingId;
+
+    @Column(length = 80)
+    private String linkedBookingNumber;
+
+    @Column(length = 240)
+    private String linkedBookingLabel;
+
+    @Column(length = 180)
+    private String bookingRegisterQuery;
+
     @OneToMany(
             mappedBy = "conversation",
             cascade = CascadeType.ALL,
@@ -152,6 +163,19 @@ public class CustomerChatConversation {
         }
     }
 
+    public void linkBooking(
+            Long bookingId,
+            String bookingNumber,
+            String bookingLabel,
+            String registerQuery
+    ) {
+        this.linkedBookingId = bookingId;
+        this.linkedBookingNumber = bookingNumber;
+        this.linkedBookingLabel = bookingLabel;
+        this.bookingRegisterQuery = registerQuery;
+        this.updatedAt = LocalDateTime.now();
+    }
+
     public Long getId() {
         return id;
     }
@@ -202,6 +226,26 @@ public class CustomerChatConversation {
 
     public LocalDateTime getClosedAt() {
         return closedAt;
+    }
+
+    public Long getLinkedBookingId() {
+        return linkedBookingId;
+    }
+
+    public String getLinkedBookingNumber() {
+        return linkedBookingNumber;
+    }
+
+    public String getLinkedBookingLabel() {
+        return linkedBookingLabel;
+    }
+
+    public String getBookingRegisterQuery() {
+        return bookingRegisterQuery;
+    }
+
+    public boolean hasLinkedBooking() {
+        return bookingRegisterQuery != null && !bookingRegisterQuery.isBlank();
     }
 
     public LocalDateTime getArchiveAt() {

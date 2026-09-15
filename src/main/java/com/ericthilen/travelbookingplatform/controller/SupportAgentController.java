@@ -1,6 +1,7 @@
 package com.ericthilen.travelbookingplatform.controller;
 
 import com.ericthilen.travelbookingplatform.dto.AgentChatReplyRequest;
+import com.ericthilen.travelbookingplatform.model.Booking;
 import com.ericthilen.travelbookingplatform.model.CustomerChatConversation;
 import com.ericthilen.travelbookingplatform.model.CustomerChatMessage;
 import com.ericthilen.travelbookingplatform.model.CustomerChatStatus;
@@ -8,6 +9,7 @@ import com.ericthilen.travelbookingplatform.model.EmailTicket;
 import com.ericthilen.travelbookingplatform.model.EmailTicketStatus;
 import com.ericthilen.travelbookingplatform.model.Role;
 import com.ericthilen.travelbookingplatform.model.User;
+import com.ericthilen.travelbookingplatform.repository.BookingRepository;
 import com.ericthilen.travelbookingplatform.repository.UserRepository;
 import com.ericthilen.travelbookingplatform.service.CustomerChatRealtimeService;
 import com.ericthilen.travelbookingplatform.service.CustomerChatService;
@@ -42,6 +44,7 @@ public class SupportAgentController {
     private final CustomerChatRealtimeService realtimeService;
     private final CustomerSatisfactionService satisfactionService;
     private final CustomerSupportKnowledgeBase knowledgeBase;
+    private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
 
     public SupportAgentController(
@@ -51,6 +54,7 @@ public class SupportAgentController {
             CustomerChatRealtimeService realtimeService,
             CustomerSatisfactionService satisfactionService,
             CustomerSupportKnowledgeBase knowledgeBase,
+            BookingRepository bookingRepository,
             UserRepository userRepository
     ) {
         this.customerChatService = customerChatService;
@@ -59,6 +63,7 @@ public class SupportAgentController {
         this.realtimeService = realtimeService;
         this.satisfactionService = satisfactionService;
         this.knowledgeBase = knowledgeBase;
+        this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
     }
 
@@ -160,9 +165,12 @@ public class SupportAgentController {
             Model model,
             Authentication authentication
     ) {
+        CustomerChatConversation conversation =
+                customerChatService.getAdminConversation(conversationId);
+
         model.addAttribute(
                 "conversation",
-                customerChatService.getAdminConversation(conversationId)
+                conversation
         );
         model.addAttribute(
                 "replyRequest",
@@ -171,6 +179,14 @@ public class SupportAgentController {
         model.addAttribute(
                 "currentAgentName",
                 agentDisplayName(authentication)
+        );
+        model.addAttribute(
+                "closeHistoryMessage",
+                closeHistoryMessage(conversation)
+        );
+        model.addAttribute(
+                "linkedBooking",
+                bookingContext(conversation)
         );
 
         return "support-agent-chat";
@@ -393,6 +409,15 @@ public class SupportAgentController {
                 conversation.getStatus().getDisplayName(),
                 conversation.hasAgentJoined(),
                 conversation.getAssignedAgentName(),
+                conversation.getClosedAt() == null
+                        ? ""
+                        : conversation
+                                .getClosedAt()
+                                .format(DateTimeFormatter.ofPattern(
+                                        "yyyy-MM-dd HH:mm"
+                                )),
+                closeHistoryMessage(conversation),
+                bookingContext(conversation),
                 conversation
                         .getMessages()
                         .stream()
@@ -427,7 +452,7 @@ public class SupportAgentController {
         realtimeService.typing(
                 conversation.getPublicId(),
                 "AGENT",
-                agentDisplayName(authentication),
+                customerFacingAgentName(authentication),
                 active,
                 preview
         );
@@ -489,6 +514,31 @@ public class SupportAgentController {
         return redirectToChat(conversationId);
     }
 
+    @PostMapping("/kundtjanst/chattar/{conversationId}/identifiera")
+    public String requestIdentification(
+            @PathVariable Long conversationId,
+            RedirectAttributes redirectAttributes,
+            Authentication authentication
+    ) {
+        try {
+            customerChatService.requestCustomerIdentification(
+                    conversationId,
+                    agentEmail(authentication)
+            );
+            redirectAttributes.addFlashAttribute(
+                    "chatMessage",
+                    "Identifieringsformuläret har skickats till kunden."
+            );
+        } catch (IllegalStateException exception) {
+            redirectAttributes.addFlashAttribute(
+                    "chatError",
+                    exception.getMessage()
+            );
+        }
+
+        return redirectToChat(conversationId);
+    }
+
     @PostMapping("/kundtjanst/chattar/{conversationId}/meddelanden/{messageId}/redigera")
     @org.springframework.web.bind.annotation.ResponseBody
     public AgentChatResponse editReply(
@@ -513,6 +563,15 @@ public class SupportAgentController {
                 conversation.getStatus().getDisplayName(),
                 conversation.hasAgentJoined(),
                 conversation.getAssignedAgentName(),
+                conversation.getClosedAt() == null
+                        ? ""
+                        : conversation
+                                .getClosedAt()
+                                .format(DateTimeFormatter.ofPattern(
+                                        "yyyy-MM-dd HH:mm"
+                                )),
+                closeHistoryMessage(conversation),
+                bookingContext(conversation),
                 conversation
                         .getMessages()
                         .stream()
@@ -643,6 +702,20 @@ public class SupportAgentController {
         return Character.toUpperCase(name.charAt(0)) + name.substring(1);
     }
 
+    private String customerFacingAgentName(Authentication authentication) {
+        String agentName = agentDisplayName(authentication);
+
+        return firstName(agentName) + " (Kundtjänst)";
+    }
+
+    private String firstName(String name) {
+        if (name == null || name.isBlank()) {
+            return "Kundtjänst";
+        }
+
+        return name.trim().split("\\s+")[0];
+    }
+
     private List<String> supportAgentNames() {
         return userRepository
                 .findAll()
@@ -766,6 +839,58 @@ public class SupportAgentController {
                 .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     }
 
+    private String closeHistoryMessage(CustomerChatConversation conversation) {
+        if (conversation.getClosedAt() == null) {
+            return "";
+        }
+
+        return conversation
+                .getMessages()
+                .stream()
+                .filter(message -> message.getSender().name().equals("SYSTEM"))
+                .map(CustomerChatMessage::getMessage)
+                .filter(message -> message != null
+                        && message
+                                .toLowerCase(Locale.ROOT)
+                                .contains("avslut"))
+                .reduce((first, second) -> second)
+                .orElse("Ärendet är avslutat");
+    }
+
+    private BookingContext bookingContext(
+            CustomerChatConversation conversation
+    ) {
+        if (conversation.getLinkedBookingId() == null) {
+            return null;
+        }
+
+        return bookingRepository
+                .findById(conversation.getLinkedBookingId())
+                .map(this::toBookingContext)
+                .orElse(null);
+    }
+
+    private BookingContext toBookingContext(Booking booking) {
+        String customerName = (
+                booking.getCustomer().getFirstName()
+                        + " "
+                        + booking.getCustomer().getLastName()
+        ).trim();
+
+        return new BookingContext(
+                booking.getId(),
+                booking.getBookingNumber(),
+                booking.getDeparture().getTravel().getDestination(),
+                booking
+                        .getDeparture()
+                        .getDepartureDate()
+                        .format(DateTimeFormatter.ISO_LOCAL_DATE),
+                customerName,
+                booking.getStatus().getDisplayName(),
+                "/admin/bokningar/" + booking.getId()
+        );
+    }
+
     private AgentMessageResponse toAgentMessageResponse(
             CustomerChatMessage message,
             String currentAgentName
@@ -785,7 +910,10 @@ public class SupportAgentController {
                                 .getEditedAt()
                                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
                 "AGENT".equals(message.getSender().name())
-                        && message.getAuthorName().equals(currentAgentName)
+                        && message.getAuthorName().equals(currentAgentName),
+                message.getDetectedBookingNumber(),
+                message.getDetectedBookingId(),
+                message.isIdentificationRequest()
         );
     }
 
@@ -822,7 +950,21 @@ public class SupportAgentController {
             String statusLabel,
             boolean agentJoined,
             String assignedAgentName,
+            String closedAt,
+            String closeHistoryMessage,
+            BookingContext booking,
             List<AgentMessageResponse> messages
+    ) {
+    }
+
+    public record BookingContext(
+            Long id,
+            String bookingNumber,
+            String destination,
+            String departureDate,
+            String customerName,
+            String status,
+            String url
     ) {
     }
 
@@ -834,7 +976,10 @@ public class SupportAgentController {
             String createdAt,
             boolean edited,
             String editedAt,
-            boolean editable
+            boolean editable,
+            String detectedBookingNumber,
+            Long detectedBookingId,
+            boolean identificationRequest
     ) {
     }
 }

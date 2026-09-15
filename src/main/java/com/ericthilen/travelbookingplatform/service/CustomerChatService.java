@@ -1,6 +1,7 @@
 package com.ericthilen.travelbookingplatform.service;
 
 import com.ericthilen.travelbookingplatform.model.Booking;
+import com.ericthilen.travelbookingplatform.dto.CustomerChatIdentificationRequest;
 import com.ericthilen.travelbookingplatform.model.CustomerChatConversation;
 import com.ericthilen.travelbookingplatform.model.CustomerChatMessage;
 import com.ericthilen.travelbookingplatform.model.CustomerChatSender;
@@ -23,11 +24,27 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.LinkedHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class CustomerChatService {
 
     private static final int ARCHIVE_AFTER_MINUTES = 15;
+    private static final Pattern BOOKING_NUMBER_PATTERN =
+            Pattern.compile("\\bE?\\d{6,10}\\b", Pattern.CASE_INSENSITIVE);
+    private static final Pattern BOOKING_NUMBER_HINT_PATTERN =
+            Pattern.compile(
+                    "\\bboknings\\s*(nummer|nr)?\\b|\\bbokningsnr\\b",
+                    Pattern.CASE_INSENSITIVE
+            );
+    private static final String BOOKING_NOT_FOUND_MESSAGE =
+            "Vi kunde tyvärr inte hitta din bokning på det numret. "
+                    + "Kontrollera gärna bokningsnumret i din bokningsbekräftelse "
+                    + "eller på Mina sidor och skriv det igen. "
+                    + "Bokningsnumret står oftast högst upp i bekräftelsen.";
 
     private final CustomerChatConversationRepository conversationRepository;
     private final CustomerChatMessageRepository messageRepository;
@@ -102,14 +119,23 @@ public class CustomerChatService {
             conversation.reopen();
         }
 
-        conversation.addMessage(new CustomerChatMessage(
+        CustomerChatMessage customerMessage = new CustomerChatMessage(
                 CustomerChatSender.CUSTOMER,
                 customerName(principal),
                 cleanMessage
-        ));
+        );
+        conversation.addMessage(customerMessage);
         conversation.markCustomerStarted();
 
         conversation.updateSubject(subjectFrom(cleanMessage));
+
+        BookingChatMatch bookingChatMatch =
+                handleBookingContext(
+                        conversation,
+                        customerMessage,
+                        cleanMessage,
+                        principal
+                );
 
         if (wasClosed) {
             conversation.addMessage(new CustomerChatMessage(
@@ -124,7 +150,14 @@ public class CustomerChatService {
         realtimeService.notifyConversation(savedConversation.getPublicId());
         realtimeService.notifyDashboard();
 
-        if (!wasClosed && !savedConversation.hasAgentJoined()) {
+        if (bookingChatMatch.answered()) {
+            scheduleBookingAnswer(
+                    savedConversation.getId(),
+                    savedConversation.getPublicId(),
+                    bookingChatMatch.message(),
+                    customerServiceAuthorName(savedConversation)
+            );
+        } else if (!wasClosed && !savedConversation.hasAgentJoined()) {
             scheduleAiAnswer(
                     savedConversation.getId(),
                     savedConversation.getPublicId(),
@@ -134,6 +167,283 @@ public class CustomerChatService {
         }
 
         return savedConversation;
+    }
+
+    private BookingChatMatch handleBookingContext(
+            CustomerChatConversation conversation,
+            CustomerChatMessage customerMessage,
+            String message,
+            Principal principal
+    ) {
+        Optional<String> bookingNumber = extractBookingNumber(message);
+
+        if (bookingNumber.isPresent()) {
+            Optional<Booking> booking = findBookingByCustomerInput(
+                    bookingNumber.get()
+            );
+
+            if (booking.isPresent()) {
+                Booking matchedBooking = booking.get();
+                customerMessage.attachDetectedBooking(
+                        matchedBooking.getId(),
+                        matchedBooking.getBookingNumber()
+                );
+                linkConversationToBooking(
+                        conversation,
+                        matchedBooking,
+                        matchedBooking.getBookingNumber()
+                );
+                return new BookingChatMatch(
+                        true,
+                        confirmationQuestion(matchedBooking)
+                );
+            }
+
+            return new BookingChatMatch(
+                    true,
+                    BOOKING_NOT_FOUND_MESSAGE
+            );
+        }
+
+        if (mentionsBookingNumber(message)) {
+            return new BookingChatMatch(
+                    true,
+                    BOOKING_NOT_FOUND_MESSAGE
+            );
+        }
+
+        findLoggedInCustomerBookingFromMessage(message, principal)
+                .ifPresent(booking -> linkConversationToBooking(
+                        conversation,
+                        booking,
+                        booking.getCustomer().getEmail()
+                ));
+
+        return new BookingChatMatch(false, "");
+    }
+
+    private Optional<String> extractBookingNumber(String message) {
+        if (message == null || message.isBlank()) {
+            return Optional.empty();
+        }
+
+        Matcher matcher = BOOKING_NUMBER_PATTERN.matcher(message);
+
+        if (!matcher.find()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(matcher.group().toUpperCase(Locale.ROOT));
+    }
+
+    private boolean mentionsBookingNumber(String message) {
+        if (message == null || message.isBlank()) {
+            return false;
+        }
+
+        return BOOKING_NUMBER_HINT_PATTERN.matcher(message).find();
+    }
+
+    private Optional<Booking> findBookingByCustomerInput(
+            String bookingNumber
+    ) {
+        String cleanBookingNumber = bookingNumber == null
+                ? ""
+                : bookingNumber.trim().toUpperCase(Locale.ROOT);
+
+        if (cleanBookingNumber.isBlank()) {
+            return Optional.empty();
+        }
+
+        Optional<Booking> booking =
+                bookingRepository.findByBookingNumberIgnoreCase(
+                        cleanBookingNumber
+                );
+
+        if (booking.isPresent() || cleanBookingNumber.startsWith("E")) {
+            return booking;
+        }
+
+        return bookingRepository.findByBookingNumberIgnoreCase(
+                "E" + cleanBookingNumber
+        );
+    }
+
+    private Optional<Booking> findLoggedInCustomerBookingFromMessage(
+            String message,
+            Principal principal
+    ) {
+        String customerEmail = principal == null ? null : principal.getName();
+
+        if (customerEmail == null || customerEmail.isBlank()) {
+            return Optional.empty();
+        }
+
+        String normalizedMessage = normalize(message);
+        String messageDigits = digitsOnly(message);
+
+        return bookingsForCustomerEmail(customerEmail)
+                .stream()
+                .filter(booking -> {
+                    String phone = booking.getCustomer().getPhone();
+                    String firstName = booking.getCustomer().getFirstName();
+                    String lastName = booking.getCustomer().getLastName();
+                    String fullName = (firstName + " " + lastName)
+                            .trim();
+
+                    return (!digitsOnly(phone).isBlank()
+                            && messageDigits.contains(digitsOnly(phone)))
+                            || (!fullName.isBlank()
+                            && normalizedMessage.contains(normalize(fullName)))
+                            || (!firstName.isBlank()
+                            && !lastName.isBlank()
+                            && normalizedMessage.contains(normalize(firstName))
+                            && normalizedMessage.contains(normalize(lastName)));
+                })
+                .findFirst();
+    }
+
+    private List<Booking> bookingsForCustomerEmail(String customerEmail) {
+        LinkedHashMap<Long, Booking> bookings = new LinkedHashMap<>();
+
+        bookingRepository
+                .findAllByUserEmailIgnoreCaseOrderByBookedAtDesc(customerEmail)
+                .forEach(booking -> bookings.put(booking.getId(), booking));
+        bookingRepository
+                .findAllByCustomerUserEmailIgnoreCaseOrderByBookedAtDesc(
+                        customerEmail
+                )
+                .forEach(booking -> bookings.putIfAbsent(
+                        booking.getId(),
+                        booking
+                ));
+
+        return bookings
+                .values()
+                .stream()
+                .toList();
+    }
+
+    private void linkConversationToBooking(
+            CustomerChatConversation conversation,
+            Booking booking,
+            String registerQuery
+    ) {
+        conversation.linkBooking(
+                booking.getId(),
+                booking.getBookingNumber(),
+                bookingLabel(booking),
+                registerQuery
+        );
+    }
+
+    private String confirmationQuestion(Booking booking) {
+        return "Gäller det "
+                + booking.getDeparture().getTravel().getDestination()
+                + " med avgång "
+                + booking.getDeparture()
+                        .getDepartureDate()
+                        .format(DateTimeFormatter.ISO_LOCAL_DATE)
+                + "?";
+    }
+
+    private String bookingLabel(Booking booking) {
+        return booking.getBookingNumber()
+                + " · "
+                + booking.getDeparture().getTravel().getDestination()
+                + " · "
+                + booking.getDeparture()
+                        .getDepartureDate()
+                        .format(DateTimeFormatter.ISO_LOCAL_DATE);
+    }
+
+    private String digitsOnly(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        return value.replaceAll("\\D+", "");
+    }
+
+    private String customerServiceAuthorName(
+            CustomerChatConversation conversation
+    ) {
+        if (conversation.hasAgentJoined()) {
+            return firstName(conversation.getAssignedAgentName())
+                    + " (Kundtjänst)";
+        }
+
+        return "Kundtjänst";
+    }
+
+    private String firstName(String name) {
+        if (name == null || name.isBlank()) {
+            return "Kundtjänst";
+        }
+
+        return name.trim().split("\\s+")[0];
+    }
+
+    private void scheduleBookingAnswer(
+            Long conversationId,
+            String publicId,
+            String answer,
+            String typingName
+    ) {
+        realtimeService.typing(
+                publicId,
+                "AGENT",
+                typingName,
+                true,
+                ""
+        );
+
+        taskScheduler.schedule(
+                () -> transactionTemplate.execute(status -> {
+                    CustomerChatConversation conversation =
+                            conversationRepository
+                                    .findById(conversationId)
+                                    .orElse(null);
+
+                    if (conversation == null
+                            || conversation.getStatus() == CustomerChatStatus.CLOSED) {
+                        realtimeService.typing(
+                                publicId,
+                                "AGENT",
+                                typingName,
+                                false,
+                                ""
+                        );
+                        return null;
+                    }
+
+                    String authorName = customerServiceAuthorName(conversation);
+                    conversation.addMessage(new CustomerChatMessage(
+                            conversation.hasAgentJoined()
+                                    ? CustomerChatSender.AGENT
+                                    : CustomerChatSender.SYSTEM,
+                            authorName,
+                            answer
+                    ));
+
+                    CustomerChatConversation savedConversation =
+                            conversationRepository.save(conversation);
+                    realtimeService.typing(
+                            publicId,
+                            "AGENT",
+                            authorName,
+                            false,
+                            ""
+                    );
+                    realtimeService.notifyConversation(
+                            savedConversation.getPublicId()
+                    );
+                    realtimeService.notifyDashboard();
+
+                    return null;
+                }),
+                Instant.now().plusSeconds(4)
+        );
     }
 
     private void scheduleAiAnswer(
@@ -246,6 +556,178 @@ public class CustomerChatService {
         realtimeService.notifyDashboard();
 
         return savedConversation;
+    }
+
+    @Transactional
+    public CustomerChatConversation requestCustomerIdentification(
+            Long conversationId,
+            String agentEmail
+    ) {
+        CustomerChatConversation conversation =
+                conversationRepository
+                        .findById(conversationId)
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "Chatten kunde inte hittas."
+                        ));
+
+        if (!conversation.hasAgentJoined()) {
+            throw new IllegalStateException(
+                    "Klicka på Chatta med kund innan du identifierar kunden."
+            );
+        }
+
+        addIdentificationRequest(
+                conversation,
+                agentName(agentEmail),
+                "Fyll i uppgifterna så kan vi identifiera din bokning."
+        );
+
+        CustomerChatConversation savedConversation =
+                conversationRepository.save(conversation);
+        realtimeService.notifyConversation(savedConversation.getPublicId());
+        realtimeService.notifyDashboard();
+
+        return savedConversation;
+    }
+
+    private void addIdentificationRequest(
+            CustomerChatConversation conversation,
+            String authorName,
+            String message
+    ) {
+        CustomerChatMessage requestMessage = new CustomerChatMessage(
+                CustomerChatSender.AGENT,
+                authorName,
+                message
+        );
+        requestMessage.markAsIdentificationRequest();
+        conversation.addMessage(requestMessage);
+    }
+
+    @Transactional
+    public CustomerChatConversation identifyCustomerBooking(
+            String publicId,
+            CustomerChatIdentificationRequest request,
+            Principal principal
+    ) {
+        CustomerChatConversation conversation =
+                getConversationForCustomer(publicId, principal);
+        Optional<CustomerChatMessage> requestMessage =
+                findIdentificationRequest(conversation, request);
+
+        if (requestMessage
+                .map(CustomerChatMessage::isIdentificationSubmitted)
+                .orElse(false)) {
+            return conversation;
+        }
+
+        String bookingNumber = clean(request.getBookingNumber());
+        String customerNumber = clean(request.getCustomerNumber());
+        String firstName = clean(request.getFirstName());
+        String lastName = clean(request.getLastName());
+
+        if (bookingNumber.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Skriv bokningsnummer för att identifiera bokningen."
+            );
+        }
+
+        requestMessage.ifPresent(CustomerChatMessage::markIdentificationSubmitted);
+
+        CustomerChatMessage customerMessage = new CustomerChatMessage(
+                CustomerChatSender.CUSTOMER,
+                customerName(principal),
+                identificationSummary(
+                        customerNumber,
+                        bookingNumber,
+                        firstName,
+                        lastName
+                )
+        );
+
+        Optional<Booking> booking = findBookingByCustomerInput(bookingNumber);
+
+        if (booking.isPresent()) {
+            Booking matchedBooking = booking.get();
+            customerMessage.attachDetectedBooking(
+                    matchedBooking.getId(),
+                    matchedBooking.getBookingNumber()
+            );
+            linkConversationToBooking(
+                    conversation,
+                    matchedBooking,
+                    matchedBooking.getBookingNumber()
+            );
+        }
+
+        conversation.addMessage(customerMessage);
+
+        if (booking.isPresent()) {
+            conversation.addMessage(new CustomerChatMessage(
+                    CustomerChatSender.SYSTEM,
+                    customerServiceAuthorName(conversation),
+                    "Tack, vi hittade din bokning."
+            ));
+        } else {
+            addIdentificationRequest(
+                    conversation,
+                    customerServiceAuthorName(conversation),
+                    "Du har skrivit in fel uppgifter, vänligen prova igen. "
+                            + "Du hittar dina uppgifter på bokningsbekräftelsemejlet "
+                            + "eller på Mina sidor."
+            );
+        }
+
+        CustomerChatConversation savedConversation =
+                conversationRepository.save(conversation);
+        realtimeService.notifyConversation(savedConversation.getPublicId());
+        realtimeService.notifyDashboard();
+
+        return savedConversation;
+    }
+
+    private Optional<CustomerChatMessage> findIdentificationRequest(
+            CustomerChatConversation conversation,
+            CustomerChatIdentificationRequest request
+    ) {
+        Long requestMessageId = request.getRequestMessageId();
+
+        if (requestMessageId == null) {
+            return Optional.empty();
+        }
+
+        return conversation
+                .getMessages()
+                .stream()
+                .filter(CustomerChatMessage::isIdentificationRequest)
+                .filter(message -> requestMessageId.equals(message.getId()))
+                .findFirst();
+    }
+
+    private String identificationSummary(
+            String customerNumber,
+            String bookingNumber,
+            String firstName,
+            String lastName
+    ) {
+        String name = (firstName + " " + lastName).trim();
+
+        return "Identifieringsuppgifter skickade: "
+                + "kundnummer "
+                + valueOrDash(customerNumber)
+                + ", bokningsnummer "
+                + valueOrDash(bookingNumber)
+                + ", namn "
+                + valueOrDash(name)
+                + ".";
+    }
+
+    private String valueOrDash(String value) {
+        return value == null || value.isBlank() ? "-" : value;
+    }
+
+    private String clean(String value) {
+        return value == null ? "" : value.trim();
     }
 
     @Transactional
@@ -917,6 +1399,12 @@ public class CustomerChatService {
     private record AiAnswer(
             String message,
             boolean escalate
+    ) {
+    }
+
+    private record BookingChatMatch(
+            boolean answered,
+            String message
     ) {
     }
 

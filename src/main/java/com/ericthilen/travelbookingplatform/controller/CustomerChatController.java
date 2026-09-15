@@ -1,6 +1,7 @@
 package com.ericthilen.travelbookingplatform.controller;
 
 import com.ericthilen.travelbookingplatform.dto.CustomerChatMessageRequest;
+import com.ericthilen.travelbookingplatform.dto.CustomerChatIdentificationRequest;
 import com.ericthilen.travelbookingplatform.model.CustomerChatConversation;
 import com.ericthilen.travelbookingplatform.model.CustomerChatMessage;
 import com.ericthilen.travelbookingplatform.model.CustomerChatSender;
@@ -65,6 +66,26 @@ public class CustomerChatController {
         }
     }
 
+    @PostMapping("/{publicId}/identify")
+    public ChatResponse identify(
+            @PathVariable String publicId,
+            @Valid @RequestBody CustomerChatIdentificationRequest request,
+            Principal principal
+    ) {
+        try {
+            CustomerChatConversation conversation =
+                    customerChatService.identifyCustomerBooking(
+                            publicId,
+                            request,
+                            principal
+                    );
+
+            return toResponse(conversation);
+        } catch (IllegalArgumentException exception) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+    }
+
     @GetMapping("/{publicId}")
     public ChatResponse conversation(
             @PathVariable String publicId,
@@ -101,11 +122,15 @@ public class CustomerChatController {
             Principal principal
     ) {
         try {
-            customerChatService.getConversationForCustomer(publicId, principal);
+            CustomerChatConversation conversation =
+                    customerChatService.getConversationForCustomer(
+                            publicId,
+                            principal
+                    );
             realtimeService.typing(
                     publicId,
                     "CUSTOMER",
-                    customerName(principal),
+                    customerTypingName(conversation),
                     active,
                     preview
             );
@@ -147,13 +172,16 @@ public class CustomerChatController {
 
     private ChatMessageResponse toMessageResponse(CustomerChatMessage message) {
         return new ChatMessageResponse(
+                message.getId(),
                 message.getSender().name(),
                 message.getAuthorName(),
                 message.getMessage(),
                 message
                         .getCreatedAt()
                         .format(DateTimeFormatter.ofPattern("HH:mm")),
-                message.isEdited()
+                message.isEdited(),
+                message.isIdentificationRequest(),
+                message.isIdentificationSubmitted()
         );
     }
 
@@ -165,6 +193,18 @@ public class CustomerChatController {
         return principal.getName();
     }
 
+    private String customerTypingName(CustomerChatConversation conversation) {
+        String customerName = conversation.getCustomerName();
+
+        if (customerName == null
+                || customerName.isBlank()
+                || "Gäst".equalsIgnoreCase(customerName)) {
+            return "Anonym";
+        }
+
+        return customerName;
+    }
+
     public record ChatResponse(
             String publicId,
             String status,
@@ -174,11 +214,14 @@ public class CustomerChatController {
     }
 
     public record ChatMessageResponse(
+            Long id,
             String sender,
             String author,
             String message,
             String time,
-            boolean edited
+            boolean edited,
+            boolean identificationRequest,
+            boolean identificationSubmitted
     ) {
     }
 }

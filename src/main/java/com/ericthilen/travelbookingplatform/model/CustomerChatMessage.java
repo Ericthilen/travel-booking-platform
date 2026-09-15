@@ -41,6 +41,17 @@ public class CustomerChatMessage {
 
     private LocalDateTime editedAt;
 
+    @Column(length = 80)
+    private String detectedBookingNumber;
+
+    private Long detectedBookingId;
+
+    @Column(nullable = false)
+    private boolean identificationRequest = false;
+
+    @Column(nullable = false)
+    private boolean identificationSubmitted = false;
+
     public CustomerChatMessage() {
     }
 
@@ -84,6 +95,22 @@ public class CustomerChatMessage {
         this.editedAt = LocalDateTime.now();
     }
 
+    public void attachDetectedBooking(
+            Long bookingId,
+            String bookingNumber
+    ) {
+        this.detectedBookingId = bookingId;
+        this.detectedBookingNumber = bookingNumber;
+    }
+
+    public void markAsIdentificationRequest() {
+        this.identificationRequest = true;
+    }
+
+    public void markIdentificationSubmitted() {
+        this.identificationSubmitted = true;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -94,5 +121,26 @@ public class CustomerChatMessage {
 
     public boolean isEdited() {
         return editedAt != null;
+    }
+
+    public String getDetectedBookingNumber() {
+        return detectedBookingNumber;
+    }
+
+    public Long getDetectedBookingId() {
+        return detectedBookingId;
+    }
+
+    public boolean hasDetectedBooking() {
+        return detectedBookingNumber != null
+                && !detectedBookingNumber.isBlank();
+    }
+
+    public boolean isIdentificationRequest() {
+        return identificationRequest;
+    }
+
+    public boolean isIdentificationSubmitted() {
+        return identificationSubmitted;
     }
 }
